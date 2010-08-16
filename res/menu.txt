@@ -1,0 +1,5 @@
+name=Tick-Tack-Toe
+appclassname=com.difane.games.ticktacktoe.Main
+type=APP
+sound=
+icon=

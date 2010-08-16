@@ -1,0 +1,1 @@
+CONFIG_DATA=Hello world!
