@@ -19,12 +19,13 @@ import com.livescribe.event.PenTipListener;
  */
 public class Main extends Penlet implements StrokeListener, HWRListener, MenuEventListener, PenTipListener {
     
-    // Configuration key for the Display Label 
+    // Configuration key for example configuration reading 
     private static final String configKey = "CONFIG_DATA";
+    private String configData;
+    
     
     private Display display;
-    private ScrollLabel label;
-    private String configData;
+    private ScrollLabel label;    
     private ICRContext icrContext;
 
     public Main() {   
@@ -37,17 +38,6 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
         this.logger.info("Penlet Main initialized.");
         this.display = this.context.getDisplay();
         this.label = new ScrollLabel();
-
-        // Obtain the label from the configuration file
-       Config config = this.context.getAppConfiguration();
-       try {
-           this.configData = config.getStringValue(configKey);
-           this.logger.info("Configuration value = " + this.configData);
-       }
-       catch (Exception e) {
-           this.configData = "ERROR";
-           this.logger.info("Failed to obtain value for " + configKey + " in config.txt");
-       }
     }
     
     /**
@@ -57,8 +47,6 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
         this.logger.info("Penlet Main activated.");
         if (reason == Penlet.ACTIVATED_BY_MENU) {
             this.label.draw(context.getResourceBundle().getTextResource("helloWorld.text").getText(), true);
-            this.display.setCurrent(this.label);
-            this.label.draw(configKey + " = " + this.configData, true);
             this.display.setCurrent(this.label);
         }
         this.context.addStrokeListener(this);
@@ -166,5 +154,19 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
 
 	public void doubleTap(long time, int x, int y) {
 	
-	}                 
+	}
+	
+	private void exampleConfigurationReading() {
+		// Obtain the label from the configuration file
+		Config config = this.context.getAppConfiguration();
+		try {
+			this.configData = config.getStringValue(configKey);
+			this.logger.info("Configuration value = " + this.configData);
+			this.label.draw(configKey + " = " + this.configData, true);
+		} catch (Exception e) {
+			this.configData = "ERROR";
+			this.logger.info("Failed to obtain value for " + configKey
+					+ " in config.txt");
+		}
+	}
 }
