@@ -19,14 +19,26 @@ import com.livescribe.event.PenTipListener;
  */
 public class Main extends Penlet implements StrokeListener, HWRListener, MenuEventListener, PenTipListener {
     
+	/**
+	 * Context for an ICR
+	 */
+	private ICRContext icrContext;
+	
+	/**
+	 * Display, which will show information to the user
+	 */
+	private Display display;
+	
+	/**
+	 * Main scroll label, used to display informational text to the user
+	 */
+	private ScrollLabel label;
+	
+	
+	
     // Configuration key for example configuration reading 
     private static final String configKey = "CONFIG_DATA";
     private String configData;
-    
-    
-    private Display display;
-    private ScrollLabel label;    
-    private ICRContext icrContext;
 
     public Main() {   
     }
@@ -35,7 +47,7 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
      * Invoked when the application is initialized.  This happens once for an application instance.
      */
     public void initApp() {
-        this.logger.info("Penlet Main initialized.");
+        this.logger.info("Initializing penlet");
         this.display = this.context.getDisplay();
         this.label = new ScrollLabel();
     }
@@ -55,21 +67,7 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
         this.label.draw(this.context.getResourceBundle().getTextResource("icr.instruction.text"), true);
         this.display.setCurrent(this.label);
         
-        // Configure the ICR context
-        try {
-            this.icrContext = this.context.getICRContext(1000, this);
-            Resource[] resources = {
-                this.icrContext.getDefaultAlphabetKnowledgeResource(),
-                this.icrContext.createAppResource("/icr/LEX_smartpen-ticktacktoe.res"),
-                this.icrContext.createAppResource("/icr/SK_smartpen-ticktacktoe.res")                                                                      
-            };
-            this.icrContext.addResourceSet(resources);            
-        } catch (Exception e) {
-            String msg = "Error initializing handwriting recognition resources: " + e.getMessage();
-            this.logger.error(msg);
-            this.label.draw(msg, true);
-            this.display.setCurrent(this.label);
-        }
+        
 		context.addPenTipListener(this);
     }
     
@@ -78,10 +76,8 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
      */
     public void deactivateApp(int reason) {
         this.logger.info("Penlet Main deactivated.");
-        this.context.removeStrokeListener(this);
-        icrContext.dispose();
-        icrContext = null;
-		context.removePenTipListener(this);            
+        this.context.removeStrokeListener(this);        
+		context.removePenTipListener(this);
     }
     
     /**
@@ -154,6 +150,37 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
 
 	public void doubleTap(long time, int x, int y) {
 	
+	}
+	
+	/**
+	 * Initializes ICR context for an application
+	 */
+	private void initializeICRContext()
+	{
+		this.logger.info("Initializing OCR context");
+				
+        try {
+            this.icrContext = this.context.getICRContext(1000, this);
+            Resource[] resources = {
+                this.icrContext.getDefaultAlphabetKnowledgeResource(),
+                this.icrContext.createAppResource("/icr/LEX_smartpen-ticktacktoe.res"),
+                this.icrContext.createAppResource("/icr/SK_smartpen-ticktacktoe.res")                                                                      
+            };
+            this.icrContext.addResourceSet(resources);            
+        } catch (Exception e) {
+            String msg = "Error initializing handwriting recognition resources: " + e.getMessage();
+            this.logger.error(msg);
+            this.label.draw(msg, true);
+            this.display.setCurrent(this.label);
+        }
+	}
+	
+	/**
+	 * Destroys ICR context
+	 */
+	private void destroyICRContext() {
+		icrContext.dispose();
+		icrContext = null;
 	}
 	
 	private void exampleConfigurationReading() {
