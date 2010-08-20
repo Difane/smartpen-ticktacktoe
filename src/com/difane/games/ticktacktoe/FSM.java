@@ -1,5 +1,7 @@
 package com.difane.games.ticktacktoe;
 
+import com.livescribe.display.BrowseList;
+
 public class FSM {
 
 	// Available states
@@ -27,15 +29,18 @@ public class FSM {
 	static public final int FSM_STATE_GAME_END_HUMAN_WINS = 20;
 	static public final int FSM_STATE_GAME_END_PEN_WINS = 21;
 	static public final int FSM_STATE_END = 22;
-	
+
 	private BasePenlet penlet;
-	
+
+	private int currentState = FSM_STATE_UNDEFINED;
+
 	/**
 	 * Constructor
 	 */
 	public FSM(BasePenlet p) {
 		this.penlet = p;
 		penlet.logger.debug("[FSM] Constructed");
+		this.currentState = FSM_STATE_START;
 	}
 
 	/**
@@ -44,6 +49,8 @@ public class FSM {
 	 */
 	public void eventStartApplication() {
 		penlet.logger.debug("[FSM] eventStartApplication received");
+
+		transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
 	}
 
 	/**
@@ -51,7 +58,27 @@ public class FSM {
 	 */
 	public boolean eventMenuDown() {
 		penlet.logger.debug("[FSM] eventMenuDown received");
-		return false;
+		switch (currentState) {
+		case FSM_STATE_MAIN_MENU_START_GAME:
+			transition(currentState, FSM_STATE_MAIN_MENU_HELP);
+			break;
+		case FSM_STATE_MAIN_MENU_HELP:
+			transition(currentState, FSM_STATE_MAIN_MENU_ABOUT);
+			break;
+		case FSM_STATE_HELP_MENU_RULES:
+			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD);
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
+			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY);
+			break;
+		case FSM_STATE_LEVEL_MENU_EASY:
+			transition(currentState, FSM_STATE_LEVEL_MENU_HARD);
+			break;
+		default:
+		}
+
+		// Menu down are always handled
+		return true;
 	}
 
 	/**
@@ -59,8 +86,27 @@ public class FSM {
 	 */
 	public boolean eventMenuUp() {
 		penlet.logger.debug("[FSM] eventMenuUp received");
-		return false;
+		switch (currentState) {
+		case FSM_STATE_MAIN_MENU_HELP:
+			transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
+			break;
+		case FSM_STATE_MAIN_MENU_ABOUT:
+			transition(currentState, FSM_STATE_MAIN_MENU_HELP);
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
+			transition(currentState, FSM_STATE_HELP_MENU_RULES);
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
+			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD);
+			break;
+		case FSM_STATE_LEVEL_MENU_HARD:
+			transition(currentState, FSM_STATE_LEVEL_MENU_EASY);
+			break;
+		default:
+		}
 
+		// Menu up are always handled
+		return true;
 	}
 
 	/**
@@ -68,7 +114,43 @@ public class FSM {
 	 */
 	public boolean eventMenuLeft() {
 		penlet.logger.debug("[FSM] eventMenuLeft received");
-		return false;
+
+		boolean result = false;
+
+		switch (currentState) {
+		case FSM_STATE_LEVEL_MENU_EASY:
+		case FSM_STATE_LEVEL_MENU_HARD:
+			transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
+			result = true;
+			break;
+		case FSM_STATE_HELP_MENU_RULES:
+		case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
+		case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
+			transition(currentState, FSM_STATE_MAIN_MENU_HELP);
+			result = true;
+			break;
+		case FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED:
+			transition(currentState, FSM_STATE_MAIN_MENU_ABOUT);
+			result = true;
+			break;
+
+		case FSM_STATE_HELP_MENU_RULES_DISPLAYED:
+			transition(currentState, FSM_STATE_HELP_MENU_RULES);
+			result = true;
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED:
+			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD);
+			result = true;
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED:
+			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY);
+			result = true;
+			break;
+		default:
+			result = false;
+		}
+
+		return result;
 	}
 
 	/**
@@ -76,7 +158,32 @@ public class FSM {
 	 */
 	public boolean eventMenuRight() {
 		penlet.logger.debug("[FSM] eventMenuRight received");
-		return false;
+
+		switch (currentState) {
+		case FSM_STATE_MAIN_MENU_START_GAME:
+			transition(currentState, FSM_STATE_LEVEL_MENU_EASY);
+			break;
+		case FSM_STATE_MAIN_MENU_HELP:
+			transition(currentState, FSM_STATE_HELP_MENU_RULES);
+			break;
+		case FSM_STATE_MAIN_MENU_ABOUT:
+			transition(currentState, FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED);
+			break;
+		case FSM_STATE_HELP_MENU_RULES:
+			transition(currentState, FSM_STATE_HELP_MENU_RULES_DISPLAYED);
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
+			transition(currentState,
+					FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED);
+			break;
+		case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
+			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED);
+			break;
+		default:
+		}
+
+		// Menu right are always handled
+		return true;
 	}
 
 	/**
@@ -156,5 +263,117 @@ public class FSM {
 	 */
 	public void eventEndApplication() {
 		penlet.logger.debug("[FSM] eventEndApplication received");
+	}
+
+	/**
+	 * Activates menu item by it's index, if this item is not active
+	 * 
+	 * @param menu
+	 *            Menu to activate item in
+	 * @param newIndex
+	 *            New index of the activated item
+	 */
+	private void selectMenuItemIfNotSelected(BrowseList menu, int newIndex) {
+		if (menu.getFocusIndex() != newIndex) {
+			menu.setFocusItem(newIndex);
+		}
+	}
+
+	private void transition(int currentState, int transitionState) {
+		penlet.logger.debug("[FSM] transition started ( " + currentState
+				+ " -> " + transitionState + " )");
+
+		try {
+			switch (transitionState) {
+			case FSM_STATE_MAIN_MENU_START_GAME:
+				if (currentState == FSM_STATE_START
+						|| currentState == FSM_STATE_LEVEL_MENU_EASY
+						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
+					// Select "Help" in the main menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuMain, 0);
+
+					// Main menu must be displayed
+					displayMainMenu();
+					this.penlet.logger
+							.debug("[FSM] Main menu was displayed with active item 0");
+
+				} else if (currentState == FSM_STATE_MAIN_MENU_HELP) {
+					// Main menu must be focused to the previous item
+					this.penlet.menuMain.focusToPrevious();
+					this.penlet.logger
+							.debug("[FSM] Main menu item 0 was activated");
+				}
+				break;
+			case FSM_STATE_MAIN_MENU_HELP:
+				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
+					// Main menu must be focused to the next item
+					this.penlet.menuMain.focusToNext();
+					this.penlet.logger
+							.debug("[FSM] Main menu item 1 was activated");
+				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
+					// Main menu must be focused to the previous item
+					this.penlet.menuMain.focusToPrevious();
+					this.penlet.logger
+							.debug("[FSM] Main menu item 1 was activated");
+				} else if (currentState == FSM_STATE_HELP_MENU_RULES
+						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD
+						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
+					// Select "Help" in the main menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuMain, 1);
+
+					// Main menu must be displayed
+					displayMainMenu();
+					this.penlet.logger
+							.debug("[FSM] Main menu was displayed with active item 1");
+				}
+				break;
+			case FSM_STATE_MAIN_MENU_ABOUT:
+				if (currentState == FSM_STATE_MAIN_MENU_HELP) {
+					// Main menu must be focused to the next item
+					this.penlet.menuMain.focusToNext();
+					this.penlet.logger
+							.debug("[FSM] Main menu item 2 was activated");
+				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED) {
+					// Select "About" in the main menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuMain, 2);
+
+					// Main menu must be displayed
+					displayMainMenu();
+					this.penlet.logger
+							.debug("[FSM] Main menu was displayed with active item 2");
+				}
+				break;
+			case FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED:
+				if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
+					displayAbout();
+					this.penlet.logger.debug("[FSM] About was displayed");
+				}
+				break;
+			default:
+				// Unrecognized target state. Rejecting it
+				penlet.logger.warn("[FSM] Unrecognized target state: "
+						+ transitionState);
+				return;
+			} // switch (transitionState)
+
+			this.currentState = transitionState;
+		} catch (Exception e) {
+			penlet.logger.error("[FSM] Exception appears: " + e);
+		}
+	}
+
+	/**
+	 * Displayed main menu on the display
+	 */
+	private void displayMainMenu() {
+		this.penlet.display.setCurrent(this.penlet.menuMain);
+	}
+
+	/**
+	 * Displayed about on the display
+	 */
+	private void displayAbout() {
+		this.penlet.label.draw("This is example about string");
+		this.penlet.display.setCurrent(this.penlet.label);
 	}
 }
