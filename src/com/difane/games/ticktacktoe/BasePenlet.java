@@ -1,7 +1,10 @@
 package com.difane.games.ticktacktoe;
 
+import java.util.Vector;
+
 import com.livescribe.afp.PageInstance;
 import com.livescribe.configuration.Config;
+import com.livescribe.display.BrowseList;
 import com.livescribe.display.Display;
 import com.livescribe.event.HWRListener;
 import com.livescribe.event.MenuEvent;
@@ -21,20 +24,28 @@ public class BasePenlet extends Penlet implements StrokeListener, HWRListener, M
 	/**
 	 * Context for an ICR
 	 */
-	private ICRContext icrContext;
+	protected ICRContext icrContext;
 	
 	/**
 	 * Display, which will show information to the user
 	 */
-	private Display display;
+	protected Display display;
 	
 	/**
 	 * Main scroll label, used to display informational text to the user
 	 */
-	private ScrollLabel label;
+	protected ScrollLabel label;
 	
 	
-	private FSM fsm;
+	protected FSM fsm;
+	
+	// Application menus
+	protected Vector		menuMainItems;
+	protected BrowseList	menuMain;
+	protected Vector		menuHelpItems;
+	protected BrowseList	menuHelp;
+	protected Vector		menuLevelSelectItems;
+	protected BrowseList	menuLevelSelect;
 	
 	
     // Configuration key for example configuration reading 
@@ -49,20 +60,45 @@ public class BasePenlet extends Penlet implements StrokeListener, HWRListener, M
      */
     public void initApp() {
         this.logger.info("[PENLET] Initializing penlet");
+        
+        // Initializing display elements
         this.display = this.context.getDisplay();
         this.label = new ScrollLabel();
+        
+        // Initializing FSM
         this.fsm = new FSM(this);
+        
+        // Initializing menus
+        this.menuMainItems = new Vector();
+		this.menuMainItems.addElement("Start game");
+		this.menuMainItems.addElement("Help");
+		this.menuMainItems.addElement("About");
+		this.menuMain = new BrowseList(this.menuMainItems);
+		
+		this.menuHelpItems = new Vector();
+		this.menuHelpItems.addElement("Rules");
+		this.menuHelpItems.addElement("How to draw game board");
+		this.menuHelpItems.addElement("How to play the game");
+		this.menuHelp = new BrowseList(this.menuHelpItems);
+		
+		this.menuLevelSelectItems = new Vector();
+		this.menuLevelSelectItems.addElement("Easy");
+		this.menuLevelSelectItems.addElement("Hard");
+		this.menuLevelSelect = new BrowseList(this.menuLevelSelectItems);
+		
+		this.logger.info("[PENLET] Penlet was successfully initialized");
     }
     
     /**
      * Invoked each time the penlet is activated.  Only one penlet is active at any given time.
      */
     public void activateApp(int reason, Object[] args) {
-        this.logger.info("[PENLET] Penlet Main activated.");
-        /*if (reason == Penlet.ACTIVATED_BY_MENU) {
-            this.label.draw(context.getResourceBundle().getTextResource("helloWorld.text").getText(), true);
-            this.display.setCurrent(this.label);
+        this.logger.info("[PENLET] Penlet Main activated (reason: "+reason+")");
+        
+        if (reason == Penlet.ACTIVATED_BY_MENU) {
+            this.fsm.eventStartApplication();
         }
+        /*
         this.context.addStrokeListener(this);
 
         // Prompt the user for text entry
@@ -135,7 +171,30 @@ public class BasePenlet extends Penlet implements StrokeListener, HWRListener, M
     }
 
 	public boolean handleMenuEvent(MenuEvent menuEvent) {
-		return true;
+		int eventId = menuEvent.getId();
+		this.logger.info("[PENLET] Menu event received (id = "+eventId+")");
+		
+		boolean result = false;
+		
+		switch (eventId) {
+		case MenuEvent.MENU_LEFT:
+			result = this.fsm.eventMenuLeft();
+			break;
+		case MenuEvent.MENU_RIGHT:
+			result = this.fsm.eventMenuRight();
+			break;
+		case MenuEvent.MENU_UP:
+			result = this.fsm.eventMenuUp();
+			break;
+		case MenuEvent.MENU_DOWN:
+			result = this.fsm.eventMenuDown();
+			break;
+
+		default:
+			break;
+		}
+		
+		return result;
 	}
 
 	public void penUp(long time, Region region, PageInstance page) {
