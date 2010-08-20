@@ -1,23 +1,22 @@
 package com.difane.games.ticktacktoe;
 
-import com.livescribe.penlet.Penlet;
-import com.livescribe.display.Display;
-import com.livescribe.ui.ScrollLabel;
-import com.livescribe.configuration.Config;
-import com.livescribe.event.StrokeListener;
-import com.livescribe.penlet.Region;
-import com.livescribe.event.HWRListener;
-import com.livescribe.icr.ICRContext;
-import com.livescribe.icr.Language;
-import com.livescribe.icr.Resource;
-import com.livescribe.event.MenuEventListener;
-import com.livescribe.event.MenuEvent;
 import com.livescribe.afp.PageInstance;
+import com.livescribe.configuration.Config;
+import com.livescribe.display.Display;
+import com.livescribe.event.HWRListener;
+import com.livescribe.event.MenuEvent;
+import com.livescribe.event.MenuEventListener;
 import com.livescribe.event.PenTipListener;
+import com.livescribe.event.StrokeListener;
+import com.livescribe.icr.ICRContext;
+import com.livescribe.icr.Resource;
+import com.livescribe.penlet.Penlet;
+import com.livescribe.penlet.Region;
+import com.livescribe.ui.ScrollLabel;
 /**
  * This Penlet displays "Hello World!" as text when activated by menu.
  */
-public class Main extends Penlet implements StrokeListener, HWRListener, MenuEventListener, PenTipListener {
+public class BasePenlet extends Penlet implements StrokeListener, HWRListener, MenuEventListener, PenTipListener {
     
 	/**
 	 * Context for an ICR
@@ -35,29 +34,32 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
 	private ScrollLabel label;
 	
 	
+	private FSM fsm;
+	
 	
     // Configuration key for example configuration reading 
     private static final String configKey = "CONFIG_DATA";
     private String configData;
 
-    public Main() {   
+    public BasePenlet() {   
     }
 
     /**
      * Invoked when the application is initialized.  This happens once for an application instance.
      */
     public void initApp() {
-        this.logger.info("Initializing penlet");
+        this.logger.info("[PENLET] Initializing penlet");
         this.display = this.context.getDisplay();
         this.label = new ScrollLabel();
+        this.fsm = new FSM(this);
     }
     
     /**
      * Invoked each time the penlet is activated.  Only one penlet is active at any given time.
      */
     public void activateApp(int reason, Object[] args) {
-        this.logger.info("Penlet Main activated.");
-        if (reason == Penlet.ACTIVATED_BY_MENU) {
+        this.logger.info("[PENLET] Penlet Main activated.");
+        /*if (reason == Penlet.ACTIVATED_BY_MENU) {
             this.label.draw(context.getResourceBundle().getTextResource("helloWorld.text").getText(), true);
             this.display.setCurrent(this.label);
         }
@@ -68,16 +70,16 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
         this.display.setCurrent(this.label);
         
         
-		context.addPenTipListener(this);
+		context.addPenTipListener(this);*/
     }
     
     /**
      * Invoked when the application is deactivated.
      */
     public void deactivateApp(int reason) {
-        this.logger.info("Penlet Main deactivated.");
-        this.context.removeStrokeListener(this);        
-		context.removePenTipListener(this);
+        this.logger.info("[PENLET] Penlet Main deactivated.");
+        //this.context.removeStrokeListener(this);        
+		//context.removePenTipListener(this);
     }
     
     /**
@@ -85,7 +87,7 @@ public class Main extends Penlet implements StrokeListener, HWRListener, MenuEve
      * No other methods will be invoked on the instance after destroyApp is called.
      */
     public void destroyApp() {
-        this.logger.info("Penlet Main destroyed.");
+        this.logger.info("[PENLET] Penlet Main destroyed.");
     }
 
 
