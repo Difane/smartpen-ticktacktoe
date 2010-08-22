@@ -349,6 +349,80 @@ public class FSM {
 					this.penlet.logger.debug("[FSM] About was displayed");
 				}
 				break;
+			case FSM_STATE_LEVEL_MENU_EASY:
+				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
+					// Select "Easy" in the level select menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuLevelSelect, 0);
+
+					// Level select menu must be displayed
+					displayLevelSelectMenu();
+					this.penlet.logger
+							.debug("[FSM] Level select menu was displayed");
+				} else if (currentState == FSM_STATE_LEVEL_MENU_HARD) {
+					// Main menu must be focused to the next item
+					this.penlet.menuLevelSelect.focusToPrevious();
+					this.penlet.logger
+							.debug("[FSM] Level select menu item 0 was activated");
+				}
+				break;
+			case FSM_STATE_LEVEL_MENU_HARD:
+				if (currentState == FSM_STATE_LEVEL_MENU_EASY) {
+					this.penlet.menuLevelSelect.focusToNext();
+					this.penlet.logger
+							.debug("[FSM] Level select menu item 1 was activated");
+				}
+				break;
+			case FSM_STATE_HELP_MENU_RULES:
+				if (currentState == FSM_STATE_MAIN_MENU_HELP
+						|| currentState == FSM_STATE_HELP_MENU_RULES_DISPLAYED) {
+					// Select "Rules" in the help menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuHelp, 0);
+
+					// Level select menu must be displayed
+					displayHelpMenu();
+					this.penlet.logger.debug("[FSM] Help menu was displayed");
+				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
+					// Help menu must be focused to the previous item
+					this.penlet.menuHelp.focusToPrevious();
+					this.penlet.logger
+							.debug("[FSM] Help menu item 0 was activated");
+				}
+				break;
+			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
+				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED) {
+					// Select "How to draw board" in the help menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuHelp, 1);
+
+					// Level select menu must be displayed
+					displayHelpMenu();
+					this.penlet.logger.debug("[FSM] Help menu was displayed");
+				} else if (currentState == FSM_STATE_HELP_MENU_RULES) {
+					// Help menu must be focused to the next item
+					this.penlet.menuHelp.focusToNext();
+					this.penlet.logger
+							.debug("[FSM] Help menu item 1 was activated");
+				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
+					// Help menu must be focused to the next item
+					this.penlet.menuHelp.focusToPrevious();
+					this.penlet.logger
+							.debug("[FSM] Help menu item 1 was activated");
+				}
+				break;
+			case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
+				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED) {
+					// Select "How to play" in the help menu, if not selected
+					selectMenuItemIfNotSelected(this.penlet.menuHelp, 2);
+
+					// Level select menu must be displayed
+					displayHelpMenu();
+					this.penlet.logger.debug("[FSM] Help menu was displayed");
+				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
+					// Help menu must be focused to the next item
+					this.penlet.menuHelp.focusToNext();
+					this.penlet.logger
+							.debug("[FSM] Help menu item 2 was activated");
+				}
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
@@ -367,6 +441,20 @@ public class FSM {
 	 */
 	private void displayMainMenu() {
 		this.penlet.display.setCurrent(this.penlet.menuMain);
+	}
+
+	/**
+	 * Displayed level select menu on the display
+	 */
+	private void displayLevelSelectMenu() {
+		this.penlet.display.setCurrent(this.penlet.menuLevelSelect);
+	}
+
+	/**
+	 * Displayed help menu on the display
+	 */
+	private void displayHelpMenu() {
+		this.penlet.display.setCurrent(this.penlet.menuHelp);
 	}
 
 	/**
