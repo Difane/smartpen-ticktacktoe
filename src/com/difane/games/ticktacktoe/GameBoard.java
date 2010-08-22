@@ -70,7 +70,7 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException();
+			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		this.firstVerticalLine = firstVerticalLine;
@@ -162,7 +162,7 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException();
+			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		int minLength = (this.firstVerticalLineLength * 2) / 3;
@@ -257,7 +257,7 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException();
+			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		int minLength = (this.firstVerticalLineLength * 2) / 3;
@@ -378,7 +378,7 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 		
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException();
+			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		int minLength = (this.firstHorizontalLineLength * 2) / 3;
