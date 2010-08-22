@@ -2,6 +2,8 @@ package com.difane.games.ticktacktoe;
 
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsException;
 import com.livescribe.afp.PageInstance;
 import com.livescribe.display.BrowseList;
 import com.livescribe.event.StrokeListener;
@@ -580,6 +582,7 @@ public class FSM implements StrokeListener {
 				board.setFirstVerticalLine(line);
 				this.penlet.logger
 						.debug("[FSM] First vertical line was successfully created");
+				this.eventFirstVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
 				// TODO Auto-generated catch block
 				this.penlet.logger.error("GameBoardLinePointsCountException");
@@ -589,9 +592,35 @@ public class FSM implements StrokeListener {
 				this.penlet.logger.error("GameBoardLineLengthException");
 				displayErrorDrawFirstVerticalLine();
 			}
-
+		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
+			try {
+				this.penlet.logger
+						.debug("[FSM] Trying to use this line as second vertical line");
+				board.setSecondVerticalLine(line);
+				this.penlet.logger
+						.debug("[FSM] Second vertical line was successfully created");
+				this.eventSecondVerticalLineReady();
+			} catch (GameBoardLinePointsCountException e) {
+				// TODO Auto-generated catch block
+				displayErrorDrawSecondVerticalLine();
+			} catch (GameBoardLineRequirementsException e) {
+				// TODO Auto-generated catch block
+				displayErrorDrawSecondVerticalLine();
+			} catch (GameBoardLineLengthException e) {
+				// TODO Auto-generated catch block
+				displayErrorDrawSecondVerticalLine();
+			} catch (GameBoardLinePositionException e) {
+				// TODO Auto-generated catch block
+				displayErrorDrawSecondVerticalLine();
+			}
 		}
 
+	}
+
+	private void displayErrorDrawSecondVerticalLine() {
+		displayMessage(
+				"Second vertical line is invalid. Please try again or read game help.",
+				true);		
 	}
 
 	private void displayErrorDrawFirstVerticalLine() {
