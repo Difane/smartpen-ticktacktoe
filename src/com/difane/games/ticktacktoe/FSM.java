@@ -1,8 +1,11 @@
 package com.difane.games.ticktacktoe;
 
+import com.livescribe.afp.PageInstance;
 import com.livescribe.display.BrowseList;
+import com.livescribe.event.StrokeListener;
+import com.livescribe.penlet.Region;
 
-public class FSM {
+public class FSM implements StrokeListener {
 
 	// Available states
 	static public final int FSM_STATE_UNDEFINED = -1;
@@ -178,6 +181,16 @@ public class FSM {
 			break;
 		case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
 			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED);
+			break;
+		case FSM_STATE_LEVEL_MENU_EASY:
+			// TODO Here easy game level must be set inside GameLogic class,
+			// when it will be ready
+			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
+			break;
+		case FSM_STATE_LEVEL_MENU_HARD:
+			// TODO Here easy game level must be set inside GameLogic class,
+			// when it will be ready
+			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		default:
 		}
@@ -390,7 +403,8 @@ public class FSM {
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED) {
-					// Select "How to draw board" in the help menu, if not selected
+					// Select "How to draw board" in the help menu, if not
+					// selected
 					selectMenuItemIfNotSelected(this.penlet.menuHelp, 1);
 
 					// Level select menu must be displayed
@@ -432,7 +446,8 @@ public class FSM {
 			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
 					displayHowToDrawBoard();
-					this.penlet.logger.debug("[FSM] How to draw board was displayed");
+					this.penlet.logger
+							.debug("[FSM] How to draw board was displayed");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED:
@@ -475,7 +490,7 @@ public class FSM {
 	 */
 	private void displayRules() {
 		this.penlet.label.draw("This is example RULES string");
-		this.penlet.display.setCurrent(this.penlet.label);		
+		this.penlet.display.setCurrent(this.penlet.label);
 	}
 
 	/**
@@ -485,7 +500,7 @@ public class FSM {
 		this.penlet.label.draw("This is example about string");
 		this.penlet.display.setCurrent(this.penlet.label);
 	}
-	
+
 	/**
 	 * Displayed main menu on the display
 	 */
@@ -505,5 +520,11 @@ public class FSM {
 	 */
 	private void displayHelpMenu() {
 		this.penlet.display.setCurrent(this.penlet.menuHelp);
+	}
+
+	public void strokeCreated(long time, Region region,
+			PageInstance pageInstance) {
+		// TODO Auto-generated method stub
+
 	}
 }

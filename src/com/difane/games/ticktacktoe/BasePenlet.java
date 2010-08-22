@@ -19,7 +19,7 @@ import com.livescribe.ui.ScrollLabel;
 /**
  * This Penlet displays "Hello World!" as text when activated by menu.
  */
-public class BasePenlet extends Penlet implements StrokeListener, HWRListener, MenuEventListener, PenTipListener {
+public class BasePenlet extends Penlet implements HWRListener, MenuEventListener, PenTipListener {
     
 	/**
 	 * Context for an ICR
@@ -96,6 +96,7 @@ public class BasePenlet extends Penlet implements StrokeListener, HWRListener, M
         this.logger.info("[PENLET] Penlet Main activated (reason: "+reason+")");
         
         if (reason == Penlet.ACTIVATED_BY_MENU) {
+        	this.context.addStrokeListener(this.fsm);
             this.fsm.eventStartApplication();
         }
         /*
@@ -128,14 +129,6 @@ public class BasePenlet extends Penlet implements StrokeListener, HWRListener, M
 
 
                  
-    /**
-     * Called when a new stroke is created on the pen. 
-     * The stroke information is added to the ICRContext
-     */
-    public void strokeCreated(long time, Region regionId, PageInstance page) {
-        this.icrContext.addStroke(page, time);
-    }
-    
     /**
      * When the user pauses (pause time specified by the wizard),
      * all strokes in the ICRContext are cleared
