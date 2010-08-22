@@ -423,6 +423,24 @@ public class FSM {
 							.debug("[FSM] Help menu item 2 was activated");
 				}
 				break;
+			case FSM_STATE_HELP_MENU_RULES_DISPLAYED:
+				if (currentState == FSM_STATE_HELP_MENU_RULES) {
+					displayRules();
+					this.penlet.logger.debug("[FSM] Rules was displayed");
+				}
+				break;
+			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED:
+				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
+					displayHowToDrawBoard();
+					this.penlet.logger.debug("[FSM] How to draw board was displayed");
+				}
+				break;
+			case FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED:
+				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
+					displayHowToPlay();
+					this.penlet.logger.debug("[FSM] How to play was displayed");
+				}
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
@@ -436,6 +454,38 @@ public class FSM {
 		}
 	}
 
+	/**
+	 * Displayed How to play on the display
+	 */
+	private void displayHowToPlay() {
+		this.penlet.label.draw("This is example HOW TO PLAY string");
+		this.penlet.display.setCurrent(this.penlet.label);
+	}
+
+	/**
+	 * Displayed How to draw board on the display
+	 */
+	private void displayHowToDrawBoard() {
+		this.penlet.label.draw("This is example HOW TO DRAW BOARD string");
+		this.penlet.display.setCurrent(this.penlet.label);
+	}
+
+	/**
+	 * Displayed Rules on the display
+	 */
+	private void displayRules() {
+		this.penlet.label.draw("This is example RULES string");
+		this.penlet.display.setCurrent(this.penlet.label);		
+	}
+
+	/**
+	 * Displayed about on the display
+	 */
+	private void displayAbout() {
+		this.penlet.label.draw("This is example about string");
+		this.penlet.display.setCurrent(this.penlet.label);
+	}
+	
 	/**
 	 * Displayed main menu on the display
 	 */
@@ -455,13 +505,5 @@ public class FSM {
 	 */
 	private void displayHelpMenu() {
 		this.penlet.display.setCurrent(this.penlet.menuHelp);
-	}
-
-	/**
-	 * Displayed about on the display
-	 */
-	private void displayAbout() {
-		this.penlet.label.draw("This is example about string");
-		this.penlet.display.setCurrent(this.penlet.label);
 	}
 }
