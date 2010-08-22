@@ -8,7 +8,6 @@ import com.livescribe.afp.PageInstance;
 import com.livescribe.display.BrowseList;
 import com.livescribe.event.StrokeListener;
 import com.livescribe.geom.PolyLine;
-import com.livescribe.geom.Polygon;
 import com.livescribe.geom.Stroke;
 import com.livescribe.penlet.Region;
 import com.livescribe.storage.StrokeStorage;
@@ -216,6 +215,9 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventFirstVerticalLineReady() {
 		penlet.logger.debug("[FSM] eventFirstVerticalLineReady received");
+		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
+			transition(currentState, FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE);
+		}
 	}
 
 	/**
@@ -223,6 +225,9 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventSecondVerticalLineReady() {
 		penlet.logger.debug("[FSM] eventSecondVerticalLineReady received");
+		if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
+			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE);
+		}
 	}
 
 	/**
@@ -476,6 +481,13 @@ public class FSM implements StrokeListener {
 							.debug("[FSM] Draw first vertical line was displayed");
 				}
 				break;
+			case FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE:
+				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
+					displayDrawSecondVerticalLine();
+					this.penlet.logger
+							.debug("[FSM] Draw second vertical line was displayed");
+				}
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
@@ -494,6 +506,13 @@ public class FSM implements StrokeListener {
 	 */
 	private void displayDrawFirstVerticalLine() {
 		displayMessage("Draw first vertical line", true);
+	}
+	
+	/**
+	 * Displayed Draw second vertical line on the display
+	 */
+	private void displayDrawSecondVerticalLine() {
+		displayMessage("Draw second vertical line", true);
 	}
 
 	/**
@@ -589,7 +608,7 @@ public class FSM implements StrokeListener {
 				displayErrorDrawFirstVerticalLine();
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLineLengthException");
+				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
 				displayErrorDrawFirstVerticalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
@@ -602,15 +621,19 @@ public class FSM implements StrokeListener {
 				this.eventSecondVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
 				// TODO Auto-generated catch block
+				this.penlet.logger.error("GameBoardLinePointsCountException");
 				displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineRequirementsException e) {
 				// TODO Auto-generated catch block
+				this.penlet.logger.error("GameBoardLineRequirementsException");
 				displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
+				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
 				displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLinePositionException e) {
 				// TODO Auto-generated catch block
+				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
 				displayErrorDrawSecondVerticalLine();
 			}
 		}
