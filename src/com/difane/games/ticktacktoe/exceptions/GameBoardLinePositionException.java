@@ -2,8 +2,10 @@ package com.difane.games.ticktacktoe.exceptions;
 
 public class GameBoardLinePositionException extends Exception {
 	static public final int REASON_UNKNOWN = -1;
-	static public final int REASON_MUST_BE_AT_THE_RIGHT = 0;
-	static public final int REASON_MUST_BE_NEAR_THE_OTHER_LINES = 1;
+	static public final int REASON_MUST_BE_AT_THE_LEFT = 0;
+	static public final int REASON_MUST_BE_AT_THE_RIGHT = 1;
+	static public final int REASON_MUST_BE_AT_THE_BOTTOM = 2;
+	static public final int REASON_MUST_BE_NEAR_THE_OTHER_LINES = 3;
 	
 	private int reason;
 
