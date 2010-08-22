@@ -36,6 +36,8 @@ public class FSM implements StrokeListener {
 	private BasePenlet penlet;
 
 	private int currentState = FSM_STATE_UNDEFINED;
+	
+	private GameBoard board;
 
 	/**
 	 * Constructor
@@ -44,6 +46,8 @@ public class FSM implements StrokeListener {
 		this.penlet = p;
 		penlet.logger.debug("[FSM] Constructed");
 		this.currentState = FSM_STATE_START;
+		
+		this.board = new GameBoard();
 	}
 
 	/**
