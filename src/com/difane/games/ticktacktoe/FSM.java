@@ -32,7 +32,7 @@ public class FSM implements StrokeListener {
 	static public final int FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE = 13;
 	static public final int FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE = 14;
 	static public final int FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE = 15;
-	static public final int FSM_STATE_DRAW_BOARD_SECOND_HOTIZONTAL_LINE = 16;
+	static public final int FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE = 16;
 	static public final int FSM_STATE_GAME_SELECT_PLAYER_ORDER = 17;
 	static public final int FSM_STATE_GAME_HUMAN_TURN = 18;
 	static public final int FSM_STATE_GAME_PEN_TURN = 19;
@@ -235,6 +235,9 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventFirstHorizontalLineReady() {
 		penlet.logger.debug("[FSM] eventFirstHorizontalLineReady received");
+		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
+			transition(currentState, FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE);
+		}
 	}
 
 	/**
@@ -242,6 +245,9 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventSecondHorizontalLineReady() {
 		penlet.logger.debug("[FSM] eventSecondHorizontalLineReady received");
+		if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
+			transition(currentState, FSM_STATE_GAME_SELECT_PLAYER_ORDER);
+		}
 	}
 
 	/**
@@ -488,6 +494,20 @@ public class FSM implements StrokeListener {
 							.debug("[FSM] Draw second vertical line was displayed");
 				}
 				break;
+			case FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE:
+				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
+					displayDrawFirstHorizontalLine();
+					this.penlet.logger
+							.debug("[FSM] Draw first horizontal line was displayed");
+				}
+				break;
+			case FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE:
+				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
+					displayDrawSecondHorizontalLine();
+					this.penlet.logger
+							.debug("[FSM] Draw second horizontal line was displayed");
+				}
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
@@ -513,6 +533,20 @@ public class FSM implements StrokeListener {
 	 */
 	private void displayDrawSecondVerticalLine() {
 		displayMessage("Draw second vertical line", true);
+	}
+	
+	/**
+	 * Displayed Draw first horizontal line on the display
+	 */
+	private void displayDrawFirstHorizontalLine() {
+		displayMessage("Draw first horizontal line", true);
+	}
+	
+	/**
+	 * Displayed Draw second horizontal line on the display
+	 */
+	private void displayDrawSecondHorizontalLine() {
+		displayMessage("Draw second horizontal line", true);
 	}
 
 	/**
@@ -573,7 +607,7 @@ public class FSM implements StrokeListener {
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE
 				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE
 				|| currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE
-				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_HOTIZONTAL_LINE) {
+				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 
 			this.penlet.logger.debug("[FSM] Trying to get line from stroke");
 
@@ -636,8 +670,61 @@ public class FSM implements StrokeListener {
 				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
 				displayErrorDrawSecondVerticalLine();
 			}
+		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
+			try {
+				this.penlet.logger
+						.debug("[FSM] Trying to use this line as first horizontal line");
+				board.setFirstHorizontalLine(line);
+				this.penlet.logger
+						.debug("[FSM] First horizontal line was successfully created");
+				this.eventFirstHorizontalLineReady();
+			} catch (GameBoardLineRequirementsException e) {
+				this.penlet.logger.error("GameBoardLineRequirementsException");
+				displayErrorDrawFirstHorizontalLine();
+			} catch (GameBoardLinePointsCountException e) {
+				this.penlet.logger.error("GameBoardLinePointsCountException");
+				displayErrorDrawFirstHorizontalLine();
+			} catch (GameBoardLinePositionException e) {
+				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
+				displayErrorDrawFirstHorizontalLine();
+			} catch (GameBoardLineLengthException e) {
+				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
+				displayErrorDrawFirstHorizontalLine();
+			}
+		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
+			try {
+				this.penlet.logger
+						.debug("[FSM] Trying to use this line as second horizontal line");
+				board.setSecondHorizontalLine(line);
+				this.penlet.logger
+						.debug("[FSM] Second horizontal line was successfully created");
+				this.eventSecondHorizontalLineReady();
+			} catch (GameBoardLineRequirementsException e) {
+				this.penlet.logger.error("GameBoardLineRequirementsException");
+				displayErrorDrawSecondHorizontalLine();
+			} catch (GameBoardLinePointsCountException e) {
+				this.penlet.logger.error("GameBoardLinePointsCountException");
+				displayErrorDrawSecondHorizontalLine();
+			} catch (GameBoardLinePositionException e) {
+				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
+				displayErrorDrawSecondHorizontalLine();
+			} catch (GameBoardLineLengthException e) {
+				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
+				displayErrorDrawSecondHorizontalLine();
+			}
 		}
-
+	}
+	
+	private void displayErrorDrawSecondHorizontalLine() {
+		displayMessage(
+				"Second horizontal line is invalid. Please try again or read game help.",
+				true);		
+	}
+	
+	private void displayErrorDrawFirstHorizontalLine() {
+		displayMessage(
+				"First horizontal line is invalid. Please try again or read game help.",
+				true);		
 	}
 
 	private void displayErrorDrawSecondVerticalLine() {
