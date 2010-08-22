@@ -1,9 +1,15 @@
 package com.difane.games.ticktacktoe;
 
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
 import com.livescribe.afp.PageInstance;
 import com.livescribe.display.BrowseList;
 import com.livescribe.event.StrokeListener;
+import com.livescribe.geom.PolyLine;
+import com.livescribe.geom.Polygon;
+import com.livescribe.geom.Stroke;
 import com.livescribe.penlet.Region;
+import com.livescribe.storage.StrokeStorage;
 
 public class FSM implements StrokeListener {
 
@@ -36,7 +42,7 @@ public class FSM implements StrokeListener {
 	private BasePenlet penlet;
 
 	private int currentState = FSM_STATE_UNDEFINED;
-	
+
 	private GameBoard board;
 
 	/**
@@ -46,7 +52,7 @@ public class FSM implements StrokeListener {
 		this.penlet = p;
 		penlet.logger.debug("[FSM] Constructed");
 		this.currentState = FSM_STATE_START;
-		
+
 		this.board = new GameBoard();
 	}
 
@@ -460,6 +466,14 @@ public class FSM implements StrokeListener {
 					this.penlet.logger.debug("[FSM] How to play was displayed");
 				}
 				break;
+			case FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE:
+				if (currentState == FSM_STATE_LEVEL_MENU_EASY
+						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
+					displayDrawFirstVerticalLine();
+					this.penlet.logger
+							.debug("[FSM] Draw first vertical line was displayed");
+				}
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
@@ -471,6 +485,14 @@ public class FSM implements StrokeListener {
 		} catch (Exception e) {
 			penlet.logger.error("[FSM] Exception appears: " + e);
 		}
+	}
+
+	/**
+	 * Displayed Draw first vertical line on the display
+	 */
+	private void displayDrawFirstVerticalLine() {
+		this.penlet.label.draw("Draw first vertical line");
+		this.penlet.display.setCurrent(this.penlet.label);
 	}
 
 	/**
@@ -528,7 +550,56 @@ public class FSM implements StrokeListener {
 
 	public void strokeCreated(long time, Region region,
 			PageInstance pageInstance) {
-		// TODO Auto-generated method stub
+		this.penlet.logger.debug("[FSM] New stroke was created");
 
+		PolyLine line = null;
+		
+		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE
+				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE
+				|| currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE
+				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_HOTIZONTAL_LINE) {
+
+			this.penlet.logger.debug("[FSM] Trying to get line from stroke");
+
+			StrokeStorage ss = new StrokeStorage(pageInstance);
+			Stroke stroke = ss.getStroke(time);
+
+			// Create a line, based on the first and last points of the stroke
+			int numPoints = stroke.getNumberofVertices();
+			penlet.logger.debug("[FSM] Number of vertices in the stroke is "
+					+ numPoints);
+			
+			if (numPoints >= 2) {
+				this.penlet.logger.debug("[FSM] Creating line from two points");
+				line = new PolyLine(2);
+				line.setXY(0, stroke.getX(0), stroke.getY(0));
+				line.setXY(1, stroke.getX(numPoints - 1), stroke
+						.getY(numPoints - 1));
+			}
+		}
+
+		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
+			try {
+				this.penlet.logger
+						.debug("[FSM] Trying to use this line as first vertical line");
+				board.setFirstVerticalLine(line);
+				this.penlet.logger
+						.debug("[FSM] First vertical line was successfully created");
+			} catch (GameBoardLinePointsCountException e) {
+				// TODO Auto-generated catch block
+				this.penlet.logger.error("GameBoardLinePointsCountException");
+				displayErrorDrawFirstVerticalLine();
+			} catch (GameBoardLineLengthException e) {
+				// TODO Auto-generated catch block
+				this.penlet.logger.error("GameBoardLineLengthException");
+			}
+
+		}
+
+	}
+
+	private void displayErrorDrawFirstVerticalLine() {
+		// TODO Auto-generated method stub
+		
 	}
 }
