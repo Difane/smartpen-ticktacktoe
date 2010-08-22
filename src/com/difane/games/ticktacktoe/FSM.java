@@ -491,40 +491,35 @@ public class FSM implements StrokeListener {
 	 * Displayed Draw first vertical line on the display
 	 */
 	private void displayDrawFirstVerticalLine() {
-		this.penlet.label.draw("Draw first vertical line");
-		this.penlet.display.setCurrent(this.penlet.label);
+		displayMessage("Draw first vertical line", true);
 	}
 
 	/**
 	 * Displayed How to play on the display
 	 */
 	private void displayHowToPlay() {
-		this.penlet.label.draw("This is example HOW TO PLAY string");
-		this.penlet.display.setCurrent(this.penlet.label);
+		displayMessage("This is example HOW TO PLAY string", true);
 	}
 
 	/**
 	 * Displayed How to draw board on the display
 	 */
 	private void displayHowToDrawBoard() {
-		this.penlet.label.draw("This is example HOW TO DRAW BOARD string");
-		this.penlet.display.setCurrent(this.penlet.label);
+		displayMessage("This is example HOW TO DRAW BOARD string", true);
 	}
 
 	/**
 	 * Displayed Rules on the display
 	 */
 	private void displayRules() {
-		this.penlet.label.draw("This is example RULES string");
-		this.penlet.display.setCurrent(this.penlet.label);
+		displayMessage("This is example RULES string", true);
 	}
 
 	/**
 	 * Displayed about on the display
 	 */
 	private void displayAbout() {
-		this.penlet.label.draw("This is example about string");
-		this.penlet.display.setCurrent(this.penlet.label);
+		displayMessage("This is example about string", true);
 	}
 
 	/**
@@ -553,7 +548,7 @@ public class FSM implements StrokeListener {
 		this.penlet.logger.debug("[FSM] New stroke was created");
 
 		PolyLine line = null;
-		
+
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE
 				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE
 				|| currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE
@@ -568,7 +563,7 @@ public class FSM implements StrokeListener {
 			int numPoints = stroke.getNumberofVertices();
 			penlet.logger.debug("[FSM] Number of vertices in the stroke is "
 					+ numPoints);
-			
+
 			if (numPoints >= 2) {
 				this.penlet.logger.debug("[FSM] Creating line from two points");
 				line = new PolyLine(2);
@@ -592,6 +587,7 @@ public class FSM implements StrokeListener {
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
 				this.penlet.logger.error("GameBoardLineLengthException");
+				displayErrorDrawFirstVerticalLine();
 			}
 
 		}
@@ -599,7 +595,24 @@ public class FSM implements StrokeListener {
 	}
 
 	private void displayErrorDrawFirstVerticalLine() {
-		// TODO Auto-generated method stub
-		
+		displayMessage(
+				"First vertical line is invalid. Please try again or read game help.",
+				true);
+
+	}
+
+	/**
+	 * Displays a message on the screen
+	 * 
+	 * @param msg
+	 *            Message to display
+	 * @param scroll
+	 *            Indicates if the text has to be scrolled or not. It does not
+	 *            have any effect of the text fits within the display size. true
+	 *            if it needs to scroll and false otherwise
+	 */
+	private void displayMessage(String msg, boolean scroll) {
+		this.penlet.label.draw(msg, scroll);
+		this.penlet.display.setCurrent(this.penlet.label);
 	}
 }
