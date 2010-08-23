@@ -270,4 +270,16 @@ public class GameLogic {
 
 	}
 
+	public int getHumanType() {
+		return humanType;
+	}
+
+	/**
+	 * Returns board information
+	 * @return
+	 */
+	public int[] getFields() {
+		return fields;
+	}
+
 }
