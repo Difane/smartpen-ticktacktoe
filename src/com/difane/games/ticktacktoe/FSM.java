@@ -196,13 +196,11 @@ public class FSM implements StrokeListener {
 			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED);
 			break;
 		case FSM_STATE_LEVEL_MENU_EASY:
-			// TODO Here easy game level must be set inside GameLogic class,
-			// when it will be ready
+			this.logic.setAiLevel(GameLogic.AI_LEVEL_EASY);
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		case FSM_STATE_LEVEL_MENU_HARD:
-			// TODO Here easy game level must be set inside GameLogic class,
-			// when it will be ready
+			this.logic.setAiLevel(GameLogic.AI_LEVEL_HARD);
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		default:
