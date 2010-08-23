@@ -38,7 +38,8 @@ public class FSM implements StrokeListener {
 	static public final int FSM_STATE_GAME_PEN_TURN = 19;
 	static public final int FSM_STATE_GAME_END_HUMAN_WINS = 20;
 	static public final int FSM_STATE_GAME_END_PEN_WINS = 21;
-	static public final int FSM_STATE_END = 22;
+	static public final int FSM_STATE_GAME_END_DRAW = 22;
+	static public final int FSM_STATE_END = 23;
 
 	private BasePenlet penlet;
 
@@ -301,6 +302,13 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventPenWins() {
 		penlet.logger.debug("[FSM] eventPenWins received");
+	}
+	
+	/**
+	 * This event must be called, when game ends and draw appears
+	 */
+	public void eventDraw() {
+		penlet.logger.debug("[FSM] eventDraw received");
 	}
 
 	/**
