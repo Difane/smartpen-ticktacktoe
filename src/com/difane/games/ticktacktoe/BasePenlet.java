@@ -20,13 +20,8 @@ import com.livescribe.ui.ScrollLabel;
 /**
  * This Penlet displays "Hello World!" as text when activated by menu.
  */
-public class BasePenlet extends Penlet implements HWRListener, MenuEventListener, PenTipListener {
+public class BasePenlet extends Penlet implements MenuEventListener, PenTipListener {
     
-	/**
-	 * Context for an ICR
-	 */
-	protected ICRContext icrContext;
-	
 	/**
 	 * Display, which will show information to the user
 	 */
@@ -137,34 +132,6 @@ public class BasePenlet extends Penlet implements HWRListener, MenuEventListener
         this.logger.info("[PENLET] Penlet Main destroyed.");
     }
 
-
-                 
-    /**
-     * When the user pauses (pause time specified by the wizard),
-     * all strokes in the ICRContext are cleared
-     */
-    public void hwrUserPause(long time, String result) {
-        this.icrContext.clearStrokes();
-    }
-    
-    /**
-     * When the ICR engine detects an acceptable series or strokes,
-     * it prints the detected characters onto the Pulse display.
-     */
-    public void hwrResult(long time, String result) {
-        this.label.draw(this.context.getResourceBundle().getTextResource("result.label") + " " + result);
-    }
-    
-    /**
-     * Called when an error occurs during handwriting recognition 
-     */
-    public void hwrError(long time, String error) {}
-    
-    /**
-     * Called when the user crosses out text
-     */
-    public void hwrCrossingOut(long time, String result) {}
-    
     /**
      * Specifies that the penlet should respond to events
      * related to open paper
@@ -216,36 +183,7 @@ public class BasePenlet extends Penlet implements HWRListener, MenuEventListener
 	
 	}
 	
-	/**
-	 * Initializes ICR context for an application
-	 */
-	private void initializeICRContext()
-	{
-		this.logger.info("Initializing OCR context");
-				
-        try {
-            this.icrContext = this.context.getICRContext(1000, this);
-            Resource[] resources = {
-                this.icrContext.getDefaultAlphabetKnowledgeResource(),
-                this.icrContext.createAppResource("/icr/LEX_smartpen-ticktacktoe.res"),
-                this.icrContext.createAppResource("/icr/SK_smartpen-ticktacktoe.res")                                                                      
-            };
-            this.icrContext.addResourceSet(resources);            
-        } catch (Exception e) {
-            String msg = "Error initializing handwriting recognition resources: " + e.getMessage();
-            this.logger.error(msg);
-            this.label.draw(msg, true);
-            this.display.setCurrent(this.label);
-        }
-	}
 	
-	/**
-	 * Destroys ICR context
-	 */
-	private void destroyICRContext() {
-		icrContext.dispose();
-		icrContext = null;
-	}
 	
 	private void exampleConfigurationReading() {
 		// Obtain the label from the configuration file

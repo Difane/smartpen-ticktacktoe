@@ -6,13 +6,16 @@ import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsException;
 import com.livescribe.afp.PageInstance;
 import com.livescribe.display.BrowseList;
+import com.livescribe.event.HWRListener;
 import com.livescribe.event.StrokeListener;
 import com.livescribe.geom.PolyLine;
 import com.livescribe.geom.Stroke;
+import com.livescribe.icr.ICRContext;
+import com.livescribe.icr.Resource;
 import com.livescribe.penlet.Region;
 import com.livescribe.storage.StrokeStorage;
 
-public class FSM implements StrokeListener {
+public class FSM implements StrokeListener, HWRListener {
 
 	// Available states
 	static public final int FSM_STATE_UNDEFINED = -1;
@@ -48,6 +51,11 @@ public class FSM implements StrokeListener {
 	private GameBoard board;
 	private GameLogic logic;
 	
+	/**
+	 * Context for an ICR
+	 */
+	protected ICRContext icrContext;
+	
 	
 	private int[][] fieldCoords = { { 0, 0 }, { 1, 2 }, { 7, 2 }, { 13, 2 },
 			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
@@ -70,6 +78,8 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventStartApplication() {
 		penlet.logger.debug("[FSM] eventStartApplication received");
+		
+		initializeICRContext();
 
 		transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
 	}
@@ -988,5 +998,61 @@ public class FSM implements StrokeListener {
 	 */
 	private void drawO(int fieldNum) {
 		this.drawOInCell(this.fieldCoords[fieldNum][0], this.fieldCoords[fieldNum][1]);
+	}
+	
+	/**
+	 * Called when the user crosses out text
+	 */
+	public void hwrCrossingOut(long time, String result) {
+	}
+
+	/**
+	 * Called when an error occurs during handwriting recognition
+	 */
+	public void hwrError(long time, String error) {
+	}
+
+	/**
+	 * When the ICR engine detects an acceptable series or strokes
+	 */
+	public void hwrResult(long time, String result) {
+	}
+
+	/**
+	 * When the user pauses (pause time specified by the wizard), all strokes in
+	 * the ICRContext are cleared
+	 */
+	public void hwrUserPause(long time, String result) {
+		this.icrContext.clearStrokes();
+	}
+	
+	/**
+	 * Initializes ICR context for an application
+	 */
+	private void initializeICRContext()
+	{
+		this.penlet.logger.info("Initializing OCR context");
+				
+        try {
+            this.icrContext = this.penlet.getContext().getICRContext(1000, this);
+            Resource[] resources = {
+                this.icrContext.getDefaultAlphabetKnowledgeResource(),
+                this.icrContext.createAppResource("/icr/LEX_smartpen-ticktacktoe.res"),
+                this.icrContext.createAppResource("/icr/SK_smartpen-ticktacktoe.res")                                                                      
+            };
+            this.icrContext.addResourceSet(resources);            
+        } catch (Exception e) {
+            String msg = "Error initializing handwriting recognition resources: " + e.getMessage();
+            this.penlet.logger.error(msg);
+            this.displayMessage(msg, true);
+        }
+	}
+	
+	/**
+	 * Destroys ICR context
+	 */
+	private void destroyICRContext() {
+		icrContext.dispose();
+		icrContext = null;
 	}
 }
