@@ -257,6 +257,10 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventPlayerSelectedHumanTurnNext() {
 		penlet.logger.debug("[FSM] eventPlayerSelectedHumanTurnNext received");
+		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
+			this.displayMessage("You playes crosses and goes first", true);
+			this.transition(currentState, FSM_STATE_GAME_HUMAN_TURN);
+		}
 	}
 
 	/**
@@ -265,6 +269,10 @@ public class FSM implements StrokeListener {
 	 */
 	public void eventPlayerSelectedPenTurnNext() {
 		penlet.logger.debug("[FSM] eventPlayerSelectedPenTurnNext received");
+		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
+			this.displayMessage("You playes noughts and goes second", true);
+			this.transition(currentState, FSM_STATE_GAME_PEN_TURN);
+		}
 	}
 
 	/**
@@ -509,6 +517,16 @@ public class FSM implements StrokeListener {
 							.debug("[FSM] Draw second horizontal line was displayed");
 				}
 				break;
+			case FSM_STATE_GAME_SELECT_PLAYER_ORDER:
+				if(currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE)
+				{
+					boolean humanFirst = this.logic.selectPlayersOrder();
+					if (humanFirst) {
+						this.eventPlayerSelectedHumanTurnNext();
+					} else {
+						this.eventPlayerSelectedPenTurnNext();
+					}
+				}
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
