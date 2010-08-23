@@ -45,6 +45,7 @@ public class FSM implements StrokeListener {
 	private int currentState = FSM_STATE_UNDEFINED;
 
 	private GameBoard board;
+	private GameLogic logic;
 
 	/**
 	 * Constructor
@@ -55,6 +56,7 @@ public class FSM implements StrokeListener {
 		this.currentState = FSM_STATE_START;
 
 		this.board = new GameBoard();
+		this.logic = new GameLogic();
 	}
 
 	/**
