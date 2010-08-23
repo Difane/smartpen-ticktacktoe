@@ -39,7 +39,7 @@ public class GameBoard {
 		this.firstHorizontalLineLength = 0;
 		this.secondHorizontalLineLength = 0;
 		
-		this.board = new Vector(9);
+		this.board = new Vector(10);
 	}
 
 	/**
@@ -457,6 +457,9 @@ public class GameBoard {
 		int leftMax = Math.min(firstHorizontalLine.getX(0), secondHorizontalLine.getX(0));
 		int rightMax = Math.max(firstHorizontalLine.getX(1), secondHorizontalLine.getX(1));
 		
+		// Element with zero index (to be arranged with existing game algo
+		board.addElement(new Rectangle());
+		
 		// Rectangle #1
 		board.addElement(new Rectangle(leftMax, topMax, tlPoint.getX()-leftMax, tlPoint.getY()-topMax));
 		
@@ -491,9 +494,18 @@ public class GameBoard {
 	 * 
 	 * @param p
 	 *            Point, where user has dome his turn
+	 * @return number from 1 to 9, if turn was made to the one of the cells, -1
+	 *         otherwise
 	 */
-	public void getTurnField(Point p) {
-
+	public int getTurnField(Point p) {
+		for (int i = 1; i < board.size(); i++) {
+			Rectangle r = (Rectangle) board.elementAt(i);  
+			if(r.contains(p.getX(), p.getY()))
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
