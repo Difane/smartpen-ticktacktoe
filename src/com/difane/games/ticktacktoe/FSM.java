@@ -1,5 +1,6 @@
 package com.difane.games.ticktacktoe;
 
+import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
@@ -8,7 +9,9 @@ import com.livescribe.afp.PageInstance;
 import com.livescribe.display.BrowseList;
 import com.livescribe.event.HWRListener;
 import com.livescribe.event.StrokeListener;
+import com.livescribe.geom.Point;
 import com.livescribe.geom.PolyLine;
+import com.livescribe.geom.Rectangle;
 import com.livescribe.geom.Stroke;
 import com.livescribe.icr.ICRContext;
 import com.livescribe.icr.Resource;
@@ -50,13 +53,12 @@ public class FSM implements StrokeListener, HWRListener {
 
 	private GameBoard board;
 	private GameLogic logic;
-	
+
 	/**
 	 * Context for an ICR
 	 */
 	protected ICRContext icrContext;
-	
-	
+
 	private int[][] fieldCoords = { { 0, 0 }, { 1, 2 }, { 7, 2 }, { 13, 2 },
 			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
 
@@ -68,7 +70,7 @@ public class FSM implements StrokeListener, HWRListener {
 		penlet.logger.debug("[FSM] Constructed");
 		this.currentState = FSM_STATE_START;
 
-		this.board = new GameBoard();
+		this.board = new GameBoard(this.penlet.logger);
 		this.logic = new GameLogic();
 	}
 
@@ -78,7 +80,7 @@ public class FSM implements StrokeListener, HWRListener {
 	 */
 	public void eventStartApplication() {
 		penlet.logger.debug("[FSM] eventStartApplication received");
-		
+
 		initializeICRContext();
 
 		transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
@@ -300,6 +302,9 @@ public class FSM implements StrokeListener, HWRListener {
 	 */
 	public void eventHumanTurnReady() {
 		penlet.logger.debug("[FSM] eventHumanTurnReady received");
+		if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
+			this.transition(currentState, FSM_STATE_GAME_PEN_TURN);
+		}
 	}
 
 	/**
@@ -307,6 +312,9 @@ public class FSM implements StrokeListener, HWRListener {
 	 */
 	public void eventPenTurnReady() {
 		penlet.logger.debug("[FSM] eventPenTurnReady received");
+		if (currentState == FSM_STATE_GAME_PEN_TURN) {
+			this.transition(currentState, FSM_STATE_GAME_HUMAN_TURN);
+		}
 	}
 
 	/**
@@ -352,9 +360,11 @@ public class FSM implements StrokeListener, HWRListener {
 	}
 
 	private void transition(int currentState, int transitionState) {
+		penlet.logger.debug("FSM::transition  ---> ");
 		penlet.logger.debug("[FSM] transition started ( " + currentState
 				+ " -> " + transitionState + " )");
 
+		boolean needChangeCurrentState = true;
 		try {
 			switch (transitionState) {
 			case FSM_STATE_MAIN_MENU_START_GAME:
@@ -550,6 +560,9 @@ public class FSM implements StrokeListener, HWRListener {
 					// manually change current state
 					this.currentState = transitionState;
 					
+					// We have changes state already
+					needChangeCurrentState = false;
+
 					boolean humanFirst = this.logic.selectPlayersOrder();
 					if (humanFirst) {
 						this.eventPlayerSelectedHumanTurnNext();
@@ -557,6 +570,7 @@ public class FSM implements StrokeListener, HWRListener {
 						this.eventPlayerSelectedPenTurnNext();
 					}
 				}
+				break;
 			case FSM_STATE_GAME_HUMAN_TURN:
 				if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER
 						|| currentState == FSM_STATE_GAME_PEN_TURN) {
@@ -564,10 +578,34 @@ public class FSM implements StrokeListener, HWRListener {
 					// manually change current state
 					this.currentState = transitionState;
 					
+					// We have changes state already
+					needChangeCurrentState = false;
+					
+					this.penlet.logger.debug("[FSM] Current state was changed manually to "+this.currentState);
+
 					// 1. Checking, that game is not end
 					this.checkGameStatus();
 					// 2. Redrawing board with text "Your turn"
 					this.redrawBoard(true);
+				}
+				break;
+			case FSM_STATE_GAME_PEN_TURN:
+				if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER
+						|| currentState == FSM_STATE_GAME_HUMAN_TURN) {
+					// While we calling event from transition itself - we must
+					// manually change current state
+					this.currentState = transitionState;
+					
+					// We have changes state already
+					needChangeCurrentState = false;
+
+					// 1. Checking, that game is not end
+					this.checkGameStatus();
+					// 2. Redrawing board with text "Your turn"
+					this.redrawBoard(false);
+					// 3. Performing pen turn;
+					this.logic.aiTurn();
+					this.eventPenTurnReady();
 				}
 				break;
 			default:
@@ -577,10 +615,22 @@ public class FSM implements StrokeListener, HWRListener {
 				return;
 			} // switch (transitionState)
 
-			this.currentState = transitionState;
+			if (needChangeCurrentState) {
+				this.penlet.logger.debug("[FSM] Setting current state ("
+						+ this.currentState + ") to the new state ("
+						+ transitionState
+						+ ") after processing state switching");
+				this.currentState = transitionState;
+			}
+			else
+			{
+				this.penlet.logger.debug("[FSM] Current state already changed. No additional change needed");
+			}
 		} catch (Exception e) {
 			penlet.logger.error("[FSM] Exception appears: " + e);
 		}
+		
+		penlet.logger.debug("FSM::transition  <--- ");
 	}
 
 	/**
@@ -597,7 +647,7 @@ public class FSM implements StrokeListener, HWRListener {
 		this.drawSecondVerticalLine();
 		this.drawFirstHorizontalLine();
 		this.drawSecondHorizontalLine();
-		
+
 		int[] board = this.logic.getFields();
 
 		for (int i = 1; i <= 9; i++) {
@@ -633,7 +683,7 @@ public class FSM implements StrokeListener, HWRListener {
 			} else {
 				// Pen wins
 				this.eventPenWins();
-			}			
+			}
 			break;
 		case GameLogic.GAME_STATUS_O_WINS:
 			if (this.logic.getHumanType() == GameLogic.FIELD_O) {
@@ -646,7 +696,7 @@ public class FSM implements StrokeListener, HWRListener {
 			break;
 		case GameLogic.GAME_STATUS_DRAW:
 			this.eventDraw();
-			break;			
+			break;
 		default:
 			// Game continues. Do nothing
 			break;
@@ -750,7 +800,7 @@ public class FSM implements StrokeListener, HWRListener {
 
 	public void strokeCreated(long time, Region region,
 			PageInstance pageInstance) {
-		this.penlet.logger.debug("[FSM] New stroke was created");
+		this.penlet.logger.debug("[FSM] New stroke was created. Current state: "+this.currentState);
 
 		PolyLine line = null;
 
@@ -857,7 +907,8 @@ public class FSM implements StrokeListener, HWRListener {
 						.debug("[FSM] Trying to use this line as second horizontal line");
 				board.setSecondHorizontalLine(line);
 				this.penlet.logger
-						.debug("[FSM] Second horizontal line was successfully created");
+						.debug("[FSM] Second horizontal line was successfully created. Calculating game board");
+				board.calculateBoard();
 				this.eventSecondHorizontalLineReady();
 			} catch (GameBoardLineRequirementsException e) {
 				this.penlet.logger.error("GameBoardLineRequirementsException");
@@ -875,7 +926,14 @@ public class FSM implements StrokeListener, HWRListener {
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
 				displayErrorDrawSecondHorizontalLine();
+			} catch (GameBoardImpossibleException e) {
+				this.penlet.logger
+						.error("GameBoardImpossibleException");
+				displayErrorDrawSecondHorizontalLine();
 			}
+		} else if (currentState == FSM_STATE_GAME_HUMAN_TURN) {			
+			this.icrContext.addStroke(pageInstance, time);
+			this.penlet.logger.debug("[FSM] StrokeCreated. Stroke was added to ICR context");
 		}
 	}
 
@@ -961,25 +1019,29 @@ public class FSM implements StrokeListener, HWRListener {
 
 	/**
 	 * Draws X in the cell, relatinve to the passed cell left-top coords
-	 * @param x X-coord of the top-left cell point
-	 * @param y Y-coord of the top-left cell point
+	 * 
+	 * @param x
+	 *            X-coord of the top-left cell point
+	 * @param y
+	 *            Y-coord of the top-left cell point
 	 */
-	private void drawXInCell(int x, int y)
-	{
-		this.penlet.graphics.drawLine(x, y, x+2, y+2);
-		this.penlet.graphics.drawLine(x, y+2, x+2, y);
+	private void drawXInCell(int x, int y) {
+		this.penlet.graphics.drawLine(x, y, x + 2, y + 2);
+		this.penlet.graphics.drawLine(x, y + 2, x + 2, y);
 	}
-	
+
 	/**
 	 * Draws O in the cell, relatinve to the passed cell left-top coords
-	 * @param x X-coord of the top-left cell point
-	 * @param y Y-coord of the top-left cell point
+	 * 
+	 * @param x
+	 *            X-coord of the top-left cell point
+	 * @param y
+	 *            Y-coord of the top-left cell point
 	 */
-	private void drawOInCell(int x, int y)
-	{
+	private void drawOInCell(int x, int y) {
 		this.penlet.graphics.fillRect(x, y, 3, 3);
 	}
-	
+
 	/**
 	 * Draws X in the given field num
 	 * 
@@ -987,9 +1049,10 @@ public class FSM implements StrokeListener, HWRListener {
 	 *            Num of the field (1-9)
 	 */
 	private void drawX(int fieldNum) {
-		this.drawXInCell(this.fieldCoords[fieldNum][0], this.fieldCoords[fieldNum][1]);
+		this.drawXInCell(this.fieldCoords[fieldNum][0],
+				this.fieldCoords[fieldNum][1]);
 	}
-	
+
 	/**
 	 * Draws O in the given field num
 	 * 
@@ -997,9 +1060,10 @@ public class FSM implements StrokeListener, HWRListener {
 	 *            Num of the field (1-9)
 	 */
 	private void drawO(int fieldNum) {
-		this.drawOInCell(this.fieldCoords[fieldNum][0], this.fieldCoords[fieldNum][1]);
+		this.drawOInCell(this.fieldCoords[fieldNum][0],
+				this.fieldCoords[fieldNum][1]);
 	}
-	
+
 	/**
 	 * Called when the user crosses out text
 	 */
@@ -1016,6 +1080,7 @@ public class FSM implements StrokeListener, HWRListener {
 	 * When the ICR engine detects an acceptable series or strokes
 	 */
 	public void hwrResult(long time, String result) {
+		this.penlet.logger.debug("[FSM][ICR] Intermediate result: "+result);
 	}
 
 	/**
@@ -1023,31 +1088,85 @@ public class FSM implements StrokeListener, HWRListener {
 	 * the ICRContext are cleared
 	 */
 	public void hwrUserPause(long time, String result) {
-		this.icrContext.clearStrokes();
+		this.penlet.logger.debug("[FSM][ICR] Result: "+result+" (x) | Human type: "+this.logic.getHumanType());
+		
+		// At first we must check, that result is the required symbol
+		boolean symbolCorrect = false;
+		
+		if (result.equalsIgnoreCase("x")) {
+			this.penlet.logger.debug("[FSM][ICR] User has draw X");
+			if (this.logic.getHumanType() == GameLogic.FIELD_X) {
+				this.penlet.logger.debug("[FSM][ICR] User played with X");
+				symbolCorrect = true;
+			}
+		} else if (result.equalsIgnoreCase("o")) {
+			this.penlet.logger.debug("[FSM][ICR] User has draw O");
+			if (this.logic.getHumanType() == GameLogic.FIELD_O) {
+				this.penlet.logger.debug("[FSM][ICR] User played with O");
+				symbolCorrect = true;
+			}
+		}
+
+		if (symbolCorrect) {
+
+			this.penlet.logger.debug("[FSM][ICR] User has draw required symbol. Trying to get it's position.");
+			// Required symbol appears. Now we must check, which field is used
+			// Retrieving center of the user symbol
+
+			this.penlet.logger.debug("[FSM][ICR] Receiving symbol rectangle. ICRContext: "+this.icrContext);
+			
+			
+			Rectangle r = this.icrContext.getTextBoundingBox();
+			this.icrContext.clearStrokes();
+			
+			this.penlet.logger.debug("[FSM][ICR] Rectangle: "+r);
+			this.penlet.logger.debug("[FSM][ICR] symbol rectangle was received ("+r.toString()+"). Calculating it's center point");
+			Point p = new Point(r.getX() + r.getWidth() / 2, r.getY()
+					+ r.getHeight() / 2);
+			
+			this.penlet.logger.debug("[FSM][ICR] Point of the user symbol is ("+p.getX()+","+p.getY()+")");
+			
+			int field = this.board.getTurnField(p);
+			if (field != -1) {
+				this.penlet.logger
+						.debug("[FSM][ICR] Turn was done in the correct field");
+				this.logic.humanTurn(field);
+				this.eventHumanTurnReady();
+			} else {
+				this.penlet.logger
+						.debug("[FSM][ICR] Turn was done outside board");
+			}
+		}
+		else
+		{
+			this.penlet.logger.debug("[FSM][ICR] User has not draw required symbol");
+		}
 	}
-	
+
 	/**
 	 * Initializes ICR context for an application
 	 */
-	private void initializeICRContext()
-	{
+	private void initializeICRContext() {
 		this.penlet.logger.info("Initializing OCR context");
-				
-        try {
-            this.icrContext = this.penlet.getContext().getICRContext(1000, this);
-            Resource[] resources = {
-                this.icrContext.getDefaultAlphabetKnowledgeResource(),
-                this.icrContext.createAppResource("/icr/LEX_smartpen-ticktacktoe.res"),
-                this.icrContext.createAppResource("/icr/SK_smartpen-ticktacktoe.res")                                                                      
-            };
-            this.icrContext.addResourceSet(resources);            
-        } catch (Exception e) {
-            String msg = "Error initializing handwriting recognition resources: " + e.getMessage();
-            this.penlet.logger.error(msg);
-            this.displayMessage(msg, true);
-        }
+
+		try {
+			this.icrContext = this.penlet.getContext()
+					.getICRContext(1000, this);
+			Resource[] resources = {
+					this.icrContext.getDefaultAlphabetKnowledgeResource(),
+					this.icrContext
+							.createAppResource("/icr/LEX_smartpen-ticktacktoe.res"),
+					this.icrContext
+							.createAppResource("/icr/SK_smartpen-ticktacktoe.res") };
+			this.icrContext.addResourceSet(resources);
+		} catch (Exception e) {
+			String msg = "Error initializing handwriting recognition resources: "
+					+ e.getMessage();
+			this.penlet.logger.error(msg);
+			this.displayMessage(msg, true);
+		}
 	}
-	
+
 	/**
 	 * Destroys ICR context
 	 */
