@@ -47,6 +47,10 @@ public class FSM implements StrokeListener {
 
 	private GameBoard board;
 	private GameLogic logic;
+	
+	
+	private int[][] fieldCoords = { { 0, 0 }, { 1, 2 }, { 7, 2 }, { 13, 2 },
+			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
 
 	/**
 	 * Constructor
@@ -260,6 +264,11 @@ public class FSM implements StrokeListener {
 		penlet.logger.debug("[FSM] eventPlayerSelectedHumanTurnNext received");
 		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
 			this.displayMessage("You playes crosses and goes first", true);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// If no sleep will made - it is not error at this time
+			}
 			this.transition(currentState, FSM_STATE_GAME_HUMAN_TURN);
 		}
 	}
@@ -303,7 +312,7 @@ public class FSM implements StrokeListener {
 	public void eventPenWins() {
 		penlet.logger.debug("[FSM] eventPenWins received");
 	}
-	
+
 	/**
 	 * This event must be called, when game ends and draw appears
 	 */
@@ -526,8 +535,11 @@ public class FSM implements StrokeListener {
 				}
 				break;
 			case FSM_STATE_GAME_SELECT_PLAYER_ORDER:
-				if(currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE)
-				{
+				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
+					// While we calling event from transition itself - we must
+					// manually change current state
+					this.currentState = transitionState;
+					
 					boolean humanFirst = this.logic.selectPlayersOrder();
 					if (humanFirst) {
 						this.eventPlayerSelectedHumanTurnNext();
@@ -535,6 +547,19 @@ public class FSM implements StrokeListener {
 						this.eventPlayerSelectedPenTurnNext();
 					}
 				}
+			case FSM_STATE_GAME_HUMAN_TURN:
+				if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER
+						|| currentState == FSM_STATE_GAME_PEN_TURN) {
+					// While we calling event from transition itself - we must
+					// manually change current state
+					this.currentState = transitionState;
+					
+					// 1. Checking, that game is not end
+					this.checkGameStatus();
+					// 2. Redrawing board with text "Your turn"
+					this.redrawBoard(true);
+				}
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				penlet.logger.warn("[FSM] Unrecognized target state: "
@@ -545,6 +570,76 @@ public class FSM implements StrokeListener {
 			this.currentState = transitionState;
 		} catch (Exception e) {
 			penlet.logger.error("[FSM] Exception appears: " + e);
+		}
+	}
+
+	/**
+	 * Draws board on the screen and displays message to the user with
+	 * information about next activity
+	 * 
+	 * @param humanTurnNext
+	 *            True, if next turn must be dome by human, false otherwise
+	 */
+	private void redrawBoard(boolean humanTurnNext) {
+		// At first drawing empty game field
+		this.penlet.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.drawSecondVerticalLine();
+		this.drawFirstHorizontalLine();
+		this.drawSecondHorizontalLine();
+		
+		int[] board = this.logic.getFields();
+
+		for (int i = 1; i <= 9; i++) {
+			if (board[i] == GameLogic.FIELD_X) {
+				this.drawX(i);
+			} else if (board[i] == GameLogic.FIELD_O) {
+				this.drawO(i);
+			} else {
+				// Field is empty
+			}
+		}
+
+		if (humanTurnNext) {
+			this.penlet.graphics.drawString("Your turn!", 25, 2, 0);
+		} else {
+			this.penlet.graphics.drawString("Pen's turn!", 25, 2, 0);
+		}
+
+		this.displayDrawing(true);
+	}
+
+	/**
+	 * Checks game status and forwards to the corresponded state, if game
+	 * completed
+	 */
+	private void checkGameStatus() {
+		int status = this.logic.getGameStatus();
+		switch (status) {
+		case GameLogic.GAME_STATUS_X_WINS:
+			if (this.logic.getHumanType() == GameLogic.FIELD_X) {
+				// Human wins
+				this.eventHumanWins();
+			} else {
+				// Pen wins
+				this.eventPenWins();
+			}			
+			break;
+		case GameLogic.GAME_STATUS_O_WINS:
+			if (this.logic.getHumanType() == GameLogic.FIELD_O) {
+				// Human wins
+				this.eventHumanWins();
+			} else {
+				// Pen wins
+				this.eventPenWins();
+			}
+			break;
+		case GameLogic.GAME_STATUS_DRAW:
+			this.eventDraw();
+			break;			
+		default:
+			// Game continues. Do nothing
+			break;
 		}
 	}
 
@@ -830,27 +925,68 @@ public class FSM implements StrokeListener {
 	 * Draws first vertical line
 	 */
 	private void drawFirstVerticalLine() {
-		this.penlet.graphics.drawLine(6, 1, 6, 17);
+		this.penlet.graphics.drawLine(5, 1, 5, 17);
 	}
 
 	/**
 	 * Draws second vertical line
 	 */
 	private void drawSecondVerticalLine() {
-		this.penlet.graphics.drawLine(12, 1, 12, 17);
+		this.penlet.graphics.drawLine(11, 1, 11, 17);
 	}
-	
+
 	/**
 	 * Draws first horizontal line
 	 */
 	private void drawFirstHorizontalLine() {
-		this.penlet.graphics.drawLine(1, 6, 17, 6);
+		this.penlet.graphics.drawLine(0, 6, 16, 6);
 	}
-	
+
 	/**
 	 * Draws second vertical line
 	 */
 	private void drawSecondHorizontalLine() {
-		this.penlet.graphics.drawLine(1, 12, 17, 12);
+		this.penlet.graphics.drawLine(0, 12, 16, 12);
+	}
+
+	/**
+	 * Draws X in the cell, relatinve to the passed cell left-top coords
+	 * @param x X-coord of the top-left cell point
+	 * @param y Y-coord of the top-left cell point
+	 */
+	private void drawXInCell(int x, int y)
+	{
+		this.penlet.graphics.drawLine(x, y, x+2, y+2);
+		this.penlet.graphics.drawLine(x, y+2, x+2, y);
+	}
+	
+	/**
+	 * Draws O in the cell, relatinve to the passed cell left-top coords
+	 * @param x X-coord of the top-left cell point
+	 * @param y Y-coord of the top-left cell point
+	 */
+	private void drawOInCell(int x, int y)
+	{
+		this.penlet.graphics.fillRect(x, y, 3, 3);
+	}
+	
+	/**
+	 * Draws X in the given field num
+	 * 
+	 * @param fieldNum
+	 *            Num of the field (1-9)
+	 */
+	private void drawX(int fieldNum) {
+		this.drawXInCell(this.fieldCoords[fieldNum][0], this.fieldCoords[fieldNum][1]);
+	}
+	
+	/**
+	 * Draws O in the given field num
+	 * 
+	 * @param fieldNum
+	 *            Num of the field (1-9)
+	 */
+	private void drawO(int fieldNum) {
+		this.drawOInCell(this.fieldCoords[fieldNum][0], this.fieldCoords[fieldNum][1]);
 	}
 }
