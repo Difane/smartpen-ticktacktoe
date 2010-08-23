@@ -6,6 +6,8 @@ import com.livescribe.afp.PageInstance;
 import com.livescribe.configuration.Config;
 import com.livescribe.display.BrowseList;
 import com.livescribe.display.Display;
+import com.livescribe.display.Graphics;
+import com.livescribe.display.Image;
 import com.livescribe.event.HWRListener;
 import com.livescribe.event.MenuEvent;
 import com.livescribe.event.MenuEventListener;
@@ -47,6 +49,9 @@ public class BasePenlet extends Penlet implements HWRListener, MenuEventListener
 	protected Vector		menuLevelSelectItems;
 	protected BrowseList	menuLevelSelect;
 	
+	// Variables, required for drawing on the screen
+	Image image;
+	Graphics graphics;
 	
     // Configuration key for example configuration reading 
     private static final String configKey = "CONFIG_DATA";
@@ -85,6 +90,12 @@ public class BasePenlet extends Penlet implements HWRListener, MenuEventListener
 		this.menuLevelSelectItems.addElement("Easy");
 		this.menuLevelSelectItems.addElement("Hard");
 		this.menuLevelSelect = new BrowseList(this.menuLevelSelectItems);
+		
+		// Initializing graphics
+		this.image = Image.createImage(96, 18);
+		this.graphics = Graphics.getGraphics(this.image);
+		this.graphics.setBrushColor(Display.getWhiteColor());
+		this.graphics.setLineStyle(Graphics.LINE_STYLE_SOLID);
 		
 		this.logger.info("[PENLET] Penlet was successfully initialized");
     }

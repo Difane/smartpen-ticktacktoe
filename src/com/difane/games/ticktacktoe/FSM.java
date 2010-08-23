@@ -754,4 +754,13 @@ public class FSM implements StrokeListener {
 		this.penlet.label.draw(msg, scroll);
 		this.penlet.display.setCurrent(this.penlet.label);
 	}
+	
+	/**
+	 * Displays drawing on the screen. Actual data must be drawed on the
+	 * "this.penlet.graphics" object
+	 */
+	private void displayDrawing() {
+		this.penlet.label.draw(this.penlet.image, null, false);
+		this.penlet.display.setCurrent(this.penlet.label);
+	}
 }
