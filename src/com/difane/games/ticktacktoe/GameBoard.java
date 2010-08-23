@@ -1,5 +1,8 @@
 package com.difane.games.ticktacktoe;
 
+import java.util.Vector;
+
+import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
@@ -19,7 +22,7 @@ public class GameBoard {
 	private int firstHorizontalLineLength;
 	private PolyLine secondHorizontalLine;
 	private int secondHorizontalLineLength;
-	private Rectangle[] board;
+	private Vector board;
 	private Rectangle boardBox;
 
 	/**
@@ -35,6 +38,8 @@ public class GameBoard {
 		this.secondVerticalLineLength = 0;
 		this.firstHorizontalLineLength = 0;
 		this.secondHorizontalLineLength = 0;
+		
+		this.board = new Vector(9);
 	}
 
 	/**
@@ -70,7 +75,8 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+			throw new GameBoardLineLengthException(
+					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		this.firstVerticalLine = firstVerticalLine;
@@ -162,7 +168,8 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+			throw new GameBoardLineLengthException(
+					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		int minLength = (this.firstVerticalLineLength * 2) / 3;
@@ -257,7 +264,8 @@ public class GameBoard {
 		float lengthInMM = Scale.auToMM(length);
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+			throw new GameBoardLineLengthException(
+					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		int minLength = (this.firstVerticalLineLength * 2) / 3;
@@ -285,11 +293,12 @@ public class GameBoard {
 	 * @throws GameBoardLineRequirementsException
 	 * @throws GameBoardLinePointsCountException
 	 * @throws GameBoardLinePositionException
-	 * @throws GameBoardLineLengthException 
+	 * @throws GameBoardLineLengthException
 	 */
 	public void setSecondHorizontalLine(PolyLine secondHorizontalLine)
 			throws GameBoardLineRequirementsException,
-			GameBoardLinePointsCountException, GameBoardLinePositionException, GameBoardLineLengthException {
+			GameBoardLinePointsCountException, GameBoardLinePositionException,
+			GameBoardLineLengthException {
 
 		/*
 		 * If first and second vertical and first horizontal lines was not set -
@@ -376,9 +385,10 @@ public class GameBoard {
 		int length = secondHorizontalLine.getX(1)
 				- secondHorizontalLine.getX(0);
 		float lengthInMM = Scale.auToMM(length);
-		
+
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+			throw new GameBoardLineLengthException(
+					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 
 		int minLength = (this.firstHorizontalLineLength * 2) / 3;
@@ -400,9 +410,79 @@ public class GameBoard {
 	/**
 	 * Calculates board cells coordinates, that then will be used to determine,
 	 * where turn was made
+	 * @throws GameBoardImpossibleException 
 	 */
-	public void calculateBoard() {
-
+	public void calculateBoard() throws GameBoardImpossibleException {
+		// At first calculating 4 points, that are points of intersection
+		// between lines
+		
+		// 1. First point - first vertical line and first horizontal line
+		Point tlPoint = intersection(firstVerticalLine.getX(0),
+				firstVerticalLine.getY(0), firstVerticalLine.getX(1),
+				firstVerticalLine.getY(1), firstHorizontalLine.getX(0),
+				firstHorizontalLine.getY(0), firstHorizontalLine.getX(1),
+				firstHorizontalLine.getY(1));
+		
+		// 2. Second point - second vertical line and first horizontal line
+		Point trPoint = intersection(secondVerticalLine.getX(0),
+				secondVerticalLine.getY(0), secondVerticalLine.getX(1),
+				secondVerticalLine.getY(1), firstHorizontalLine.getX(0),
+				firstHorizontalLine.getY(0), firstHorizontalLine.getX(1),
+				firstHorizontalLine.getY(1));
+		
+		// 3. Third point - first vertical line and second horizontal line
+		Point blPoint = intersection(firstVerticalLine.getX(0),
+				firstVerticalLine.getY(0), firstVerticalLine.getX(1),
+				firstVerticalLine.getY(1), secondHorizontalLine.getX(0),
+				secondHorizontalLine.getY(0), secondHorizontalLine.getX(1),
+				secondHorizontalLine.getY(1));
+		
+		// 4. Fourth point - second vertical line and second horizontal line
+		Point brPoint = intersection(secondVerticalLine.getX(0),
+				secondVerticalLine.getY(0), secondVerticalLine.getX(1),
+				secondVerticalLine.getY(1), secondHorizontalLine.getX(0),
+				secondHorizontalLine.getY(0), secondHorizontalLine.getX(1),
+				secondHorizontalLine.getY(1));
+		
+		// If there are no all 4 intersections - board is impossible :)
+		if (null == tlPoint || null == trPoint || null == blPoint
+				|| null == brPoint) {
+			throw new GameBoardImpossibleException();
+		}
+		
+		// Now constructing 9 rectangles for 9 board fields
+		// At first getting four helper values for board corners
+		int topMax = Math.min(firstVerticalLine.getY(0), secondVerticalLine.getY(0));
+		int bottomMax = Math.max(firstVerticalLine.getY(1), secondVerticalLine.getY(1));
+		int leftMax = Math.min(firstHorizontalLine.getX(0), secondHorizontalLine.getX(0));
+		int rightMax = Math.max(firstHorizontalLine.getX(1), secondHorizontalLine.getX(1));
+		
+		// Rectangle #1
+		board.addElement(new Rectangle(leftMax, topMax, tlPoint.getX()-leftMax, tlPoint.getY()-topMax));
+		
+		// Rectangle #2
+		board.addElement(new Rectangle(tlPoint.getX(), topMax, trPoint.getX()-tlPoint.getX(), trPoint.getY() - topMax));
+		
+		// Rectangle #3
+		board.addElement(new Rectangle(trPoint.getX(), topMax, rightMax - trPoint.getX(), trPoint.getY() - topMax));
+		
+		// Rectangle #4
+		board.addElement(new Rectangle(leftMax, tlPoint.getY(), tlPoint.getX()-leftMax, blPoint.getY()-tlPoint.getY()));
+		
+		// Rectangle #5
+		board.addElement(new Rectangle(tlPoint.getX(), tlPoint.getY(), trPoint.getX()-tlPoint.getX(), brPoint.getY()-trPoint.getY()));
+		
+		// Rectangle #6
+		board.addElement(new Rectangle(trPoint.getX(), trPoint.getY(), rightMax-trPoint.getX(), brPoint.getY()-trPoint.getY()));
+		
+		// Rectangle #7
+		board.addElement(new Rectangle(leftMax, blPoint.getY(), blPoint.getX()-leftMax, bottomMax-blPoint.getY()));
+		
+		// Rectangle #8
+		board.addElement(new Rectangle(blPoint.getX(), blPoint.getY(), brPoint.getX()-blPoint.getX(), bottomMax-brPoint.getY()));
+		
+		// Rectangle #9
+		board.addElement(new Rectangle(brPoint.getX(), brPoint.getY(), rightMax-brPoint.getX(), bottomMax-brPoint.getY()));
 	}
 
 	/**
