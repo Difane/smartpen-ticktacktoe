@@ -1,7 +1,6 @@
 package com.difane.games.ticktacktoe;
 
 import java.util.Random;
-import java.util.Vector;
 
 public class GameLogic {
 
