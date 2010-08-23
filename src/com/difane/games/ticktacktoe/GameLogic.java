@@ -80,7 +80,7 @@ public class GameLogic {
 	 * @return Field (1 to 9), where turn was made
 	 */
 	public int aiTurn() {
-		int aiTurnResult = -1;
+		this.calculateRating();
 		Random rand = new Random();
 
 		int m, r, mr, i;
