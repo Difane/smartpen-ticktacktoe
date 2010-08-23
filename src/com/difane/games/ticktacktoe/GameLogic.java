@@ -124,6 +124,7 @@ public class GameLogic {
 				}
 			}
 		}
+		return -1;
 	}
 
 	/**
