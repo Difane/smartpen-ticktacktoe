@@ -236,7 +236,8 @@ public class FSM implements StrokeListener {
 	public void eventFirstHorizontalLineReady() {
 		penlet.logger.debug("[FSM] eventFirstHorizontalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
-			transition(currentState, FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE);
+			transition(currentState,
+					FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE);
 		}
 	}
 
@@ -525,28 +526,46 @@ public class FSM implements StrokeListener {
 	 * Displayed Draw first vertical line on the display
 	 */
 	private void displayDrawFirstVerticalLine() {
-		displayMessage("Draw first vertical line", true);
+		this.penlet.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.penlet.graphics.drawString("First line", 25, 2, 0);
+		this.displayDrawing(true);
 	}
-	
+
 	/**
 	 * Displayed Draw second vertical line on the display
 	 */
 	private void displayDrawSecondVerticalLine() {
-		displayMessage("Draw second vertical line", true);
+		this.penlet.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.drawSecondVerticalLine();
+		this.penlet.graphics.drawString("Second line", 25, 2, 0);
+		this.displayDrawing(true);
 	}
-	
+
 	/**
 	 * Displayed Draw first horizontal line on the display
 	 */
 	private void displayDrawFirstHorizontalLine() {
-		displayMessage("Draw first horizontal line", true);
+		this.penlet.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.drawSecondVerticalLine();
+		this.drawFirstHorizontalLine();
+		this.penlet.graphics.drawString("Third line", 25, 2, 0);
+		this.displayDrawing(true);
 	}
-	
+
 	/**
 	 * Displayed Draw second horizontal line on the display
 	 */
 	private void displayDrawSecondHorizontalLine() {
-		displayMessage("Draw second horizontal line", true);
+		this.penlet.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.drawSecondVerticalLine();
+		this.drawFirstHorizontalLine();
+		this.drawSecondHorizontalLine();
+		this.penlet.graphics.drawString("Fourth line", 25, 2, 0);
+		this.displayDrawing(true);
 	}
 
 	/**
@@ -642,7 +661,9 @@ public class FSM implements StrokeListener {
 				displayErrorDrawFirstVerticalLine();
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLineLengthException. Reason: "
+								+ e.getReason());
 				displayErrorDrawFirstVerticalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
@@ -663,11 +684,15 @@ public class FSM implements StrokeListener {
 				displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLineLengthException. Reason: "
+								+ e.getReason());
 				displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLinePositionException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLinePositionException. Reason: "
+								+ e.getReason());
 				displayErrorDrawSecondVerticalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
@@ -685,10 +710,14 @@ public class FSM implements StrokeListener {
 				this.penlet.logger.error("GameBoardLinePointsCountException");
 				displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLinePositionException. Reason: "
+								+ e.getReason());
 				displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLineLengthException. Reason: "
+								+ e.getReason());
 				displayErrorDrawFirstHorizontalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
@@ -706,31 +735,35 @@ public class FSM implements StrokeListener {
 				this.penlet.logger.error("GameBoardLinePointsCountException");
 				displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.penlet.logger.error("GameBoardLinePositionException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLinePositionException. Reason: "
+								+ e.getReason());
 				displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.penlet.logger.error("GameBoardLineLengthException. Reason: "+e.getReason());
+				this.penlet.logger
+						.error("GameBoardLineLengthException. Reason: "
+								+ e.getReason());
 				displayErrorDrawSecondHorizontalLine();
 			}
 		}
 	}
-	
+
 	private void displayErrorDrawSecondHorizontalLine() {
 		displayMessage(
 				"Second horizontal line is invalid. Please try again or read game help.",
-				true);		
+				true);
 	}
-	
+
 	private void displayErrorDrawFirstHorizontalLine() {
 		displayMessage(
 				"First horizontal line is invalid. Please try again or read game help.",
-				true);		
+				true);
 	}
 
 	private void displayErrorDrawSecondVerticalLine() {
 		displayMessage(
 				"Second vertical line is invalid. Please try again or read game help.",
-				true);		
+				true);
 	}
 
 	private void displayErrorDrawFirstVerticalLine() {
@@ -754,7 +787,7 @@ public class FSM implements StrokeListener {
 		this.penlet.label.draw(msg, scroll);
 		this.penlet.display.setCurrent(this.penlet.label);
 	}
-	
+
 	/**
 	 * Displays drawing on the screen. Actual data must be drawed on the
 	 * "this.penlet.graphics" object
@@ -765,5 +798,33 @@ public class FSM implements StrokeListener {
 	private void displayDrawing(boolean scroll) {
 		this.penlet.label.draw(this.penlet.image, null, scroll);
 		this.penlet.display.setCurrent(this.penlet.label);
+	}
+
+	/**
+	 * Draws first vertical line
+	 */
+	private void drawFirstVerticalLine() {
+		this.penlet.graphics.drawLine(6, 1, 6, 17);
+	}
+
+	/**
+	 * Draws second vertical line
+	 */
+	private void drawSecondVerticalLine() {
+		this.penlet.graphics.drawLine(12, 1, 12, 17);
+	}
+	
+	/**
+	 * Draws first horizontal line
+	 */
+	private void drawFirstHorizontalLine() {
+		this.penlet.graphics.drawLine(1, 6, 17, 6);
+	}
+	
+	/**
+	 * Draws second vertical line
+	 */
+	private void drawSecondHorizontalLine() {
+		this.penlet.graphics.drawLine(1, 12, 17, 12);
 	}
 }
