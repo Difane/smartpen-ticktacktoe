@@ -12,7 +12,6 @@ import com.livescribe.event.HWRListener;
 import com.livescribe.event.MenuEvent;
 import com.livescribe.event.MenuEventListener;
 import com.livescribe.event.PenTipListener;
-import com.livescribe.event.StrokeListener;
 import com.livescribe.icr.ICRContext;
 import com.livescribe.icr.Resource;
 import com.livescribe.penlet.Penlet;
