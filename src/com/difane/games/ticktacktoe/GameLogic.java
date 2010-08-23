@@ -56,10 +56,15 @@ public class GameLogic {
 	 * 
 	 * @param field
 	 *            Field (1 to 9), where turn was made
-	 * 
+	 * @return true if ok, false otherwise
 	 */
-	public void humanTurn(int field) {
-		// TODO Write implementation
+	public boolean humanTurn(int field) {
+		if(fields[field] == FIELD_EMPTY)
+		{
+			fields[field] = humanType;
+			return true;
+		}
+		return false;
 	}
 
 	/**
