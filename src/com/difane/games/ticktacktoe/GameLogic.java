@@ -1,5 +1,6 @@
 package com.difane.games.ticktacktoe;
 
+import java.util.Random;
 import java.util.Vector;
 
 public class GameLogic {
@@ -79,9 +80,50 @@ public class GameLogic {
 	 * @return Field (1 to 9), where turn was made
 	 */
 	public int aiTurn() {
-		// TODO Write implementation
-		int aiTurnResult = 1;
-		return aiTurnResult;
+		int aiTurnResult = -1;
+		Random rand = new Random();
+
+		int m, r, mr, i;
+
+		m = 0;
+		r = 0;
+
+		if (aiLevel == AI_LEVEL_EASY) {
+			for (i = 1; i <= 9; i++) {
+				r = r + ratings[i];
+			}
+			mr = rand.nextInt(r) + 1;
+			for (i = 1; i <= 9; i++) {
+				mr = mr - ratings[i];
+				if (mr <= 0) {
+					fields[i] = aiType;
+					return i;
+				}
+			}
+		} else {
+			for (i = 1; i <= 9; i++) {
+				if (ratings[i] > r) {
+					r = ratings[i];
+				}
+			}
+			for (i = 1; i <= 9; i++) {
+				if (ratings[i] == r) {
+					m = m + 1;
+				}
+			}
+			mr = rand.nextInt(m) + 1;
+			m = 0;
+
+			for (i = 1; i <= 9; i++) {
+				if (ratings[i] == r) {
+					m = m + 1;
+					if (m == mr) {
+						fields[i] = aiType;
+						return i;
+					}
+				}
+			}
+		}
 	}
 
 	/**
