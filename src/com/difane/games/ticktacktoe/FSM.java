@@ -1099,8 +1099,7 @@ public class FSM implements StrokeListener, HWRListener {
 			this.penlet.logger.debug("[FSM][ICR] Receiving symbol rectangle. ICRContext: "+this.icrContext);
 			
 			
-			Rectangle r = this.icrContext.getTextBoundingBox();
-			this.icrContext.clearStrokes();
+			Rectangle r = this.icrContext.getTextBoundingBox();			
 			
 			this.penlet.logger.debug("[FSM][ICR] Rectangle: "+r);
 			this.penlet.logger.debug("[FSM][ICR] symbol rectangle was received ("+r.toString()+"). Calculating it's center point");
@@ -1124,6 +1123,9 @@ public class FSM implements StrokeListener, HWRListener {
 		{
 			this.penlet.logger.debug("[FSM][ICR] User has not draw required symbol");
 		}
+		
+		// ICR Strokes clearing must be done in any case
+		this.icrContext.clearStrokes();
 	}
 
 	/**
