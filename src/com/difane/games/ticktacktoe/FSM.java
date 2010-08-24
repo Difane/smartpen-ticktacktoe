@@ -662,23 +662,23 @@ public class FSM implements StrokeListener, HWRListener {
 		case GameLogic.GAME_STATUS_X_WINS:
 			if (this.logic.getHumanType() == GameLogic.FIELD_X) {
 				// Human wins
-				this.eventHumanWins();
+				this.setNextEvent(NEXT_EVENT_GAME_END_HUMAN_WINS);
 			} else {
 				// Pen wins
-				this.eventPenWins();
+				this.setNextEvent(NEXT_EVENT_GAME_END_PEN_WINS);
 			}
 			break;
 		case GameLogic.GAME_STATUS_O_WINS:
 			if (this.logic.getHumanType() == GameLogic.FIELD_O) {
 				// Human wins
-				this.eventHumanWins();
+				this.setNextEvent(NEXT_EVENT_GAME_END_HUMAN_WINS);
 			} else {
 				// Pen wins
-				this.eventPenWins();
+				this.setNextEvent(NEXT_EVENT_GAME_END_PEN_WINS);
 			}
 			break;
 		case GameLogic.GAME_STATUS_DRAW:
-			this.eventDraw();
+			this.setNextEvent(NEXT_EVENT_GAME_END_DRAW);
 			break;
 		default:
 			// Game continues. Do nothing
