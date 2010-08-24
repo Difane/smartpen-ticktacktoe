@@ -63,6 +63,20 @@ public class FSM implements StrokeListener, HWRListener {
 			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
 
 	/**
+	 * Handling transition next event
+	 */
+	private int nextEvent = NEXT_EVENT_NONE;
+	
+	static public final int NEXT_EVENT_NONE = -1;
+	static public final int NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT = 0;
+	static public final int NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT = 1;
+	static public final int NEXT_EVENT_GAME_PEN_TURN_READY = 2;
+	static public final int NEXT_EVENT_GAME_END_HUMAN_WINS = 3;
+	static public final int NEXT_EVENT_GAME_END_PEN_WINS = 4;
+	static public final int NEXT_EVENT_GAME_END_DRAW = 5;
+	static public final int NEXT_EVENT_END = 6;
+	
+	/**
 	 * Constructor
 	 */
 	public FSM(BasePenlet p) {
@@ -363,8 +377,6 @@ public class FSM implements StrokeListener, HWRListener {
 		penlet.logger.debug("FSM::transition  ---> ");
 		penlet.logger.debug("[FSM] transition started ( " + currentState
 				+ " -> " + transitionState + " )");
-
-		boolean needChangeCurrentState = true;
 		try {
 			switch (transitionState) {
 			case FSM_STATE_MAIN_MENU_START_GAME:
@@ -556,33 +568,17 @@ public class FSM implements StrokeListener, HWRListener {
 				break;
 			case FSM_STATE_GAME_SELECT_PLAYER_ORDER:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
-					// While we calling event from transition itself - we must
-					// manually change current state
-					this.currentState = transitionState;
-					
-					// We have changes state already
-					needChangeCurrentState = false;
-
 					boolean humanFirst = this.logic.selectPlayersOrder();
 					if (humanFirst) {
-						this.eventPlayerSelectedHumanTurnNext();
+						this.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT);
 					} else {
-						this.eventPlayerSelectedPenTurnNext();
+						this.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT);
 					}
 				}
 				break;
 			case FSM_STATE_GAME_HUMAN_TURN:
 				if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER
 						|| currentState == FSM_STATE_GAME_PEN_TURN) {
-					// While we calling event from transition itself - we must
-					// manually change current state
-					this.currentState = transitionState;
-					
-					// We have changes state already
-					needChangeCurrentState = false;
-					
-					this.penlet.logger.debug("[FSM] Current state was changed manually to "+this.currentState);
-
 					// 1. Checking, that game is not end
 					this.checkGameStatus();
 					// 2. Redrawing board with text "Your turn"
@@ -592,20 +588,13 @@ public class FSM implements StrokeListener, HWRListener {
 			case FSM_STATE_GAME_PEN_TURN:
 				if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER
 						|| currentState == FSM_STATE_GAME_HUMAN_TURN) {
-					// While we calling event from transition itself - we must
-					// manually change current state
-					this.currentState = transitionState;
-					
-					// We have changes state already
-					needChangeCurrentState = false;
-
 					// 1. Checking, that game is not end
 					this.checkGameStatus();
 					// 2. Redrawing board with text "Your turn"
 					this.redrawBoard(false);
 					// 3. Performing pen turn;
 					this.logic.aiTurn();
-					this.eventPenTurnReady();
+					this.setNextEvent(NEXT_EVENT_GAME_PEN_TURN_READY);
 				}
 				break;
 			default:
@@ -615,20 +604,14 @@ public class FSM implements StrokeListener, HWRListener {
 				return;
 			} // switch (transitionState)
 
-			if (needChangeCurrentState) {
-				this.penlet.logger.debug("[FSM] Setting current state ("
-						+ this.currentState + ") to the new state ("
-						+ transitionState
-						+ ") after processing state switching");
-				this.currentState = transitionState;
-			}
-			else
-			{
-				this.penlet.logger.debug("[FSM] Current state already changed. No additional change needed");
-			}
+			this.currentState = transitionState;			
 		} catch (Exception e) {
 			penlet.logger.error("[FSM] Exception appears: " + e);
 		}
+		
+		penlet.logger.debug("[FSM] Starting processing next event");
+		this.processNextEvent();
+		penlet.logger.debug("[FSM] Next event was processed");
 		
 		penlet.logger.debug("FSM::transition  <--- ");
 	}
@@ -1173,5 +1156,41 @@ public class FSM implements StrokeListener, HWRListener {
 	private void destroyICRContext() {
 		icrContext.dispose();
 		icrContext = null;
+	}
+	
+	private void processNextEvent() {
+		if (nextEvent != NEXT_EVENT_NONE) {
+			switch (nextEvent) {
+			case NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT:
+				eventPlayerSelectedHumanTurnNext();
+				break;
+			case NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT:
+				eventPlayerSelectedPenTurnNext();
+				break;
+			case NEXT_EVENT_GAME_PEN_TURN_READY:
+				eventPenTurnReady();
+				break;			
+			case NEXT_EVENT_GAME_END_HUMAN_WINS:
+				eventHumanWins();
+				break;
+			case NEXT_EVENT_GAME_END_PEN_WINS:
+				eventPenWins();
+				break;
+			case NEXT_EVENT_GAME_END_DRAW:
+				eventDraw();
+				break;
+			case NEXT_EVENT_END:
+				eventEndApplication();
+				break;
+
+			default:
+				this.penlet.logger.debug("[FSM] Invalid next event, that cannot be processed ("+nextEvent+")");
+				break;
+			}
+		}
+	}
+
+	public void setNextEvent(int nextEvent) {
+		this.nextEvent = nextEvent;
 	}
 }
