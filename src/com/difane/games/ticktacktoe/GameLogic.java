@@ -34,6 +34,8 @@ public class GameLogic {
 			{ 0, 3, 5, 0, 0 }, { 0, 3, 6, 7, 0 } };
 
 	private int[] li = new int[9];
+	
+	private int gameStatus;
 
 	public GameLogic() {
 		aiLevel = AI_LEVEL_EASY;
@@ -66,11 +68,18 @@ public class GameLogic {
 	 * @return true if ok, false otherwise
 	 */
 	public boolean humanTurn(int field) {
-		if (fields[field] == FIELD_EMPTY) {
-			fields[field] = humanType;
-			return true;
+		
+		if (gameStatus == GAME_STATUS_NOT_COMPLETED) {
+			if (fields[field] == FIELD_EMPTY) {
+				fields[field] = humanType;
+				return true;
+			}
+			return false;
 		}
-		return false;
+		else
+		{
+			return false;
+		}
 	}
 
 	/**
@@ -79,6 +88,11 @@ public class GameLogic {
 	 * @return Field (1 to 9), where turn was made
 	 */
 	public int aiTurn() {
+		// There are no turn possible, if game already completed
+		if (gameStatus != GAME_STATUS_NOT_COMPLETED) {
+			return -1;
+		}
+		
 		this.calculateRating();
 		Random rand = new Random();
 
@@ -159,6 +173,9 @@ public class GameLogic {
 			result = 3;
 		}
 
+		// Storing game status for internal using
+		gameStatus = result;
+		
 		return result;
 	}
 
