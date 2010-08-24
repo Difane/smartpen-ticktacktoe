@@ -575,18 +575,28 @@ public class GameBoard {
 	 */
 	public Point intersection(int x1, int y1, int x2, int y2, int x3, int y3,
 			int x4, int y4) {
-		int d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+		
+		double dx1 = x1;
+		double dy1 = y1;
+		double dx2 = x2;
+		double dy2 = y2;
+		double dx3 = x3;
+		double dy3 = y3;
+		double dx4 = x4;
+		double dy4 = y4;
+		
+		double d = (dx1 - dx2) * (dy3 - dy4) - (dy1 - dy2) * (dx3 - dx4);
 		if (d == 0)
 			return null;
-
-		int xi = ((x3 - x4) * (x1 * y2 - y1 * x2) - (x1 - x2)
-				* (x3 * y4 - y3 * x4))
+		
+		double xi = ((dx3 - dx4) * (dx1 * dy2 - dy1 * dx2) - (dx1 - dx2)
+				* (dx3 * dy4 - dy3 * dx4))
 				/ d;
-		int yi = ((y3 - y4) * (x1 * y2 - y1 * x2) - (y1 - y2)
-				* (x3 * y4 - y3 * x4))
+		double yi = ((dy3 - dy4) * (dx1 * dy2 - dy1 * dx2) - (dy1 - dy2)
+				* (dx3 * dy4 - dy3 * dx4))
 				/ d;
-
-		return new Point(xi, yi);
+		
+		return new Point((int)xi, (int)yi);
 	}
 
 }
