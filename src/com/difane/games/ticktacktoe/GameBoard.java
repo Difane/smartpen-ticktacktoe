@@ -11,7 +11,6 @@ import com.livescribe.afp.Scale;
 import com.livescribe.geom.Point;
 import com.livescribe.geom.PolyLine;
 import com.livescribe.geom.Rectangle;
-import com.livescribe.penlet.Logger;
 
 public class GameBoard {
 	
@@ -26,7 +25,6 @@ public class GameBoard {
 	private PolyLine secondHorizontalLine;
 	private int secondHorizontalLineLength;
 	private Vector board;
-	private Rectangle boardBox;
 
 	/**
 	 * Constructor
