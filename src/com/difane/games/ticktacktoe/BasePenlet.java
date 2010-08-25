@@ -26,7 +26,7 @@ public class BasePenlet extends Penlet implements MenuEventListener {
 	protected ScrollLabel label;
 	
 	
-	protected FSM fsm;
+	protected GameFSM fsm;
 	
 	// Application menus
 	protected Vector		menuMainItems;
@@ -53,8 +53,8 @@ public class BasePenlet extends Penlet implements MenuEventListener {
         this.display = this.context.getDisplay();
         this.label = new ScrollLabel();
         
-        // Initializing FSM
-        this.fsm = new FSM(this);
+        // Initializing GameFSM
+        this.fsm = new GameFSM(this);
         
         // Initializing menus
         this.menuMainItems = new Vector();
