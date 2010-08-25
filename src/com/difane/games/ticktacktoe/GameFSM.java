@@ -20,6 +20,8 @@ import com.livescribe.storage.StrokeStorage;
 
 public class GameFSM implements StrokeListener, HWRListener {
 
+	private Container container;
+	
 	// Available states
 	static public final int FSM_STATE_UNDEFINED = -1;
 	static public final int FSM_STATE_START = 0;
@@ -47,21 +49,13 @@ public class GameFSM implements StrokeListener, HWRListener {
 	static public final int FSM_STATE_GAME_END_DRAW = 22;
 	static public final int FSM_STATE_END = 23;
 
-	private BasePenlet penlet;
-
 	private int currentState = FSM_STATE_UNDEFINED;
-
-	private GameBoard board;
-	private GameLogic logic;
 
 	/**
 	 * Context for an ICR
 	 */
 	protected ICRContext icrContext;
-
-	private int[][] fieldCoords = { { 0, 0 }, { 1, 2 }, { 7, 2 }, { 13, 2 },
-			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
-
+	
 	/**
 	 * Handling transition next event
 	 */
@@ -79,13 +73,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 	/**
 	 * Constructor
 	 */
-	public GameFSM(BasePenlet p) {
-		this.penlet = p;
-		penlet.logger.debug("[GameFSM] Constructed");
+	public GameFSM(Container c) {
+		this.container = c;
+		
+		this.getContainer().getLoggerComponent().debug("[GameFSM] Constructed");
 		this.currentState = FSM_STATE_START;
-
-		this.board = new GameBoard(this.penlet.logger);
-		this.logic = new GameLogic();
 	}
 
 	/**
@@ -93,7 +85,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * to start application by displaying it's main menu
 	 */
 	public void eventStartApplication() {
-		penlet.logger.debug("[GameFSM] eventStartApplication received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventStartApplication received");
 
 		initializeICRContext();
 
@@ -104,7 +96,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when DOWN in the menu be pressed
 	 */
 	public boolean eventMenuDown() {
-		penlet.logger.debug("[GameFSM] eventMenuDown received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuDown received");
 		switch (currentState) {
 		case FSM_STATE_MAIN_MENU_START_GAME:
 			transition(currentState, FSM_STATE_MAIN_MENU_HELP);
@@ -132,7 +124,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when UP in the menu be pressed
 	 */
 	public boolean eventMenuUp() {
-		penlet.logger.debug("[GameFSM] eventMenuUp received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuUp received");
 		switch (currentState) {
 		case FSM_STATE_MAIN_MENU_HELP:
 			transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
@@ -160,7 +152,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when LEFT in the menu be pressed
 	 */
 	public boolean eventMenuLeft() {
-		penlet.logger.debug("[GameFSM] eventMenuLeft received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuLeft received");
 
 		boolean result = false;
 
@@ -204,7 +196,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when RIGHT in the menu be pressed
 	 */
 	public boolean eventMenuRight() {
-		penlet.logger.debug("[GameFSM] eventMenuRight received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuRight received");
 
 		switch (currentState) {
 		case FSM_STATE_MAIN_MENU_START_GAME:
@@ -227,11 +219,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED);
 			break;
 		case FSM_STATE_LEVEL_MENU_EASY:
-			this.logic.setAiLevel(GameLogic.AI_LEVEL_EASY);
+			this.getContainer().getGameLogicComponent().setAiLevel(GameLogic.AI_LEVEL_EASY);
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		case FSM_STATE_LEVEL_MENU_HARD:
-			this.logic.setAiLevel(GameLogic.AI_LEVEL_HARD);
+			this.getContainer().getGameLogicComponent().setAiLevel(GameLogic.AI_LEVEL_HARD);
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		default:
@@ -245,7 +237,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when first board vertical line be ready
 	 */
 	public void eventFirstVerticalLineReady() {
-		penlet.logger.debug("[GameFSM] eventFirstVerticalLineReady received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventFirstVerticalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
 			transition(currentState, FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE);
 		}
@@ -255,7 +247,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when second board vertical line be ready
 	 */
 	public void eventSecondVerticalLineReady() {
-		penlet.logger.debug("[GameFSM] eventSecondVerticalLineReady received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventSecondVerticalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE);
 		}
@@ -265,7 +257,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when first board horizontal line be ready
 	 */
 	public void eventFirstHorizontalLineReady() {
-		penlet.logger.debug("[GameFSM] eventFirstHorizontalLineReady received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventFirstHorizontalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			transition(currentState,
 					FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE);
@@ -276,7 +268,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when second board horizontal line be ready
 	 */
 	public void eventSecondHorizontalLineReady() {
-		penlet.logger.debug("[GameFSM] eventSecondHorizontalLineReady received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventSecondHorizontalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			transition(currentState, FSM_STATE_GAME_SELECT_PLAYER_ORDER);
 		}
@@ -287,9 +279,9 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * human's
 	 */
 	public void eventPlayerSelectedHumanTurnNext() {
-		penlet.logger.debug("[GameFSM] eventPlayerSelectedHumanTurnNext received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPlayerSelectedHumanTurnNext received");
 		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
-			this.displayMessage("You playes crosses and goes first", true);
+			this.getContainer().getGameDisplayComponent().displayHumanStartsGame();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -304,9 +296,9 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * pen's
 	 */
 	public void eventPlayerSelectedPenTurnNext() {
-		penlet.logger.debug("[GameFSM] eventPlayerSelectedPenTurnNext received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPlayerSelectedPenTurnNext received");
 		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
-			this.displayMessage("You playes noughts and goes second", true);
+			this.getContainer().getGameDisplayComponent().displayPenStartsGame();
 			this.transition(currentState, FSM_STATE_GAME_PEN_TURN);
 		}
 	}
@@ -315,7 +307,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when player makes his turn
 	 */
 	public void eventHumanTurnReady() {
-		penlet.logger.debug("[GameFSM] eventHumanTurnReady received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventHumanTurnReady received");
 		if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_PEN_TURN);
 		}
@@ -325,7 +317,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when pen makes his turn
 	 */
 	public void eventPenTurnReady() {
-		penlet.logger.debug("[GameFSM] eventPenTurnReady received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPenTurnReady received");
 		if (currentState == FSM_STATE_GAME_PEN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_HUMAN_TURN);
 		}
@@ -335,11 +327,12 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and human wins
 	 */
 	public void eventHumanWins() {
-		penlet.logger.debug("[GameFSM] eventHumanWins received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventHumanWins received");
 		if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_END_HUMAN_WINS);
 		} else {
-			this.penlet.logger
+			
+			this.getContainer().getLoggerComponent()
 					.error("[GameFSM] Impossible situation - human wins without making a turn");
 		}
 	}
@@ -348,14 +341,14 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and pen wins
 	 */
 	public void eventPenWins() {
-		penlet.logger.debug("[GameFSM] eventPenWins received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPenWins received");
 		
 		// Pen can win during human turn also
 		if (currentState == FSM_STATE_GAME_PEN_TURN
 				|| currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_END_PEN_WINS);
 		} else {
-			this.penlet.logger
+			this.getContainer().getLoggerComponent()
 					.error("[GameFSM] Impossible situation - pen wins without making a turn");
 		}
 	}
@@ -364,7 +357,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and draw appears
 	 */
 	public void eventDraw() {
-		penlet.logger.debug("[GameFSM] eventDraw received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventDraw received");
 
 		if (currentState == FSM_STATE_GAME_HUMAN_TURN
 				|| currentState == FSM_STATE_GAME_PEN_TURN) {
@@ -376,8 +369,10 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event ends application
 	 */
 	public void eventEndApplication() {
-		penlet.logger.debug("[GameFSM] eventEndApplication received");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventEndApplication received");
 
+		this.destroyICRContext();
+		
 		if (currentState == FSM_STATE_GAME_END_HUMAN_WINS
 				|| currentState == FSM_STATE_GAME_END_PEN_WINS
 				|| currentState == FSM_STATE_GAME_END_DRAW) {
@@ -385,23 +380,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 		}
 	}
 
-	/**
-	 * Activates menu item by it's index, if this item is not active
-	 * 
-	 * @param menu
-	 *            Menu to activate item in
-	 * @param newIndex
-	 *            New index of the activated item
-	 */
-	private void selectMenuItemIfNotSelected(BrowseList menu, int newIndex) {
-		if (menu.getFocusIndex() != newIndex) {
-			menu.setFocusItem(newIndex);
-		}
-	}
+	
 
 	private void transition(int currentState, int transitionState) {
-		penlet.logger.debug("GameFSM::transition  ---> ");
-		penlet.logger.debug("[GameFSM] transition started ( " + currentState
+		this.getContainer().getLoggerComponent().debug("GameFSM::transition  ---> ");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] transition started ( " + currentState
 				+ " -> " + transitionState + " )");
 		try {
 			switch (transitionState) {
@@ -410,85 +393,85 @@ public class GameFSM implements StrokeListener, HWRListener {
 						|| currentState == FSM_STATE_LEVEL_MENU_EASY
 						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
 					// Select "Help" in the main menu, if not selected
-					selectMenuItemIfNotSelected(this.penlet.menuMain, 0);
+					this.getContainer().getGameDisplayComponent().selectMainMenuItemIfNotSelected(0);
 
 					// Main menu must be displayed
-					displayMainMenu();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayMainMenu();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu was displayed with active item 0");
 
 				} else if (currentState == FSM_STATE_MAIN_MENU_HELP) {
 					// Main menu must be focused to the previous item
-					this.penlet.menuMain.focusToPrevious();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusMainMenuToPrevious();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu item 0 was activated");
 				}
 				break;
 			case FSM_STATE_MAIN_MENU_HELP:
 				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
 					// Main menu must be focused to the next item
-					this.penlet.menuMain.focusToNext();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusMainMenuToNext();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu item 1 was activated");
 				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
 					// Main menu must be focused to the previous item
-					this.penlet.menuMain.focusToPrevious();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusMainMenuToPrevious();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu item 1 was activated");
 				} else if (currentState == FSM_STATE_HELP_MENU_RULES
 						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD
 						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
 					// Select "Help" in the main menu, if not selected
-					selectMenuItemIfNotSelected(this.penlet.menuMain, 1);
+					this.getContainer().getGameDisplayComponent().selectMainMenuItemIfNotSelected(1);
 
 					// Main menu must be displayed
-					displayMainMenu();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayMainMenu();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu was displayed with active item 1");
 				}
 				break;
 			case FSM_STATE_MAIN_MENU_ABOUT:
 				if (currentState == FSM_STATE_MAIN_MENU_HELP) {
 					// Main menu must be focused to the next item
-					this.penlet.menuMain.focusToNext();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusMainMenuToNext();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu item 2 was activated");
 				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED) {
 					// Select "About" in the main menu, if not selected
-					selectMenuItemIfNotSelected(this.penlet.menuMain, 2);
+					this.getContainer().getGameDisplayComponent().selectMainMenuItemIfNotSelected(2);
 
 					// Main menu must be displayed
-					displayMainMenu();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayMainMenu();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Main menu was displayed with active item 2");
 				}
 				break;
 			case FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED:
 				if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
-					displayAbout();
-					this.penlet.logger.debug("[GameFSM] About was displayed");
+					this.getContainer().getGameDisplayComponent().displayAbout();
+					this.getContainer().getLoggerComponent().debug("[GameFSM] About was displayed");
 				}
 				break;
 			case FSM_STATE_LEVEL_MENU_EASY:
 				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
 					// Select "Easy" in the level select menu, if not selected
-					selectMenuItemIfNotSelected(this.penlet.menuLevelSelect, 0);
+					this.getContainer().getGameDisplayComponent().selectLevelSelectMenuItemIfNotSelected(0);
 
 					// Level select menu must be displayed
-					displayLevelSelectMenu();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayLevelSelectMenu();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Level select menu was displayed");
 				} else if (currentState == FSM_STATE_LEVEL_MENU_HARD) {
 					// Main menu must be focused to the next item
-					this.penlet.menuLevelSelect.focusToPrevious();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusLevelSelectMenuToPrevious();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Level select menu item 0 was activated");
 				}
 				break;
 			case FSM_STATE_LEVEL_MENU_HARD:
 				if (currentState == FSM_STATE_LEVEL_MENU_EASY) {
-					this.penlet.menuLevelSelect.focusToNext();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusLevelSelectMenuToNext();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Level select menu item 1 was activated");
 				}
 				break;
@@ -496,15 +479,15 @@ public class GameFSM implements StrokeListener, HWRListener {
 				if (currentState == FSM_STATE_MAIN_MENU_HELP
 						|| currentState == FSM_STATE_HELP_MENU_RULES_DISPLAYED) {
 					// Select "Rules" in the help menu, if not selected
-					selectMenuItemIfNotSelected(this.penlet.menuHelp, 0);
+					this.getContainer().getGameDisplayComponent().selectHelpMenuItemIfNotSelected(0);
 
 					// Level select menu must be displayed
-					displayHelpMenu();
-					this.penlet.logger.debug("[GameFSM] Help menu was displayed");
+					this.getContainer().getGameDisplayComponent().displayHelpMenu();
+					this.getContainer().getLoggerComponent().debug("[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
 					// Help menu must be focused to the previous item
-					this.penlet.menuHelp.focusToPrevious();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusHelpMenuToPrevious();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Help menu item 0 was activated");
 				}
 				break;
@@ -512,95 +495,94 @@ public class GameFSM implements StrokeListener, HWRListener {
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED) {
 					// Select "How to draw board" in the help menu, if not
 					// selected
-					selectMenuItemIfNotSelected(this.penlet.menuHelp, 1);
+					this.getContainer().getGameDisplayComponent().selectHelpMenuItemIfNotSelected(1);
 
 					// Level select menu must be displayed
-					displayHelpMenu();
-					this.penlet.logger.debug("[GameFSM] Help menu was displayed");
+					this.getContainer().getGameDisplayComponent().displayHelpMenu();
+					this.getContainer().getLoggerComponent().debug("[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_RULES) {
 					// Help menu must be focused to the next item
-					this.penlet.menuHelp.focusToNext();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusHelpMenuToNext();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Help menu item 1 was activated");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
 					// Help menu must be focused to the next item
-					this.penlet.menuHelp.focusToPrevious();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusHelpMenuToPrevious();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Help menu item 1 was activated");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED) {
 					// Select "How to play" in the help menu, if not selected
-					selectMenuItemIfNotSelected(this.penlet.menuHelp, 2);
+					this.getContainer().getGameDisplayComponent().selectHelpMenuItemIfNotSelected(2);
 
 					// Level select menu must be displayed
-					displayHelpMenu();
-					this.penlet.logger.debug("[GameFSM] Help menu was displayed");
+					this.getContainer().getGameDisplayComponent().displayHelpMenu();
+					this.getContainer().getLoggerComponent().debug("[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
 					// Help menu must be focused to the next item
-					this.penlet.menuHelp.focusToNext();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().focusHelpMenuToNext();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Help menu item 2 was activated");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_RULES_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_RULES) {
-					displayRules();
-					this.penlet.logger.debug("[GameFSM] Rules was displayed");
+					this.getContainer().getGameDisplayComponent().displayRules();
+					this.getContainer().getLoggerComponent().debug("[GameFSM] Rules was displayed");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
-					displayHowToDrawBoard();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayHowToDrawBoard();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] How to draw board was displayed");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
-					displayHowToPlay();
-					this.penlet.logger.debug("[GameFSM] How to play was displayed");
+					this.getContainer().getGameDisplayComponent().displayHowToPlay();
+					this.getContainer().getLoggerComponent().debug("[GameFSM] How to play was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE:
 				if (currentState == FSM_STATE_LEVEL_MENU_EASY
 						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
-					displayDrawFirstVerticalLine();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayDrawFirstVerticalLine();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Draw first vertical line was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
-					displayDrawSecondVerticalLine();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayDrawSecondVerticalLine();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Draw second vertical line was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
-					displayDrawFirstHorizontalLine();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayDrawFirstHorizontalLine();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Draw first horizontal line was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
-					displayDrawSecondHorizontalLine();
-					this.penlet.logger
+					this.getContainer().getGameDisplayComponent().displayDrawSecondHorizontalLine();
+					this.getContainer().getLoggerComponent()
 							.debug("[GameFSM] Draw second horizontal line was displayed");
 				}
 				break;
 			case FSM_STATE_GAME_SELECT_PLAYER_ORDER:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
-					boolean humanFirst = this.logic.selectPlayersOrder();
+					boolean humanFirst = this.getContainer()
+							.getGameLogicComponent().selectPlayersOrder();
 					if (humanFirst) {
-						this
-								.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT);
+						this.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT);
 					} else {
-						this
-								.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT);
+						this.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT);
 					}
 				}
 				break;
@@ -610,7 +592,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 					// 1. Checking, that game is not end
 					if (this.checkGameStatus()) {
 						// 2. Redrawing board with text "Your turn"
-						this.redrawBoard(true);
+						this.getContainer().getGameDisplayComponent().redrawBoard(true);
 					}
 				}
 				break;
@@ -620,105 +602,54 @@ public class GameFSM implements StrokeListener, HWRListener {
 					// 1. Checking, that game is not end
 					if (this.checkGameStatus()) {
 						// 2. Redrawing board with text "Your turn"
-						this.redrawBoard(false);
+						this.getContainer().getGameDisplayComponent().redrawBoard(false);
 						// 3. Performing pen turn;
-						this.logic.aiTurn();
+						this.getContainer().getGameLogicComponent().aiTurn();
 						this.setNextEvent(NEXT_EVENT_GAME_PEN_TURN_READY);
 					}
 				}
 				break;
 			case FSM_STATE_GAME_END_HUMAN_WINS:
-				displayHumanWins();
-				this.penlet.logger.debug("[GameFSM] Human wins was displayed");
+				this.getContainer().getGameDisplayComponent().displayHumanWins();
+				this.getContainer().getLoggerComponent().debug("[GameFSM] Human wins was displayed");
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_PEN_WINS:
-				displayPenWins();
-				this.penlet.logger.debug("[GameFSM] Pen wins was displayed");
+				this.getContainer().getGameDisplayComponent().displayPenWins();
+				this.getContainer().getLoggerComponent().debug("[GameFSM] Pen wins was displayed");
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_DRAW:
-				displayDraw();
-				this.penlet.logger.debug("[GameFSM] Draw was displayed");
+				this.getContainer().getGameDisplayComponent().displayDraw();
+				this.getContainer().getLoggerComponent().debug("[GameFSM] Draw was displayed");
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_END:
-				displayEnd();
-				this.penlet.logger.debug("[GameFSM] Game end reached");
+				this.getContainer().getGameDisplayComponent().displayEnd();
+				this.getContainer().getLoggerComponent().debug("[GameFSM] Game end reached");
 			default:
 				// Unrecognized target state. Rejecting it
-				penlet.logger.warn("[GameFSM] Unrecognized target state: "
+				this.getContainer().getLoggerComponent().warn("[GameFSM] Unrecognized target state: "
 						+ transitionState);
 				return;
 			} // switch (transitionState)
 
 			this.currentState = transitionState;
 		} catch (Exception e) {
-			penlet.logger.error("[GameFSM] Exception appears: " + e);
+			this.getContainer().getLoggerComponent().error("[GameFSM] Exception appears: " + e);
 		}
 
-		penlet.logger.debug("[GameFSM] Starting processing next event");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] Starting processing next event");
 		this.processNextEvent();
-		penlet.logger.debug("[GameFSM] Next event was processed");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] Next event was processed");
 
-		penlet.logger.debug("GameFSM::transition  <--- ");
+		this.getContainer().getLoggerComponent().debug("GameFSM::transition  <--- ");
 	}
 
-	private void displayEnd() {
-		displayMessage("To start new game, please launch application again!",
-				true);
-	}
-
-	private void displayDraw() {
-		displayMessage("Game Draw!", true);
-	}
-
-	private void displayPenWins() {
-		displayMessage("Sorry, but You Lose!", true);
-	}
-
-	private void displayHumanWins() {
-		displayMessage("Congratulations! You win!", true);
-	}
-
-	/**
-	 * Draws board on the screen and displays message to the user with
-	 * information about next activity
-	 * 
-	 * @param humanTurnNext
-	 *            True, if next turn must be dome by human, false otherwise
-	 */
-	private void redrawBoard(boolean humanTurnNext) {
-		// At first drawing empty game field
-		this.penlet.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.drawFirstHorizontalLine();
-		this.drawSecondHorizontalLine();
-
-		int[] board = this.logic.getFields();
-
-		for (int i = 1; i <= 9; i++) {
-			if (board[i] == GameLogic.FIELD_X) {
-				this.drawX(i);
-			} else if (board[i] == GameLogic.FIELD_O) {
-				this.drawO(i);
-			} else {
-				// Field is empty
-			}
-		}
-
-		if (humanTurnNext) {
-			this.penlet.graphics.drawString("Your turn!", 25, 2, 0);
-		} else {
-			this.penlet.graphics.drawString("Pen's turn!", 25, 2, 0);
-		}
-
-		this.displayDrawing(true);
-	}
+	
 
 	/**
 	 * Checks game status and forwards to the corresponded state, if game
@@ -726,22 +657,22 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * @return false, if game status changed and game end, true otherwise
 	 */
 	private boolean checkGameStatus() {
-		int status = this.logic.getGameStatus();
-		this.penlet.logger.debug("[GameFSM].checkGameStatus. Game status is: "
+		int status = this.getContainer().getGameLogicComponent().getGameStatus();
+		this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. Game status is: "
 				+ status + ". Current state is" + currentState);
 
 		boolean result = true;
 		
 		switch (status) {
 		case GameLogic.GAME_STATUS_X_WINS:
-			this.penlet.logger.debug("[GameFSM].checkGameStatus. 'X' player wins");
-			if (this.logic.getHumanType() == GameLogic.FIELD_X) {
-				this.penlet.logger
+			this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. 'X' player wins");
+			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_X) {
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM].checkGameStatus. 'X' was played by human. Human wins");
 				// Human wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_HUMAN_WINS);
 			} else {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM].checkGameStatus. 'X' was played by pen. Pen wins");
 				// Pen wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_PEN_WINS);
@@ -749,14 +680,14 @@ public class GameFSM implements StrokeListener, HWRListener {
 			result = false;
 			break;
 		case GameLogic.GAME_STATUS_O_WINS:
-			this.penlet.logger.debug("[GameFSM].checkGameStatus. 'O' player wins");
-			if (this.logic.getHumanType() == GameLogic.FIELD_O) {
-				this.penlet.logger
+			this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. 'O' player wins");
+			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_O) {
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM].checkGameStatus. 'O' was played by human. Human wins");
 				// Human wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_HUMAN_WINS);
 			} else {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM].checkGameStatus. 'O' was played by pen. Pen wins");
 				// Pen wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_PEN_WINS);
@@ -764,12 +695,12 @@ public class GameFSM implements StrokeListener, HWRListener {
 			result = false;
 			break;
 		case GameLogic.GAME_STATUS_DRAW:
-			this.penlet.logger.debug("[GameFSM].checkGameStatus. Game draw");
+			this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. Game draw");
 			this.setNextEvent(NEXT_EVENT_GAME_END_DRAW);
 			result = false;
 			break;
 		default:
-			this.penlet.logger
+			this.getContainer().getLoggerComponent()
 					.debug("[GameFSM].checkGameStatus. Game is not completed yet");
 			// Game continues. Do nothing
 			result = true;
@@ -779,104 +710,15 @@ public class GameFSM implements StrokeListener, HWRListener {
 		return result;
 	}
 
-	/**
-	 * Displayed Draw first vertical line on the display
-	 */
-	private void displayDrawFirstVerticalLine() {
-		this.penlet.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.penlet.graphics.drawString("First line", 25, 2, 0);
-		this.displayDrawing(true);
-	}
+	
 
-	/**
-	 * Displayed Draw second vertical line on the display
-	 */
-	private void displayDrawSecondVerticalLine() {
-		this.penlet.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.penlet.graphics.drawString("Second line", 25, 2, 0);
-		this.displayDrawing(true);
-	}
+	
 
-	/**
-	 * Displayed Draw first horizontal line on the display
-	 */
-	private void displayDrawFirstHorizontalLine() {
-		this.penlet.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.drawFirstHorizontalLine();
-		this.penlet.graphics.drawString("Third line", 25, 2, 0);
-		this.displayDrawing(true);
-	}
-
-	/**
-	 * Displayed Draw second horizontal line on the display
-	 */
-	private void displayDrawSecondHorizontalLine() {
-		this.penlet.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.drawFirstHorizontalLine();
-		this.drawSecondHorizontalLine();
-		this.penlet.graphics.drawString("Fourth line", 25, 2, 0);
-		this.displayDrawing(true);
-	}
-
-	/**
-	 * Displayed How to play on the display
-	 */
-	private void displayHowToPlay() {
-		displayMessage("This is example HOW TO PLAY string", true);
-	}
-
-	/**
-	 * Displayed How to draw board on the display
-	 */
-	private void displayHowToDrawBoard() {
-		displayMessage("This is example HOW TO DRAW BOARD string", true);
-	}
-
-	/**
-	 * Displayed Rules on the display
-	 */
-	private void displayRules() {
-		displayMessage("This is example RULES string", true);
-	}
-
-	/**
-	 * Displayed about on the display
-	 */
-	private void displayAbout() {
-		displayMessage("This is example about string", true);
-	}
-
-	/**
-	 * Displayed main menu on the display
-	 */
-	private void displayMainMenu() {
-		this.penlet.display.setCurrent(this.penlet.menuMain);
-	}
-
-	/**
-	 * Displayed level select menu on the display
-	 */
-	private void displayLevelSelectMenu() {
-		this.penlet.display.setCurrent(this.penlet.menuLevelSelect);
-	}
-
-	/**
-	 * Displayed help menu on the display
-	 */
-	private void displayHelpMenu() {
-		this.penlet.display.setCurrent(this.penlet.menuHelp);
-	}
+	
 
 	public void strokeCreated(long time, Region region,
 			PageInstance pageInstance) {
-		this.penlet.logger
+		this.getContainer().getLoggerComponent()
 				.debug("[GameFSM] New stroke was created. Current state: "
 						+ this.currentState);
 
@@ -887,18 +729,18 @@ public class GameFSM implements StrokeListener, HWRListener {
 				|| currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE
 				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 
-			this.penlet.logger.debug("[GameFSM] Trying to get line from stroke");
+			this.getContainer().getLoggerComponent().debug("[GameFSM] Trying to get line from stroke");
 
 			StrokeStorage ss = new StrokeStorage(pageInstance);
 			Stroke stroke = ss.getStroke(time);
 
 			// Create a line, based on the first and last points of the stroke
 			int numPoints = stroke.getNumberofVertices();
-			penlet.logger.debug("[GameFSM] Number of vertices in the stroke is "
+			this.getContainer().getLoggerComponent().debug("[GameFSM] Number of vertices in the stroke is "
 					+ numPoints);
 
 			if (numPoints >= 2) {
-				this.penlet.logger.debug("[GameFSM] Creating line from two points");
+				this.getContainer().getLoggerComponent().debug("[GameFSM] Creating line from two points");
 				line = new PolyLine(2);
 				line.setXY(0, stroke.getX(0), stroke.getY(0));
 				line.setXY(1, stroke.getX(numPoints - 1), stroke
@@ -908,239 +750,116 @@ public class GameFSM implements StrokeListener, HWRListener {
 
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
 			try {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Trying to use this line as first vertical line");
-				board.setFirstVerticalLine(line);
-				this.penlet.logger
+				this.getContainer().getGameBoardComponent().setFirstVerticalLine(line);
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] First vertical line was successfully created");
 				this.eventFirstVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLinePointsCountException");
-				displayErrorDrawFirstVerticalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstVerticalLine();
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				displayErrorDrawFirstVerticalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstVerticalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			try {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Trying to use this line as second vertical line");
-				board.setSecondVerticalLine(line);
-				this.penlet.logger
+				this.getContainer().getGameBoardComponent().setSecondVerticalLine(line);
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Second vertical line was successfully created");
 				this.eventSecondVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLinePointsCountException");
-				displayErrorDrawSecondVerticalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineRequirementsException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger.error("GameBoardLineRequirementsException");
-				displayErrorDrawSecondVerticalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineLengthException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				displayErrorDrawSecondVerticalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLinePositionException e) {
 				// TODO Auto-generated catch block
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLinePositionException. Reason: "
 								+ e.getReason());
-				displayErrorDrawSecondVerticalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			try {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Trying to use this line as first horizontal line");
-				board.setFirstHorizontalLine(line);
-				this.penlet.logger
+				this.getContainer().getGameBoardComponent().setFirstHorizontalLine(line);
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] First horizontal line was successfully created");
 				this.eventFirstHorizontalLineReady();
 			} catch (GameBoardLineRequirementsException e) {
-				this.penlet.logger.error("GameBoardLineRequirementsException");
-				displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLinePointsCountException e) {
-				this.penlet.logger.error("GameBoardLinePointsCountException");
-				displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLinePositionException. Reason: "
 								+ e.getReason());
-				displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			try {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Trying to use this line as second horizontal line");
-				board.setSecondHorizontalLine(line);
-				this.penlet.logger
+				this.getContainer().getGameBoardComponent().setSecondHorizontalLine(line);
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Second horizontal line was successfully created. Calculating game board");
-				board.calculateBoard();
+				this.getContainer().getGameBoardComponent().calculateBoard();
 				this.eventSecondHorizontalLineReady();
 			} catch (GameBoardLineRequirementsException e) {
-				this.penlet.logger.error("GameBoardLineRequirementsException");
-				displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLinePointsCountException e) {
-				this.penlet.logger.error("GameBoardLinePointsCountException");
-				displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLinePositionException. Reason: "
 								+ e.getReason());
-				displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardImpossibleException e) {
-				this.penlet.logger.error("GameBoardImpossibleException");
-				displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getLoggerComponent().error("GameBoardImpossibleException");
+				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
 			}
 		} else if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.icrContext.addStroke(pageInstance, time);
-			this.penlet.logger
+			this.getContainer().getLoggerComponent()
 					.debug("[GameFSM] StrokeCreated. Stroke was added to ICR context");
 		}
 	}
 
-	private void displayErrorDrawSecondHorizontalLine() {
-		displayMessage(
-				"Second horizontal line is invalid. Please try again or read game help.",
-				true);
-	}
+	
 
-	private void displayErrorDrawFirstHorizontalLine() {
-		displayMessage(
-				"First horizontal line is invalid. Please try again or read game help.",
-				true);
-	}
-
-	private void displayErrorDrawSecondVerticalLine() {
-		displayMessage(
-				"Second vertical line is invalid. Please try again or read game help.",
-				true);
-	}
-
-	private void displayErrorDrawFirstVerticalLine() {
-		displayMessage(
-				"First vertical line is invalid. Please try again or read game help.",
-				true);
-
-	}
-
-	/**
-	 * Displays a message on the screen
-	 * 
-	 * @param msg
-	 *            Message to display
-	 * @param scroll
-	 *            Indicates if the text has to be scrolled or not. It does not
-	 *            have any effect of the text fits within the display size. true
-	 *            if it needs to scroll and false otherwise
-	 */
-	private void displayMessage(String msg, boolean scroll) {
-		this.penlet.label.draw(msg, scroll);
-		this.penlet.display.setCurrent(this.penlet.label);
-	}
-
-	/**
-	 * Displays drawing on the screen. Actual data must be drawed on the
-	 * "this.penlet.graphics" object
-	 * 
-	 * @param scroll
-	 *            Indicates if the text has to be scrolled or not.
-	 */
-	private void displayDrawing(boolean scroll) {
-		this.penlet.label.draw(this.penlet.image, null, scroll);
-		this.penlet.display.setCurrent(this.penlet.label);
-	}
-
-	/**
-	 * Draws first vertical line
-	 */
-	private void drawFirstVerticalLine() {
-		this.penlet.graphics.drawLine(5, 1, 5, 17);
-	}
-
-	/**
-	 * Draws second vertical line
-	 */
-	private void drawSecondVerticalLine() {
-		this.penlet.graphics.drawLine(11, 1, 11, 17);
-	}
-
-	/**
-	 * Draws first horizontal line
-	 */
-	private void drawFirstHorizontalLine() {
-		this.penlet.graphics.drawLine(0, 6, 16, 6);
-	}
-
-	/**
-	 * Draws second vertical line
-	 */
-	private void drawSecondHorizontalLine() {
-		this.penlet.graphics.drawLine(0, 12, 16, 12);
-	}
-
-	/**
-	 * Draws X in the cell, relatinve to the passed cell left-top coords
-	 * 
-	 * @param x
-	 *            X-coord of the top-left cell point
-	 * @param y
-	 *            Y-coord of the top-left cell point
-	 */
-	private void drawXInCell(int x, int y) {
-		this.penlet.graphics.drawLine(x, y, x + 2, y + 2);
-		this.penlet.graphics.drawLine(x, y + 2, x + 2, y);
-	}
-
-	/**
-	 * Draws O in the cell, relatinve to the passed cell left-top coords
-	 * 
-	 * @param x
-	 *            X-coord of the top-left cell point
-	 * @param y
-	 *            Y-coord of the top-left cell point
-	 */
-	private void drawOInCell(int x, int y) {
-		this.penlet.graphics.fillRect(x, y, 3, 3);
-	}
-
-	/**
-	 * Draws X in the given field num
-	 * 
-	 * @param fieldNum
-	 *            Num of the field (1-9)
-	 */
-	private void drawX(int fieldNum) {
-		this.drawXInCell(this.fieldCoords[fieldNum][0],
-				this.fieldCoords[fieldNum][1]);
-	}
-
-	/**
-	 * Draws O in the given field num
-	 * 
-	 * @param fieldNum
-	 *            Num of the field (1-9)
-	 */
-	private void drawO(int fieldNum) {
-		this.drawOInCell(this.fieldCoords[fieldNum][0],
-				this.fieldCoords[fieldNum][1]);
-	}
+	
 
 	/**
 	 * Called when the user crosses out text
@@ -1158,7 +877,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * When the ICR engine detects an acceptable series or strokes
 	 */
 	public void hwrResult(long time, String result) {
-		this.penlet.logger.debug("[GameFSM][ICR] Intermediate result: " + result);
+		this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Intermediate result: " + result);
 	}
 
 	/**
@@ -1166,61 +885,61 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * the ICRContext are cleared
 	 */
 	public void hwrUserPause(long time, String result) {
-		this.penlet.logger.debug("[GameFSM][ICR] Result: " + result
-				+ " (x) | Human type: " + this.logic.getHumanType());
+		this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Result: " + result
+				+ " (x) | Human type: " + this.getContainer().getGameLogicComponent().getHumanType());
 
 		// At first we must check, that result is the required symbol
 		boolean symbolCorrect = false;
 
 		if (result.equalsIgnoreCase("x")) {
-			this.penlet.logger.debug("[GameFSM][ICR] User has draw X");
-			if (this.logic.getHumanType() == GameLogic.FIELD_X) {
-				this.penlet.logger.debug("[GameFSM][ICR] User played with X");
+			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User has draw X");
+			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_X) {
+				this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User played with X");
 				symbolCorrect = true;
 			}
 		} else if (result.equalsIgnoreCase("o")) {
-			this.penlet.logger.debug("[GameFSM][ICR] User has draw O");
-			if (this.logic.getHumanType() == GameLogic.FIELD_O) {
-				this.penlet.logger.debug("[GameFSM][ICR] User played with O");
+			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User has draw O");
+			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_O) {
+				this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User played with O");
 				symbolCorrect = true;
 			}
 		}
 
 		if (symbolCorrect) {
 
-			this.penlet.logger
+			this.getContainer().getLoggerComponent()
 					.debug("[GameFSM][ICR] User has draw required symbol. Trying to get it's position.");
 			// Required symbol appears. Now we must check, which field is used
 			// Retrieving center of the user symbol
 
-			this.penlet.logger
+			this.getContainer().getLoggerComponent()
 					.debug("[GameFSM][ICR] Receiving symbol rectangle. ICRContext: "
 							+ this.icrContext);
 
 			Rectangle r = this.icrContext.getTextBoundingBox();
 
-			this.penlet.logger.debug("[GameFSM][ICR] Rectangle: " + r);
-			this.penlet.logger
+			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Rectangle: " + r);
+			this.getContainer().getLoggerComponent()
 					.debug("[GameFSM][ICR] symbol rectangle was received ("
 							+ r.toString() + "). Calculating it's center point");
 			Point p = new Point(r.getX() + r.getWidth() / 2, r.getY()
 					+ r.getHeight() / 2);
 
-			this.penlet.logger.debug("[GameFSM][ICR] Point of the user symbol is ("
+			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Point of the user symbol is ("
 					+ p.getX() + "," + p.getY() + ")");
 
-			int field = this.board.getTurnField(p);
+			int field = this.container.getGameBoardComponent().getTurnField(p);
 			if (field != -1) {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM][ICR] Turn was done in the correct field");
-				this.logic.humanTurn(field);
+				this.getContainer().getGameLogicComponent().humanTurn(field);
 				this.eventHumanTurnReady();
 			} else {
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM][ICR] Turn was done outside board");
 			}
 		} else {
-			this.penlet.logger
+			this.getContainer().getLoggerComponent()
 					.debug("[GameFSM][ICR] User has not draw required symbol");
 		}
 
@@ -1232,11 +951,10 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * Initializes ICR context for an application
 	 */
 	private void initializeICRContext() {
-		this.penlet.logger.info("Initializing OCR context");
+		this.getContainer().getLoggerComponent().info("Initializing OCR context");
 
 		try {
-			this.icrContext = this.penlet.getContext()
-					.getICRContext(1000, this);
+			this.icrContext = this.getContainer().getPenletComponent().getContext().getICRContext(1000, this);
 			Resource[] resources = {
 					this.icrContext.getDefaultAlphabetKnowledgeResource(),
 					this.icrContext
@@ -1247,8 +965,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 		} catch (Exception e) {
 			String msg = "Error initializing handwriting recognition resources: "
 					+ e.getMessage();
-			this.penlet.logger.error(msg);
-			this.displayMessage(msg, true);
+			this.getContainer().getLoggerComponent().error(msg);
+			this.getContainer().getGameDisplayComponent().displayMessage(msg, true);
 		}
 	}
 
@@ -1286,7 +1004,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 				break;
 
 			default:
-				this.penlet.logger
+				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM] Invalid next event, that cannot be processed ("
 								+ nextEvent + ")");
 				break;
@@ -1296,5 +1014,13 @@ public class GameFSM implements StrokeListener, HWRListener {
 
 	public void setNextEvent(int nextEvent) {
 		this.nextEvent = nextEvent;
+	}
+	
+	/**
+	 * Returns container
+	 * @return container
+	 */
+	public Container getContainer() {
+		return container;
 	}
 }

@@ -3,6 +3,8 @@ package com.difane.games.ticktacktoe;
 import java.util.Random;
 
 public class GameLogic {
+	
+	protected Container container;
 
 	static public final int AI_LEVEL_EASY = 0;
 	static public final int AI_LEVEL_HARD = 1;
@@ -37,7 +39,8 @@ public class GameLogic {
 	
 	private int gameStatus;
 
-	public GameLogic() {
+	public GameLogic(Container c) {
+		this.container = c;
 		aiLevel = AI_LEVEL_EASY;
 	}
 
@@ -297,6 +300,14 @@ public class GameLogic {
 	 */
 	public int[] getFields() {
 		return fields;
+	}
+
+	/**
+	 * Returns container
+	 * @return container
+	 */
+	public Container getContainer() {
+		return container;
 	}
 
 }

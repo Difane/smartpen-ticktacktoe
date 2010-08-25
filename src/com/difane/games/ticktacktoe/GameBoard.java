@@ -14,6 +14,8 @@ import com.livescribe.geom.Rectangle;
 import com.livescribe.penlet.Logger;
 
 public class GameBoard {
+	
+	private Container container;
 
 	private PolyLine firstVerticalLine;
 	private int firstVerticalLineLength;
@@ -26,12 +28,11 @@ public class GameBoard {
 	private Vector board;
 	private Rectangle boardBox;
 
-	private Logger logger;
 	/**
 	 * Constructor
 	 */
-	public GameBoard(Logger logger) {
-		this.logger = logger;
+	public GameBoard(Container c) {
+		this.container = c;
 		this.firstVerticalLine = null;
 		this.secondVerticalLine = null;
 		this.firstHorizontalLine = null;
@@ -85,7 +86,7 @@ public class GameBoard {
 		this.firstVerticalLine = firstVerticalLine;
 		this.firstVerticalLineLength = length;
 		
-		logger.debug("[BOARD] FirstVerticalLine: "+this.firstVerticalLine);
+		this.getContainer().getLoggerComponent().debug("[BOARD] FirstVerticalLine: "+this.firstVerticalLine);
 	}
 
 	/**
@@ -192,7 +193,7 @@ public class GameBoard {
 		this.secondVerticalLine = secondVerticalLine;
 		this.secondVerticalLineLength = length;
 		
-		logger.debug("[BOARD] secondVerticalLine: "+this.secondVerticalLine);
+		this.getContainer().getLoggerComponent().debug("[BOARD] secondVerticalLine: "+this.secondVerticalLine);
 	}
 
 	/**
@@ -290,7 +291,7 @@ public class GameBoard {
 		this.firstHorizontalLine = firstHorizontalLine;
 		this.firstHorizontalLineLength = length;
 		
-		logger.debug("[BOARD] firstHorizontalLine: "+this.firstHorizontalLine);
+		this.getContainer().getLoggerComponent().debug("[BOARD] firstHorizontalLine: "+this.firstHorizontalLine);
 	}
 
 	/**
@@ -415,7 +416,7 @@ public class GameBoard {
 		this.secondHorizontalLine = secondHorizontalLine;
 		this.secondHorizontalLineLength = length;
 		
-		logger.debug("[BOARD] secondHorizontalLine: "+this.secondHorizontalLine);
+		this.getContainer().getLoggerComponent().debug("[BOARD] secondHorizontalLine: "+this.secondHorizontalLine);
 	}
 
 	/**
@@ -434,7 +435,7 @@ public class GameBoard {
 				firstHorizontalLine.getY(0), firstHorizontalLine.getX(1),
 				firstHorizontalLine.getY(1));
 		
-		logger.debug("[BOARD] tlPoint: "+tlPoint);
+		this.getContainer().getLoggerComponent().debug("[BOARD] tlPoint: "+tlPoint);
 		
 		// 2. Second point - second vertical line and first horizontal line
 		Point trPoint = intersection(secondVerticalLine.getX(0),
@@ -443,7 +444,7 @@ public class GameBoard {
 				firstHorizontalLine.getY(0), firstHorizontalLine.getX(1),
 				firstHorizontalLine.getY(1));
 		
-		logger.debug("[BOARD] trPoint: "+trPoint);
+		this.getContainer().getLoggerComponent().debug("[BOARD] trPoint: "+trPoint);
 		
 		// 3. Third point - first vertical line and second horizontal line
 		Point blPoint = intersection(firstVerticalLine.getX(0),
@@ -452,7 +453,7 @@ public class GameBoard {
 				secondHorizontalLine.getY(0), secondHorizontalLine.getX(1),
 				secondHorizontalLine.getY(1));
 		
-		logger.debug("[BOARD] blPoint: "+blPoint);
+		this.getContainer().getLoggerComponent().debug("[BOARD] blPoint: "+blPoint);
 		
 		// 4. Fourth point - second vertical line and second horizontal line
 		Point brPoint = intersection(secondVerticalLine.getX(0),
@@ -461,7 +462,7 @@ public class GameBoard {
 				secondHorizontalLine.getY(0), secondHorizontalLine.getX(1),
 				secondHorizontalLine.getY(1));
 		
-		logger.debug("[BOARD] brPoint: "+brPoint);
+		this.getContainer().getLoggerComponent().debug("[BOARD] brPoint: "+brPoint);
 		
 		// If there are no all 4 intersections - board is impossible :)
 		if (null == tlPoint || null == trPoint || null == blPoint
@@ -476,10 +477,10 @@ public class GameBoard {
 		int leftMax = Math.min(firstHorizontalLine.getX(0), secondHorizontalLine.getX(0));
 		int rightMax = Math.max(firstHorizontalLine.getX(1), secondHorizontalLine.getX(1));
 		
-		logger.debug("[BOARD] topMax: "+topMax);
-		logger.debug("[BOARD] bottomMax: "+bottomMax);
-		logger.debug("[BOARD] leftMax: "+leftMax);
-		logger.debug("[BOARD] rightMax: "+rightMax);
+		this.getContainer().getLoggerComponent().debug("[BOARD] topMax: "+topMax);
+		this.getContainer().getLoggerComponent().debug("[BOARD] bottomMax: "+bottomMax);
+		this.getContainer().getLoggerComponent().debug("[BOARD] leftMax: "+leftMax);
+		this.getContainer().getLoggerComponent().debug("[BOARD] rightMax: "+rightMax);
 		
 		// Element with zero index (to be arranged with existing game algo
 		board.addElement(new Rectangle());
@@ -525,7 +526,7 @@ public class GameBoard {
 		for (int i = 1; i < board.size(); i++) {
 			Rectangle r = (Rectangle) board.elementAt(i);
 			
-			logger.debug("[LOGIC] Field #"+i+". Checking rectangle: "+r+". Point: "+p);
+			this.getContainer().getLoggerComponent().debug("[LOGIC] Field #"+i+". Checking rectangle: "+r+". Point: "+p);
 			if(r.contains(p.getX(), p.getY()))
 			{
 				return i;
@@ -597,6 +598,14 @@ public class GameBoard {
 				/ d;
 		
 		return new Point((int)xi, (int)yi);
+	}
+
+	/**
+	 * Returns container
+	 * @return container
+	 */
+	public Container getContainer() {
+		return container;
 	}
 
 }
