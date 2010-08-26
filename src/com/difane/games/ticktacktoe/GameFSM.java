@@ -648,6 +648,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 			case FSM_STATE_END:
 				this.getContainer().getGameDisplayComponent().displayEnd();
 				this.getContainer().getLoggerComponent().debug("[GameFSM] Game end reached");
+				break;
 			default:
 				// Unrecognized target state. Rejecting it
 				this.getContainer().getLoggerComponent().warn("[GameFSM] Unrecognized target state: "
