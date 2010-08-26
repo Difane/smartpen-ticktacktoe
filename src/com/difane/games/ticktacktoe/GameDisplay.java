@@ -9,92 +9,101 @@ import com.livescribe.display.Image;
 import com.livescribe.ui.ScrollLabel;
 
 public class GameDisplay {
+
 	/**
-	 * Container
+	 * DI Container
 	 */
 	private Container container;
-	
+
 	/**
 	 * Display, which will show information to the user
 	 */
 	protected Display display;
-	
+
 	/**
 	 * Main scroll label, used to display informational text to the user
 	 */
 	protected ScrollLabel label;
-	
+
 	/*
 	 * Application menus
 	 */
-	protected Vector		menuMainItems;
-	protected BrowseList	menuMain;
-	protected Vector		menuHelpItems;
-	protected BrowseList	menuHelp;
-	protected Vector		menuLevelSelectItems;
-	protected BrowseList	menuLevelSelect;
-	
-	// Variables, required for drawing on the screen
+	protected Vector menuMainItems;
+	protected BrowseList menuMain;
+	protected Vector menuHelpItems;
+	protected BrowseList menuHelp;
+	protected Vector menuLevelSelectItems;
+	protected BrowseList menuLevelSelect;
+
+	/*
+	 * Variables, required for drawing on the screen
+	 */
 	Image image;
 	Graphics graphics;
-	
+
 	/**
 	 * Field coordinates to draw "X" or "O"
 	 */
 	private int[][] fieldCoords = { { 0, 0 }, { 1, 2 }, { 7, 2 }, { 13, 2 },
 			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
 
-
-	
-	public GameDisplay(Container c)
-	{
+	/**
+	 * Constructor
+	 * 
+	 * @param c
+	 *            DI container
+	 */
+	public GameDisplay(Container c) {
 		this.container = c;
-		
+
 		// Initializing display elements
 		this.display = this.getContainer().getPenletComponent().getContext()
 				.getDisplay();
 		this.label = new ScrollLabel();
-		
+
 		// Initializing menus
-        this.menuMainItems = new Vector();
+		this.menuMainItems = new Vector();
 		this.menuMainItems.addElement("Start game");
 		this.menuMainItems.addElement("Help");
 		this.menuMainItems.addElement("About");
 		this.menuMain = new BrowseList(this.menuMainItems);
-		
+
 		this.menuHelpItems = new Vector();
 		this.menuHelpItems.addElement("Rules");
 		this.menuHelpItems.addElement("How to draw game board");
 		this.menuHelpItems.addElement("How to play the game");
 		this.menuHelp = new BrowseList(this.menuHelpItems);
-		
+
 		this.menuLevelSelectItems = new Vector();
 		this.menuLevelSelectItems.addElement("Easy");
 		this.menuLevelSelectItems.addElement("Hard");
 		this.menuLevelSelect = new BrowseList(this.menuLevelSelectItems);
-		
+
 		// Initializing graphics
 		this.image = Image.createImage(96, 18);
 		this.graphics = Graphics.getGraphics(this.image);
 		this.graphics.setBrushColor(Display.getWhiteColor());
 		this.graphics.setLineStyle(Graphics.LINE_STYLE_SOLID);
+		
+		this.getContainer().getLoggerComponent().debug("[GameDisplay] Component initialized");
 	}
-	
+
 	/**
 	 * Returns container
+	 * 
 	 * @return container
 	 */
 	public Container getContainer() {
 		return container;
 	}
-	
+
 	/**
 	 * Displayed help menu on the display
 	 */
 	public void displayHelpMenu() {
 		this.display.setCurrent(this.menuHelp);
 	}
-	
+
 	/**
 	 * Displayed main menu on the display
 	 */
@@ -108,7 +117,7 @@ public class GameDisplay {
 	public void displayLevelSelectMenu() {
 		this.display.setCurrent(this.menuLevelSelect);
 	}
-	
+
 	/**
 	 * Displays a message on the screen
 	 * 
@@ -123,49 +132,73 @@ public class GameDisplay {
 		this.label.draw(msg, scroll);
 		this.display.setCurrent(this.label);
 	}
-	
+
+	/**
+	 * Displays, that second horizontal line was drawed incorrectly
+	 */
 	public void displayErrorDrawSecondHorizontalLine() {
 		displayMessage(
 				"Second horizontal line is invalid. Please try again or read game help.",
 				true);
 	}
 
+	/**
+	 * Displays, that first horizontal line was drawed incorrectly
+	 */
 	public void displayErrorDrawFirstHorizontalLine() {
 		displayMessage(
 				"First horizontal line is invalid. Please try again or read game help.",
 				true);
 	}
 
+	/**
+	 * Displays, that second vertical line was drawed incorrectly
+	 */
 	public void displayErrorDrawSecondVerticalLine() {
 		displayMessage(
 				"Second vertical line is invalid. Please try again or read game help.",
 				true);
 	}
 
+	/**
+	 * Displays, that first vertical line was drawed incorrectly
+	 */
 	public void displayErrorDrawFirstVerticalLine() {
 		displayMessage(
 				"First vertical line is invalid. Please try again or read game help.",
 				true);
 
 	}
-	
+
+	/**
+	 * Displays message about game end
+	 */
 	public void displayEnd() {
 		displayMessage("To start new game, please launch application again!",
 				true);
 	}
 
+	/**
+	 * Displays message about game draw result
+	 */
 	public void displayDraw() {
 		displayMessage("Game Draw!", true);
 	}
 
+	/**
+	 * Displays message about pen wins result
+	 */
 	public void displayPenWins() {
 		displayMessage("Sorry, but You Lose!", true);
 	}
 
+	/**
+	 * Displays message about human wins result
+	 */
 	public void displayHumanWins() {
 		displayMessage("Congratulations! You win!", true);
 	}
-	
+
 	/**
 	 * Activates menu item by it's index, if this item is not active
 	 * 
@@ -179,40 +212,37 @@ public class GameDisplay {
 			menu.setFocusItem(newIndex);
 		}
 	}
-	
+
 	/**
 	 * Activates Main menu item by it's index, if this item is not active
 	 * 
 	 * @param newIndex
 	 *            New index of the activated item
 	 */
-	public void selectMainMenuItemIfNotSelected(int newIndex)
-	{
+	public void selectMainMenuItemIfNotSelected(int newIndex) {
 		selectMenuItemIfNotSelected(menuMain, newIndex);
 	}
-	
+
 	/**
 	 * Activates Help menu item by it's index, if this item is not active
 	 * 
 	 * @param newIndex
 	 *            New index of the activated item
 	 */
-	public void selectHelpMenuItemIfNotSelected(int newIndex)
-	{
+	public void selectHelpMenuItemIfNotSelected(int newIndex) {
 		selectMenuItemIfNotSelected(menuHelp, newIndex);
 	}
-	
+
 	/**
 	 * Activates LevelSelect menu item by it's index, if this item is not active
 	 * 
 	 * @param newIndex
 	 *            New index of the activated item
 	 */
-	public void selectLevelSelectMenuItemIfNotSelected(int newIndex)
-	{
+	public void selectLevelSelectMenuItemIfNotSelected(int newIndex) {
 		selectMenuItemIfNotSelected(menuLevelSelect, newIndex);
 	}
-	
+
 	/**
 	 * Draws board on the screen and displays message to the user with
 	 * information about next activity
@@ -248,7 +278,7 @@ public class GameDisplay {
 
 		this.displayDrawing(true);
 	}
-	
+
 	/**
 	 * Displays drawing on the screen. Actual data must be drawed on the
 	 * "this.penlet.graphics" object
@@ -260,7 +290,7 @@ public class GameDisplay {
 		this.label.draw(this.image, null, scroll);
 		this.display.setCurrent(this.label);
 	}
-	
+
 	/**
 	 * Draws first vertical line
 	 */
@@ -335,7 +365,7 @@ public class GameDisplay {
 		this.drawOInCell(this.fieldCoords[fieldNum][0],
 				this.fieldCoords[fieldNum][1]);
 	}
-	
+
 	/**
 	 * Displayed Draw first vertical line on the display
 	 */
@@ -409,42 +439,60 @@ public class GameDisplay {
 	public void displayAbout() {
 		displayMessage("This is example about string", true);
 	}
-	
+
 	/**
 	 * Displayed message, that human starts the game
 	 */
 	public void displayHumanStartsGame() {
 		displayMessage("You playes crosses and goes first", true);
 	}
-	
+
 	/**
 	 * Displayed message, that pen starts the game
 	 */
 	public void displayPenStartsGame() {
 		displayMessage("You playes noughts and goes second", true);
 	}
-	
-	public void focusMainMenuToNext(){
+
+	/**
+	 * Focuses main menu to the next item
+	 */
+	public void focusMainMenuToNext() {
 		this.menuMain.focusToNext();
 	}
-	
-	public void focusMainMenuToPrevious(){
+
+	/**
+	 * Focuses main menu to the previous item
+	 */
+	public void focusMainMenuToPrevious() {
 		this.menuMain.focusToPrevious();
 	}
-	
-	public void focusHelpMenuToNext(){
+
+	/**
+	 * Focuses help menu to the next item
+	 */
+	public void focusHelpMenuToNext() {
 		this.menuHelp.focusToNext();
 	}
-	
-	public void focusHelpMenuToPrevious(){
+
+	/**
+	 * Focuses help menu to the previous item
+	 */
+	public void focusHelpMenuToPrevious() {
 		this.menuHelp.focusToPrevious();
 	}
-	
-	public void focusLevelSelectMenuToNext(){
+
+	/**
+	 * Focuses level select menu to the next item
+	 */
+	public void focusLevelSelectMenuToNext() {
 		this.menuLevelSelect.focusToNext();
 	}
-	
-	public void focusLevelSelectMenuToPrevious(){
+
+	/**
+	 * Focuses level select menu to the previous item
+	 */
+	public void focusLevelSelectMenuToPrevious() {
 		this.menuLevelSelect.focusToPrevious();
 	}
 }
