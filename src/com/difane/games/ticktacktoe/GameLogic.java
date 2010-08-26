@@ -3,48 +3,104 @@ package com.difane.games.ticktacktoe;
 import java.util.Random;
 
 public class GameLogic {
-	
+
+	/**
+	 * DI Container
+	 */
 	protected Container container;
 
+	/**
+	 * AI possible levels
+	 */
 	static public final int AI_LEVEL_EASY = 0;
 	static public final int AI_LEVEL_HARD = 1;
 
+	/**
+	 * Game board field possible states. FIELD_X and FIELD_O are used also to
+	 * track user and pen type in the game
+	 */
 	static public final int FIELD_EMPTY = 0;
 	static public final int FIELD_X = 1;
 	static public final int FIELD_O = 4;
 
+	/**
+	 * Possible game statuses
+	 */
 	static public final int GAME_STATUS_NOT_COMPLETED = 0;
 	static public final int GAME_STATUS_X_WINS = 1;
 	static public final int GAME_STATUS_O_WINS = 4;
 	static public final int GAME_STATUS_DRAW = 3;
 
-	private int aiType; // FIELD_X or FIELD_O
-	private int humanType; // FIELD_X or FIELD_O
+	/**
+	 * Type of the AI in that game "X" or "O" Must be one of the FIELD_X or
+	 * FIELD_O
+	 */
+	private int aiType;
+
+	/**
+	 * Type of the Human in that game "X" or "O" Must be one of the FIELD_X or
+	 * FIELD_O
+	 */
+	private int humanType;
+
+	/**
+	 * AI level. Must be one of the AI_LEVEL_*
+	 */
 	private int aiLevel;
 
+	/**
+	 * Game fields during the game
+	 */
 	private int[] fields = new int[10];
-	// private int[] fields = {0, 1, 1, 4, 4, 4, 1, 1, 1, 4};
+
+	/**
+	 * Game fields ratings. Using by AI to make his turn
+	 */
 	private int[] ratings = new int[10];
 
+	/**
+	 * Helper array for calculate game status
+	 */
 	private int[][] statusHelper = { { 0, 0, 0, 0 }, { 0, 1, 2, 3 },
 			{ 0, 4, 5, 6 }, { 0, 7, 8, 9 }, { 0, 1, 4, 7 }, { 0, 2, 5, 8 },
 			{ 0, 3, 6, 9 }, { 0, 1, 5, 9 }, { 0, 3, 5, 7 } };
 
-	private int[][] kle = { { 0, 0, 0, 0, 0 }, { 0, 1, 4, 7, 0 },
+	/**
+	 * Helper array for calculate fields rating
+	 */
+	private int[][] ratingHelper = { { 0, 0, 0, 0, 0 }, { 0, 1, 4, 7, 0 },
 			{ 0, 1, 5, 0, 0 }, { 0, 1, 6, 0, 8 }, { 0, 2, 4, 0, 0 },
 			{ 0, 2, 5, 7, 8 }, { 0, 2, 6, 0, 0 }, { 0, 3, 4, 0, 8 },
 			{ 0, 3, 5, 0, 0 }, { 0, 3, 6, 7, 0 } };
 
-	private int[] li = new int[9];
-	
-	private int gameStatus;
+	/**
+	 * Helper array, that used during game status calculation and fields rating
+	 * calculation to store some intermediate data to prevent it's multiple
+	 * recalculation
+	 */
+	private int[] runtimeHelper = new int[9];
 
+	/**
+	 * Current game status
+	 */
+	private int gameStatus = GAME_STATUS_NOT_COMPLETED;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param c
+	 *            DI Container
+	 */
 	public GameLogic(Container c) {
 		this.container = c;
+
+		// AI level is easy by default
 		aiLevel = AI_LEVEL_EASY;
 	}
 
 	/**
+	 * Sets new AI level
+	 * 
 	 * @param aiLevel
 	 *            the aiLevel to set
 	 */
@@ -53,13 +109,13 @@ public class GameLogic {
 	}
 
 	/**
-	 * Selects player order.
+	 * Selects player order. Currently player always starts and plays X
 	 * 
 	 * @return true, if Human goes first, false otherwise
 	 */
 	public boolean selectPlayersOrder() {
-		humanType = FIELD_X; // Now Human plays X
-		aiType = FIELD_O; // Now AI plays O
+		humanType = FIELD_X;
+		aiType = FIELD_O;
 		return true;
 	}
 
@@ -71,18 +127,33 @@ public class GameLogic {
 	 * @return true if ok, false otherwise
 	 */
 	public boolean humanTurn(int field) {
-		
-		if (gameStatus == GAME_STATUS_NOT_COMPLETED) {
-			if (fields[field] == FIELD_EMPTY) {
-				fields[field] = humanType;
-				return true;
-			}
+		if (field < 1 || field > 9) {
+			// Invalid field to make a turn.
+			// TODO Rewrite to throw an exception
 			return false;
 		}
-		else
-		{
+
+		/*
+		 * If game already completed - do nothing
+		 */
+		if (gameStatus != GAME_STATUS_NOT_COMPLETED) {
+			// TODO Rewrite to throw an exception
 			return false;
 		}
+
+		/*
+		 * If field not empty - do nothing
+		 */
+		if (fields[field] != FIELD_EMPTY) {
+			// TODO Rewrite to throw an exception
+			return false;
+		}
+
+		/*
+		 * Making a turn
+		 */
+		fields[field] = humanType;
+		return true;
 	}
 
 	/**
@@ -95,7 +166,7 @@ public class GameLogic {
 		if (gameStatus != GAME_STATUS_NOT_COMPLETED) {
 			return -1;
 		}
-		
+
 		this.calculateRating();
 		Random rand = new Random();
 
@@ -162,12 +233,12 @@ public class GameLogic {
 		for (int i = 1; i <= 8; i++) {
 			sa = 5;
 			so = 0;
-			li[i] = 0;
+			runtimeHelper[i] = 0;
 			for (int j = 1; j <= 3; j++) {
 				sj = fields[statusHelper[i][j]];
 				sa = sa & sj;
 				so = so | sj;
-				li[i] = li[i] + sj;
+				runtimeHelper[i] = runtimeHelper[i] + sj;
 			}
 			result = result | sa;
 			ni = ni & so;
@@ -178,10 +249,13 @@ public class GameLogic {
 
 		// Storing game status for internal using
 		gameStatus = result;
-		
+
 		return result;
 	}
 
+	/**
+	 * Calculates fields rating to use during making AI turn
+	 */
 	private void calculateRating() {
 		int[] s00 = new int[4];
 		int[] s11 = new int[4];
@@ -198,12 +272,10 @@ public class GameLogic {
 				s0 = 0;
 				s1 = 0;
 				s4 = 0;
-				for(j =1; j <=4; j++)
-				{
-					ssj = kle[ii][j];
-					if(ssj != 0)
-					{
-						switch (li[ssj]) {
+				for (j = 1; j <= 4; j++) {
+					ssj = ratingHelper[ii][j];
+					if (ssj != 0) {
+						switch (runtimeHelper[ssj]) {
 						case 0:
 							s00[s0] = ssj;
 							s0 = s0 + 1;
@@ -264,16 +336,14 @@ public class GameLogic {
 							break;
 						case 4:
 							s44[s4] = ssj;
-							s4 = s4+1;
-							if(s4 > 1)
-							{
+							s4 = s4 + 1;
+							if (s4 > 1) {
 								ratings[ii] = ratings[ii] + 10000;
 							}
 							for (jj = 0; jj <= s0 - 1; jj++) {
 								for (jjj = 1; jjj <= 3; jjj++) {
 									sj = statusHelper[s00[jj]][jjj];
-									if(sj != ii)
-									{
+									if (sj != ii) {
 										ratings[sj] = ratings[sj] + 100;
 									}
 								}
@@ -290,13 +360,19 @@ public class GameLogic {
 
 	}
 
+	/**
+	 * Returns human type
+	 * 
+	 * @return Human type
+	 */
 	public int getHumanType() {
 		return humanType;
 	}
 
 	/**
 	 * Returns board information
-	 * @return
+	 * 
+	 * @return Board information
 	 */
 	public int[] getFields() {
 		return fields;
@@ -304,6 +380,7 @@ public class GameLogic {
 
 	/**
 	 * Returns container
+	 * 
 	 * @return container
 	 */
 	public Container getContainer() {
