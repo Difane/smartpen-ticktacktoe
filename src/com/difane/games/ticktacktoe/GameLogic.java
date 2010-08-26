@@ -96,6 +96,9 @@ public class GameLogic {
 
 		// AI level is easy by default
 		aiLevel = AI_LEVEL_EASY;
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameLogic] Component initiated. AI level was set to AI_LEVEL_EASY by default");
 	}
 
 	/**
@@ -106,6 +109,9 @@ public class GameLogic {
 	 */
 	public void setAiLevel(int aiLevel) {
 		this.aiLevel = aiLevel;
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameLogic] AI level was set to "+aiLevel);
 	}
 
 	/**
@@ -116,6 +122,10 @@ public class GameLogic {
 	public boolean selectPlayersOrder() {
 		humanType = FIELD_X;
 		aiType = FIELD_O;
+		
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameLogic] Players order was selected. Human plays X, AI pays O. Human starts the game");
 		return true;
 	}
 
@@ -130,6 +140,9 @@ public class GameLogic {
 		if (field < 1 || field > 9) {
 			// Invalid field to make a turn.
 			// TODO Rewrite to throw an exception
+			this.getContainer()
+				.getLoggerComponent()
+				.debug("[GameLogic] Human tries to make a turn to the incorrect field: "+field);
 			return false;
 		}
 
@@ -138,6 +151,10 @@ public class GameLogic {
 		 */
 		if (gameStatus != GAME_STATUS_NOT_COMPLETED) {
 			// TODO Rewrite to throw an exception
+			
+			this.getContainer()
+				.getLoggerComponent()
+				.debug("[GameLogic] Human tries to make a turn, but the game is already completed");
 			return false;
 		}
 
@@ -146,6 +163,10 @@ public class GameLogic {
 		 */
 		if (fields[field] != FIELD_EMPTY) {
 			// TODO Rewrite to throw an exception
+			
+			this.getContainer()
+				.getLoggerComponent()
+				.debug("[GameLogic] Human tries to make a turn, but target field is not empty and contains: "+fields[field]);
 			return false;
 		}
 
@@ -153,6 +174,10 @@ public class GameLogic {
 		 * Making a turn
 		 */
 		fields[field] = humanType;
+		
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameLogic] Human makes a turn to the field "+field);
 		return true;
 	}
 
@@ -164,6 +189,9 @@ public class GameLogic {
 	public int aiTurn() {
 		// There are no turn possible, if game already completed
 		if (gameStatus != GAME_STATUS_NOT_COMPLETED) {
+			this.getContainer()
+				.getLoggerComponent()
+				.debug("[GameLogic] AI tries to make a turn, but the game is already completed");
 			return -1;
 		}
 
@@ -184,6 +212,9 @@ public class GameLogic {
 				mr = mr - ratings[i];
 				if (mr <= 0) {
 					fields[i] = aiType;
+					this.getContainer()
+						.getLoggerComponent()
+						.debug("[GameLogic] AI makes a turn to the field "+i);
 					return i;
 				}
 			}
@@ -206,6 +237,9 @@ public class GameLogic {
 					m = m + 1;
 					if (m == mr) {
 						fields[i] = aiType;
+						this.getContainer()
+							.getLoggerComponent()
+							.debug("[GameLogic] AI makes a turn to the field "+i);
 						return i;
 					}
 				}
@@ -250,6 +284,10 @@ public class GameLogic {
 		// Storing game status for internal using
 		gameStatus = result;
 
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameLogic] Game status requested. Current status is"+result);
+		
 		return result;
 	}
 
@@ -358,6 +396,9 @@ public class GameLogic {
 			}
 		}
 
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameLogic] Fields ratings was recalculated");
 	}
 
 	/**
