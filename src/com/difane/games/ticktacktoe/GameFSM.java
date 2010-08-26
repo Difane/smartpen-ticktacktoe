@@ -20,9 +20,14 @@ import com.livescribe.storage.StrokeStorage;
 
 public class GameFSM implements StrokeListener, HWRListener {
 
+	/*
+	 * DI Container
+	 */
 	private Container container;
 	
-	// Available states
+	/*
+	 * Available game states
+	 */
 	static public final int FSM_STATE_UNDEFINED = -1;
 	static public final int FSM_STATE_START = 0;
 	static public final int FSM_STATE_MAIN_MENU_START_GAME = 1;
@@ -49,6 +54,9 @@ public class GameFSM implements StrokeListener, HWRListener {
 	static public final int FSM_STATE_GAME_END_DRAW = 22;
 	static public final int FSM_STATE_END = 23;
 
+	/**
+	 * Current game state
+	 */
 	private int currentState = FSM_STATE_UNDEFINED;
 
 	/**
@@ -57,10 +65,14 @@ public class GameFSM implements StrokeListener, HWRListener {
 	protected ICRContext icrContext;
 	
 	/**
-	 * Handling transition next event
+	 * Next event, that must be handled after transition
 	 */
 	private int nextEvent = NEXT_EVENT_NONE;
 
+	/*
+	 * Available next events, that can be handled diring and right after
+	 * transition
+	 */
 	static public final int NEXT_EVENT_NONE = -1;
 	static public final int NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT = 0;
 	static public final int NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT = 1;
@@ -76,8 +88,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 	public GameFSM(Container c) {
 		this.container = c;
 		
-		this.getContainer().getLoggerComponent().debug("[GameFSM] Constructed");
 		this.currentState = FSM_STATE_START;
+		
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameFSM] Component initialized");
 	}
 
 	/**
@@ -114,6 +129,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_LEVEL_MENU_HARD);
 			break;
 		default:
+			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuDown received");
 		}
 
 		// Menu down are always handled
@@ -142,6 +158,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_LEVEL_MENU_EASY);
 			break;
 		default:
+			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuUp received");
 		}
 
 		// Menu up are always handled
@@ -187,6 +204,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 			break;
 		default:
 			result = false;
+			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuLeft received");
 		}
 
 		return result;
@@ -227,8 +245,9 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		default:
+			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuRight received");
 		}
-
+		
 		// Menu right are always handled
 		return true;
 	}
@@ -383,8 +402,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	
 
 	private void transition(int currentState, int transitionState) {
-		this.getContainer().getLoggerComponent().debug("GameFSM::transition  ---> ");
-		this.getContainer().getLoggerComponent().debug("[GameFSM] transition started ( " + currentState
+		this.getContainer().getLoggerComponent().debug("[GameFSM] ---> transition started ( " + currentState
 				+ " -> " + transitionState + " )");
 		try {
 			switch (transitionState) {
@@ -646,7 +664,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 		this.processNextEvent();
 		this.getContainer().getLoggerComponent().debug("[GameFSM] Next event was processed");
 
-		this.getContainer().getLoggerComponent().debug("GameFSM::transition  <--- ");
+		this.getContainer().getLoggerComponent().debug("[GameFSM] <--- transition");
 	}
 
 	
@@ -740,11 +758,12 @@ public class GameFSM implements StrokeListener, HWRListener {
 					+ numPoints);
 
 			if (numPoints >= 2) {
-				this.getContainer().getLoggerComponent().debug("[GameFSM] Creating line from two points");
 				line = new PolyLine(2);
 				line.setXY(0, stroke.getX(0), stroke.getY(0));
 				line.setXY(1, stroke.getX(numPoints - 1), stroke
 						.getY(numPoints - 1));
+				
+				this.getContainer().getLoggerComponent().debug("[GameFSM] Creating line from two points: "+line);
 			}
 		}
 
@@ -951,7 +970,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * Initializes ICR context for an application
 	 */
 	private void initializeICRContext() {
-		this.getContainer().getLoggerComponent().info("Initializing OCR context");
+		this.getContainer().getLoggerComponent().info("[GameFSM] Initializing ICR context");
 
 		try {
 			this.icrContext = this.getContainer().getPenletComponent().getContext().getICRContext(1000, this);
@@ -962,8 +981,9 @@ public class GameFSM implements StrokeListener, HWRListener {
 					this.icrContext
 							.createAppResource("/icr/SK_smartpen-ticktacktoe.res") };
 			this.icrContext.addResourceSet(resources);
+			this.getContainer().getLoggerComponent().info("[GameFSM] ICR context was successfully initialized");
 		} catch (Exception e) {
-			String msg = "Error initializing handwriting recognition resources: "
+			String msg = "[GameFSM] Error initializing handwriting recognition resources: "
 					+ e.getMessage();
 			this.getContainer().getLoggerComponent().error(msg);
 			this.getContainer().getGameDisplayComponent().displayMessage(msg, true);
@@ -976,8 +996,12 @@ public class GameFSM implements StrokeListener, HWRListener {
 	private void destroyICRContext() {
 		icrContext.dispose();
 		icrContext = null;
+		this.getContainer().getLoggerComponent().info("[GameFSM] ICR context was destroyed");
 	}
 
+	/**
+	 * Processing of the next event, scheduled during transition
+	 */
 	private void processNextEvent() {
 		if (nextEvent != NEXT_EVENT_NONE) {
 			switch (nextEvent) {
@@ -1012,12 +1036,18 @@ public class GameFSM implements StrokeListener, HWRListener {
 		}
 	}
 
+	/**
+	 * Set's new next event to process
+	 * 
+	 * @param nextEvent
+	 */
 	public void setNextEvent(int nextEvent) {
 		this.nextEvent = nextEvent;
 	}
 	
 	/**
 	 * Returns container
+	 * 
 	 * @return container
 	 */
 	public Container getContainer() {
