@@ -18,26 +18,25 @@ public class BasePenlet extends Penlet implements MenuEventListener {
     	this.container = new Container();
     	this.container.setComponent("penlet", this);
     	this.container.setComponent("logger", this.logger);
-    	
     }
 
     /**
      * Invoked when the application is initialized.  This happens once for an application instance.
      */
     public void initApp() {
-        this.getContainer().getLoggerComponent().info("[PENLET] Initializing penlet");
+        this.getContainer().getLoggerComponent().info("[Penlet] Initializing penlet");
         
         // Initializing GameFSM
         this.fsm = this.getContainer().getGameFSMComponent();
 		
-        this.getContainer().getLoggerComponent().info("[PENLET] Penlet was successfully initialized");
+        this.getContainer().getLoggerComponent().info("[Penlet] Penlet was successfully initialized");
     }
     
     /**
      * Invoked each time the penlet is activated.  Only one penlet is active at any given time.
      */
     public void activateApp(int reason, Object[] args) {
-    	this.getContainer().getLoggerComponent().info("[PENLET] Penlet Main activated (reason: "+reason+")");
+    	this.getContainer().getLoggerComponent().info("[Penlet] Penlet Main activated (reason: "+reason+")");
         
         if (reason == Penlet.ACTIVATED_BY_MENU) {
         	this.context.addStrokeListener(this.fsm);
@@ -49,7 +48,7 @@ public class BasePenlet extends Penlet implements MenuEventListener {
      * Invoked when the application is deactivated.
      */
     public void deactivateApp(int reason) {
-    	this.getContainer().getLoggerComponent().info("[PENLET] Penlet Main deactivated.");
+    	this.getContainer().getLoggerComponent().info("[Penlet] Penlet Main deactivated.");
         this.context.removeStrokeListener(this.fsm);        
     }
     
@@ -58,7 +57,7 @@ public class BasePenlet extends Penlet implements MenuEventListener {
      * No other methods will be invoked on the instance after destroyApp is called.
      */
     public void destroyApp() {
-    	this.getContainer().getLoggerComponent().info("[PENLET] Penlet Main destroyed.");
+    	this.getContainer().getLoggerComponent().info("[Penlet] Penlet Main destroyed.");
     }
 
     /**
@@ -71,7 +70,7 @@ public class BasePenlet extends Penlet implements MenuEventListener {
 
 	public boolean handleMenuEvent(MenuEvent menuEvent) {
 		int eventId = menuEvent.getId();
-		this.getContainer().getLoggerComponent().info("[PENLET] Menu event received (id = "+eventId+")");
+		this.getContainer().getLoggerComponent().info("[Penlet] Menu event received (id = "+eventId+")");
 		
 		boolean result = false;
 		
