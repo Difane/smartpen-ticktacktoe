@@ -418,6 +418,39 @@ public class GameLogic {
 	public int[] getFields() {
 		return fields;
 	}
+	
+	/**
+	 * Checks, that turn to the given field is possible (field is empty)
+	 * 
+	 * @param field
+	 *            Field to check turn possibility
+	 * @return true, if turn is possible, false otherwise
+	 */
+	public boolean isTurnPossible(int field) {
+		if(field < 1 || field > 9)
+		{
+			this.getContainer().
+				getLoggerComponent().
+				debug("[GameLogic] Checking turn possibility to the impossible field: "+field);
+			return false;
+		}
+		
+		if(fields[field] != FIELD_EMPTY)
+		{
+			this.getContainer().
+				getLoggerComponent().
+				debug("[GameLogic] Checking turn possibility. Target field ("+field+") is already captured");
+			return false;
+		}
+		else
+		{
+			this.getContainer().
+			getLoggerComponent().
+			debug("[GameLogic] Checking turn possibility. Target field ("+field+") is empty");
+			return true;
+		}
+			
+	}
 
 	/**
 	 * Returns container

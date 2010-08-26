@@ -950,10 +950,16 @@ public class GameFSM implements StrokeListener, HWRListener {
 
 			int field = this.container.getGameBoardComponent().getTurnField(p);
 			if (field != -1) {
+				if (this.getContainer().getGameLogicComponent().isTurnPossible(
+						field)) {
 				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM][ICR] Turn was done in the correct field");
 				this.getContainer().getGameLogicComponent().humanTurn(field);
-				this.eventHumanTurnReady();
+					this.eventHumanTurnReady();
+				} else {
+					this.getContainer().getLoggerComponent()
+					.debug("[GameFSM][ICR] Turn was done in the field, that already captured");
+				}
 			} else {
 				this.getContainer().getLoggerComponent()
 						.debug("[GameFSM][ICR] Turn was done outside board");
