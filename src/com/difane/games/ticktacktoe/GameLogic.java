@@ -286,7 +286,7 @@ public class GameLogic {
 
 		this.getContainer()
 			.getLoggerComponent()
-			.debug("[GameLogic] Game status requested. Current status is"+result);
+			.debug("[GameLogic] Game status requested. Current status is "+result);
 		
 		return result;
 	}
