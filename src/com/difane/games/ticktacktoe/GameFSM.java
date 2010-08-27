@@ -611,7 +611,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 					// 1. Checking, that game is not end
 					if (this.checkGameStatus()) {
 						// 2. Redrawing board with text "Your turn"
-						this.getContainer().getGameDisplayComponent().redrawBoard(true);
+						this.getContainer().getGameDisplayComponent().drawBoardHumansTurn();
 					}
 				}
 				break;
@@ -621,7 +621,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 					// 1. Checking, that game is not end
 					if (this.checkGameStatus()) {
 						// 2. Redrawing board with text "Your turn"
-						this.getContainer().getGameDisplayComponent().redrawBoard(false);
+						this.getContainer().getGameDisplayComponent().drawBoardPensTurn();
 						// 3. Performing pen turn;
 						this.getContainer().getGameLogicComponent().aiTurn();
 						this.setNextEvent(NEXT_EVENT_GAME_PEN_TURN_READY);

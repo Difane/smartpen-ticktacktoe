@@ -182,21 +182,21 @@ public class GameDisplay {
 	 * Displays message about game draw result
 	 */
 	public void displayDraw() {
-		displayMessage("Game Draw!", true);
+		redrawBoard("DRAW !!!");
 	}
 
 	/**
 	 * Displays message about pen wins result
 	 */
 	public void displayPenWins() {
-		displayMessage("Sorry, but You Lose!", true);
+		redrawBoard("YOU LOSE !!!");
 	}
 
 	/**
 	 * Displays message about human wins result
 	 */
 	public void displayHumanWins() {
-		displayMessage("Congratulations! You win!", true);
+		redrawBoard("YOU WIN !!!");
 	}
 
 	/**
@@ -247,10 +247,9 @@ public class GameDisplay {
 	 * Draws board on the screen and displays message to the user with
 	 * information about next activity
 	 * 
-	 * @param humanTurnNext
-	 *            True, if next turn must be dome by human, false otherwise
+	 * @param msg Message to be displayed at the right of the board
 	 */
-	public void redrawBoard(boolean humanTurnNext) {
+	public void redrawBoard(String msg) {
 		// At first drawing empty game field
 		this.graphics.clearRect();
 		this.drawFirstVerticalLine();
@@ -270,13 +269,23 @@ public class GameDisplay {
 			}
 		}
 
-		if (humanTurnNext) {
-			this.graphics.drawString("Your turn!", 25, 2, 0);
-		} else {
-			this.graphics.drawString("Pen's turn!", 25, 2, 0);
-		}
+		this.graphics.drawString(msg, 25, 2, 0);
 
 		this.displayDrawing(true);
+	}
+
+	/**
+	 * Redraws game board and displays a message, that next turn is human's
+	 */
+	public void drawBoardHumansTurn() {
+		this.redrawBoard("Your turn!");
+	}
+
+	/**
+	 * Redraws game board and displays a message, that next turn is pen's
+	 */
+	public void drawBoardPensTurn() {
+		this.redrawBoard("Pens turn!");
 	}
 
 	/**
