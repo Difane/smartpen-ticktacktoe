@@ -3,6 +3,7 @@ package com.difane.games.ticktacktoe;
 import com.livescribe.event.MenuEvent;
 import com.livescribe.event.MenuEventListener;
 import com.livescribe.penlet.Penlet;
+
 /**
  * This Penlet displays "Hello World!" as text when activated by menu.
  */
@@ -40,6 +41,7 @@ public class BasePenlet extends Penlet implements MenuEventListener {
         
         if (reason == Penlet.ACTIVATED_BY_MENU) {
         	this.context.addStrokeListener(this.fsm);
+        	this.context.addPenTipListener(this.fsm);
             this.fsm.eventStartApplication();
         }
     }
@@ -49,7 +51,8 @@ public class BasePenlet extends Penlet implements MenuEventListener {
      */
     public void deactivateApp(int reason) {
     	this.getContainer().getLoggerComponent().info("[Penlet] Penlet Main deactivated.");
-        this.context.removeStrokeListener(this.fsm);        
+        this.context.removeStrokeListener(this.fsm);
+		this.context.removePenTipListener(this.fsm);        
     }
     
     /**
@@ -102,4 +105,6 @@ public class BasePenlet extends Penlet implements MenuEventListener {
 	public Container getContainer() {
 		return container;
 	}
+
+	
 }

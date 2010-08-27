@@ -10,6 +10,7 @@ import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsExceptio
 import com.livescribe.afp.PageInstance;
 import com.livescribe.event.HWRListener;
 import com.livescribe.event.StrokeListener;
+import com.livescribe.event.PenTipListener;
 import com.livescribe.geom.Point;
 import com.livescribe.geom.PolyLine;
 import com.livescribe.geom.Rectangle;
@@ -19,13 +20,13 @@ import com.livescribe.icr.Resource;
 import com.livescribe.penlet.Region;
 import com.livescribe.storage.StrokeStorage;
 
-public class GameFSM implements StrokeListener, HWRListener {
+public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 
 	/*
 	 * DI Container
 	 */
 	private Container container;
-	
+
 	/*
 	 * Available game states
 	 */
@@ -64,7 +65,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * Context for an ICR
 	 */
 	protected ICRContext icrContext;
-	
+
 	/**
 	 * Next event, that must be handled after transition
 	 */
@@ -88,12 +89,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 */
 	public GameFSM(Container c) {
 		this.container = c;
-		
+
 		this.currentState = FSM_STATE_START;
-		
-		this.getContainer()
-			.getLoggerComponent()
-			.debug("[GameFSM] Component initialized");
+
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] Component initialized");
 	}
 
 	/**
@@ -101,7 +101,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * to start application by displaying it's main menu
 	 */
 	public void eventStartApplication() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventStartApplication received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventStartApplication received");
 
 		initializeICRContext();
 
@@ -112,7 +113,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when DOWN in the menu be pressed
 	 */
 	public boolean eventMenuDown() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuDown received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventMenuDown received");
 		switch (currentState) {
 		case FSM_STATE_MAIN_MENU_START_GAME:
 			transition(currentState, FSM_STATE_MAIN_MENU_HELP);
@@ -130,7 +132,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_LEVEL_MENU_HARD);
 			break;
 		default:
-			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuDown received");
+			this.getContainer().getLoggerComponent().warn(
+					"[GameFSM] Unexpected eventMenuDown received");
 		}
 
 		// Menu down are always handled
@@ -141,7 +144,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when UP in the menu be pressed
 	 */
 	public boolean eventMenuUp() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuUp received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventMenuUp received");
 		switch (currentState) {
 		case FSM_STATE_MAIN_MENU_HELP:
 			transition(currentState, FSM_STATE_MAIN_MENU_START_GAME);
@@ -159,7 +163,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_LEVEL_MENU_EASY);
 			break;
 		default:
-			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuUp received");
+			this.getContainer().getLoggerComponent().warn(
+					"[GameFSM] Unexpected eventMenuUp received");
 		}
 
 		// Menu up are always handled
@@ -170,7 +175,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when LEFT in the menu be pressed
 	 */
 	public boolean eventMenuLeft() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuLeft received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventMenuLeft received");
 
 		boolean result = false;
 
@@ -205,7 +211,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 			break;
 		default:
 			result = false;
-			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuLeft received");
+			this.getContainer().getLoggerComponent().warn(
+					"[GameFSM] Unexpected eventMenuLeft received");
 		}
 
 		return result;
@@ -215,7 +222,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when RIGHT in the menu be pressed
 	 */
 	public boolean eventMenuRight() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventMenuRight received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventMenuRight received");
 
 		switch (currentState) {
 		case FSM_STATE_MAIN_MENU_START_GAME:
@@ -238,17 +246,20 @@ public class GameFSM implements StrokeListener, HWRListener {
 			transition(currentState, FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED);
 			break;
 		case FSM_STATE_LEVEL_MENU_EASY:
-			this.getContainer().getGameLogicComponent().setAiLevel(GameLogic.AI_LEVEL_EASY);
+			this.getContainer().getGameLogicComponent().setAiLevel(
+					GameLogic.AI_LEVEL_EASY);
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		case FSM_STATE_LEVEL_MENU_HARD:
-			this.getContainer().getGameLogicComponent().setAiLevel(GameLogic.AI_LEVEL_HARD);
+			this.getContainer().getGameLogicComponent().setAiLevel(
+					GameLogic.AI_LEVEL_HARD);
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
 			break;
 		default:
-			this.getContainer().getLoggerComponent().warn("[GameFSM] Unexpected eventMenuRight received");
+			this.getContainer().getLoggerComponent().warn(
+					"[GameFSM] Unexpected eventMenuRight received");
 		}
-		
+
 		// Menu right are always handled
 		return true;
 	}
@@ -257,7 +268,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when first board vertical line be ready
 	 */
 	public void eventFirstVerticalLineReady() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventFirstVerticalLineReady received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventFirstVerticalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
 			transition(currentState, FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE);
 		}
@@ -267,7 +279,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when second board vertical line be ready
 	 */
 	public void eventSecondVerticalLineReady() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventSecondVerticalLineReady received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventSecondVerticalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE);
 		}
@@ -277,7 +290,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when first board horizontal line be ready
 	 */
 	public void eventFirstHorizontalLineReady() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventFirstHorizontalLineReady received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventFirstHorizontalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			transition(currentState,
 					FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE);
@@ -288,7 +302,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when second board horizontal line be ready
 	 */
 	public void eventSecondHorizontalLineReady() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventSecondHorizontalLineReady received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventSecondHorizontalLineReady received");
 		if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			transition(currentState, FSM_STATE_GAME_SELECT_PLAYER_ORDER);
 		}
@@ -299,9 +314,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * human's
 	 */
 	public void eventPlayerSelectedHumanTurnNext() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPlayerSelectedHumanTurnNext received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventPlayerSelectedHumanTurnNext received");
 		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
-			this.getContainer().getGameDisplayComponent().displayHumanStartsGame();
+			this.getContainer().getGameDisplayComponent()
+					.displayHumanStartsGame();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -316,9 +333,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * pen's
 	 */
 	public void eventPlayerSelectedPenTurnNext() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPlayerSelectedPenTurnNext received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventPlayerSelectedPenTurnNext received");
 		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
-			this.getContainer().getGameDisplayComponent().displayPenStartsGame();
+			this.getContainer().getGameDisplayComponent()
+					.displayPenStartsGame();
 			this.transition(currentState, FSM_STATE_GAME_PEN_TURN);
 		}
 	}
@@ -327,7 +346,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when player makes his turn
 	 */
 	public void eventHumanTurnReady() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventHumanTurnReady received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventHumanTurnReady received");
 		if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_PEN_TURN);
 		}
@@ -337,7 +357,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when pen makes his turn
 	 */
 	public void eventPenTurnReady() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPenTurnReady received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventPenTurnReady received");
 		if (currentState == FSM_STATE_GAME_PEN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_HUMAN_TURN);
 		}
@@ -347,15 +368,20 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and human wins
 	 */
 	public void eventHumanWins() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventHumanWins received. Current state is: "+currentState);
-		
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventHumanWins received. Current state is: "
+						+ currentState);
+
 		if (currentState == FSM_STATE_GAME_PEN_TURN
 				|| currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_END_HUMAN_WINS);
 		} else {
-			
-			this.getContainer().getLoggerComponent()
-					.error("[GameFSM] Impossible situation - human wins without making a turn");
+
+			this
+					.getContainer()
+					.getLoggerComponent()
+					.error(
+							"[GameFSM] Impossible situation - human wins without making a turn");
 		}
 	}
 
@@ -363,15 +389,19 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and pen wins
 	 */
 	public void eventPenWins() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventPenWins received");
-		
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventPenWins received");
+
 		// Pen can win during human turn also
 		if (currentState == FSM_STATE_GAME_PEN_TURN
 				|| currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_END_PEN_WINS);
 		} else {
-			this.getContainer().getLoggerComponent()
-					.error("[GameFSM] Impossible situation - pen wins without making a turn");
+			this
+					.getContainer()
+					.getLoggerComponent()
+					.error(
+							"[GameFSM] Impossible situation - pen wins without making a turn");
 		}
 	}
 
@@ -379,7 +409,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and draw appears
 	 */
 	public void eventDraw() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventDraw received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventDraw received");
 
 		if (currentState == FSM_STATE_GAME_HUMAN_TURN
 				|| currentState == FSM_STATE_GAME_PEN_TURN) {
@@ -391,10 +422,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event ends application
 	 */
 	public void eventEndApplication() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventEndApplication received");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventEndApplication received");
 
-		//this.destroyICRContext();
-		
+		// this.destroyICRContext();
+
 		if (currentState == FSM_STATE_GAME_END_HUMAN_WINS
 				|| currentState == FSM_STATE_GAME_END_PEN_WINS
 				|| currentState == FSM_STATE_GAME_END_DRAW) {
@@ -402,11 +434,24 @@ public class GameFSM implements StrokeListener, HWRListener {
 		}
 	}
 
-	
+	/**
+	 * This event restarts application
+	 */
+	public void eventRestartApplication() {
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] eventRestartApplication received");
+
+		if (currentState == FSM_STATE_END) {
+			this.getContainer().getGameBoardComponent().reset();
+			this.getContainer().getGameLogicComponent().restart();
+			this.transition(currentState, FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE);
+		}
+	}
 
 	private void transition(int currentState, int transitionState) {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] ---> transition started ( " + currentState
-				+ " -> " + transitionState + " )");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] ---> transition started ( " + currentState + " -> "
+						+ transitionState + " )");
 		try {
 			switch (transitionState) {
 			case FSM_STATE_MAIN_MENU_START_GAME:
@@ -414,186 +459,243 @@ public class GameFSM implements StrokeListener, HWRListener {
 						|| currentState == FSM_STATE_LEVEL_MENU_EASY
 						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
 					// Select "Help" in the main menu, if not selected
-					this.getContainer().getGameDisplayComponent().selectMainMenuItemIfNotSelected(0);
+					this.getContainer().getGameDisplayComponent()
+							.selectMainMenuItemIfNotSelected(0);
 
 					// Main menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayMainMenu();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu was displayed with active item 0");
+					this.getContainer().getGameDisplayComponent()
+							.displayMainMenu();
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM] Main menu was displayed with active item 0");
 
 				} else if (currentState == FSM_STATE_MAIN_MENU_HELP) {
 					// Main menu must be focused to the previous item
-					this.getContainer().getGameDisplayComponent().focusMainMenuToPrevious();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu item 0 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusMainMenuToPrevious();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Main menu item 0 was activated");
 				}
 				break;
 			case FSM_STATE_MAIN_MENU_HELP:
 				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
 					// Main menu must be focused to the next item
-					this.getContainer().getGameDisplayComponent().focusMainMenuToNext();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu item 1 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusMainMenuToNext();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Main menu item 1 was activated");
 				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
 					// Main menu must be focused to the previous item
-					this.getContainer().getGameDisplayComponent().focusMainMenuToPrevious();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu item 1 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusMainMenuToPrevious();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Main menu item 1 was activated");
 				} else if (currentState == FSM_STATE_HELP_MENU_RULES
 						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD
 						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
 					// Select "Help" in the main menu, if not selected
-					this.getContainer().getGameDisplayComponent().selectMainMenuItemIfNotSelected(1);
+					this.getContainer().getGameDisplayComponent()
+							.selectMainMenuItemIfNotSelected(1);
 
 					// Main menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayMainMenu();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu was displayed with active item 1");
+					this.getContainer().getGameDisplayComponent()
+							.displayMainMenu();
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM] Main menu was displayed with active item 1");
 				}
 				break;
 			case FSM_STATE_MAIN_MENU_ABOUT:
 				if (currentState == FSM_STATE_MAIN_MENU_HELP) {
 					// Main menu must be focused to the next item
-					this.getContainer().getGameDisplayComponent().focusMainMenuToNext();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu item 2 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusMainMenuToNext();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Main menu item 2 was activated");
 				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED) {
 					// Select "About" in the main menu, if not selected
-					this.getContainer().getGameDisplayComponent().selectMainMenuItemIfNotSelected(2);
+					this.getContainer().getGameDisplayComponent()
+							.selectMainMenuItemIfNotSelected(2);
 
 					// Main menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayMainMenu();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Main menu was displayed with active item 2");
+					this.getContainer().getGameDisplayComponent()
+							.displayMainMenu();
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM] Main menu was displayed with active item 2");
 				}
 				break;
 			case FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED:
 				if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
-					this.getContainer().getGameDisplayComponent().displayAbout();
-					this.getContainer().getLoggerComponent().debug("[GameFSM] About was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayAbout();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] About was displayed");
 				}
 				break;
 			case FSM_STATE_LEVEL_MENU_EASY:
 				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
 					// Select "Easy" in the level select menu, if not selected
-					this.getContainer().getGameDisplayComponent().selectLevelSelectMenuItemIfNotSelected(0);
+					this.getContainer().getGameDisplayComponent()
+							.selectLevelSelectMenuItemIfNotSelected(0);
 
 					// Level select menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayLevelSelectMenu();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Level select menu was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayLevelSelectMenu();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Level select menu was displayed");
 				} else if (currentState == FSM_STATE_LEVEL_MENU_HARD) {
 					// Main menu must be focused to the next item
-					this.getContainer().getGameDisplayComponent().focusLevelSelectMenuToPrevious();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Level select menu item 0 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusLevelSelectMenuToPrevious();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Level select menu item 0 was activated");
 				}
 				break;
 			case FSM_STATE_LEVEL_MENU_HARD:
 				if (currentState == FSM_STATE_LEVEL_MENU_EASY) {
-					this.getContainer().getGameDisplayComponent().focusLevelSelectMenuToNext();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Level select menu item 1 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusLevelSelectMenuToNext();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Level select menu item 1 was activated");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_RULES:
 				if (currentState == FSM_STATE_MAIN_MENU_HELP
 						|| currentState == FSM_STATE_HELP_MENU_RULES_DISPLAYED) {
 					// Select "Rules" in the help menu, if not selected
-					this.getContainer().getGameDisplayComponent().selectHelpMenuItemIfNotSelected(0);
+					this.getContainer().getGameDisplayComponent()
+							.selectHelpMenuItemIfNotSelected(0);
 
 					// Level select menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayHelpMenu();
-					this.getContainer().getLoggerComponent().debug("[GameFSM] Help menu was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayHelpMenu();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
 					// Help menu must be focused to the previous item
-					this.getContainer().getGameDisplayComponent().focusHelpMenuToPrevious();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Help menu item 0 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusHelpMenuToPrevious();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu item 0 was activated");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED) {
 					// Select "How to draw board" in the help menu, if not
 					// selected
-					this.getContainer().getGameDisplayComponent().selectHelpMenuItemIfNotSelected(1);
+					this.getContainer().getGameDisplayComponent()
+							.selectHelpMenuItemIfNotSelected(1);
 
 					// Level select menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayHelpMenu();
-					this.getContainer().getLoggerComponent().debug("[GameFSM] Help menu was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayHelpMenu();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_RULES) {
 					// Help menu must be focused to the next item
-					this.getContainer().getGameDisplayComponent().focusHelpMenuToNext();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Help menu item 1 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusHelpMenuToNext();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu item 1 was activated");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
 					// Help menu must be focused to the next item
-					this.getContainer().getGameDisplayComponent().focusHelpMenuToPrevious();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Help menu item 1 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusHelpMenuToPrevious();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu item 1 was activated");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED) {
 					// Select "How to play" in the help menu, if not selected
-					this.getContainer().getGameDisplayComponent().selectHelpMenuItemIfNotSelected(2);
+					this.getContainer().getGameDisplayComponent()
+							.selectHelpMenuItemIfNotSelected(2);
 
 					// Level select menu must be displayed
-					this.getContainer().getGameDisplayComponent().displayHelpMenu();
-					this.getContainer().getLoggerComponent().debug("[GameFSM] Help menu was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayHelpMenu();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
 					// Help menu must be focused to the next item
-					this.getContainer().getGameDisplayComponent().focusHelpMenuToNext();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Help menu item 2 was activated");
+					this.getContainer().getGameDisplayComponent()
+							.focusHelpMenuToNext();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Help menu item 2 was activated");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_RULES_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_RULES) {
-					this.getContainer().getGameDisplayComponent().displayRules();
-					this.getContainer().getLoggerComponent().debug("[GameFSM] Rules was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayRules();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Rules was displayed");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
-					this.getContainer().getGameDisplayComponent().displayHowToDrawBoard();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] How to draw board was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayHowToDrawBoard();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] How to draw board was displayed");
 				}
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
-					this.getContainer().getGameDisplayComponent().displayHowToPlay();
-					this.getContainer().getLoggerComponent().debug("[GameFSM] How to play was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayHowToPlay();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] How to play was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE:
 				if (currentState == FSM_STATE_LEVEL_MENU_EASY
-						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
-					this.getContainer().getGameDisplayComponent().displayDrawFirstVerticalLine();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Draw first vertical line was displayed");
+						|| currentState == FSM_STATE_LEVEL_MENU_HARD
+						|| currentState == FSM_STATE_END) {
+					this.getContainer().getGameDisplayComponent()
+							.displayDrawFirstVerticalLine();
+					this.getContainer().getLoggerComponent().debug(
+							"[GameFSM] Draw first vertical line was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
-					this.getContainer().getGameDisplayComponent().displayDrawSecondVerticalLine();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Draw second vertical line was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayDrawSecondVerticalLine();
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM] Draw second vertical line was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
-					this.getContainer().getGameDisplayComponent().displayDrawFirstHorizontalLine();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Draw first horizontal line was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayDrawFirstHorizontalLine();
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM] Draw first horizontal line was displayed");
 				}
 				break;
 			case FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
-					this.getContainer().getGameDisplayComponent().displayDrawSecondHorizontalLine();
-					this.getContainer().getLoggerComponent()
-							.debug("[GameFSM] Draw second horizontal line was displayed");
+					this.getContainer().getGameDisplayComponent()
+							.displayDrawSecondHorizontalLine();
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM] Draw second horizontal line was displayed");
 				}
 				break;
 			case FSM_STATE_GAME_SELECT_PLAYER_ORDER:
@@ -601,9 +703,11 @@ public class GameFSM implements StrokeListener, HWRListener {
 					boolean humanFirst = this.getContainer()
 							.getGameLogicComponent().selectPlayersOrder();
 					if (humanFirst) {
-						this.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT);
+						this
+								.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT);
 					} else {
-						this.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT);
+						this
+								.setNextEvent(NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT);
 					}
 				}
 				break;
@@ -613,7 +717,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 					// 1. Checking, that game is not end
 					if (this.checkGameStatus()) {
 						// 2. Redrawing board with text "Your turn"
-						this.getContainer().getGameDisplayComponent().drawBoardHumansTurn();
+						this.getContainer().getGameDisplayComponent()
+								.drawBoardHumansTurn();
 					}
 				}
 				break;
@@ -623,7 +728,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 					// 1. Checking, that game is not end
 					if (this.checkGameStatus()) {
 						// 2. Redrawing board with text "Your turn"
-						this.getContainer().getGameDisplayComponent().drawBoardPensTurn();
+						this.getContainer().getGameDisplayComponent()
+								.drawBoardPensTurn();
 						// 3. Performing pen turn;
 						this.getContainer().getGameLogicComponent().aiTurn();
 						this.setNextEvent(NEXT_EVENT_GAME_PEN_TURN_READY);
@@ -631,117 +737,137 @@ public class GameFSM implements StrokeListener, HWRListener {
 				}
 				break;
 			case FSM_STATE_GAME_END_HUMAN_WINS:
-				this.getContainer().getGameDisplayComponent().displayHumanWins();
-				this.getContainer().getLoggerComponent().debug("[GameFSM] Human wins was displayed");
+				this.getContainer().getGameDisplayComponent()
+						.displayHumanWins();
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM] Human wins was displayed");
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_PEN_WINS:
 				this.getContainer().getGameDisplayComponent().displayPenWins();
-				this.getContainer().getLoggerComponent().debug("[GameFSM] Pen wins was displayed");
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM] Pen wins was displayed");
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_DRAW:
 				this.getContainer().getGameDisplayComponent().displayDraw();
-				this.getContainer().getLoggerComponent().debug("[GameFSM] Draw was displayed");
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM] Draw was displayed");
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_END:
 				this.getContainer().getGameDisplayComponent().displayEnd();
-				this.getContainer().getLoggerComponent().debug("[GameFSM] Game end reached");
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM] Game end reached");
 				break;
 			default:
 				// Unrecognized target state. Rejecting it
-				this.getContainer().getLoggerComponent().warn("[GameFSM] Unrecognized target state: "
-						+ transitionState);
+				this.getContainer().getLoggerComponent().warn(
+						"[GameFSM] Unrecognized target state: "
+								+ transitionState);
 				return;
 			} // switch (transitionState)
 
 			this.currentState = transitionState;
 		} catch (Exception e) {
-			this.getContainer().getLoggerComponent().error("[GameFSM] Exception appears: " + e);
+			this.getContainer().getLoggerComponent().error(
+					"[GameFSM] Exception appears: " + e);
 		}
 
-		this.getContainer().getLoggerComponent().debug("[GameFSM] Starting processing next event");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] Starting processing next event");
 		this.processNextEvent();
-		this.getContainer().getLoggerComponent().debug("[GameFSM] Next event was processed");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] Next event was processed");
 
-		this.getContainer().getLoggerComponent().debug("[GameFSM] <--- transition");
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] <--- transition");
 	}
-
-	
 
 	/**
 	 * Checks game status and forwards to the corresponded state, if game
 	 * completed
+	 * 
 	 * @return false, if game status changed and game end, true otherwise
 	 */
 	private boolean checkGameStatus() {
-		int status = this.getContainer().getGameLogicComponent().getGameStatus();
-		this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. Game status is: "
-				+ status + ". Current state is " + currentState);
+		int status = this.getContainer().getGameLogicComponent()
+				.getGameStatus();
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM].checkGameStatus. Game status is: " + status
+						+ ". Current state is " + currentState);
 
 		boolean result = true;
-		
+
 		switch (status) {
 		case GameLogic.GAME_STATUS_X_WINS:
-			this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. 'X' player wins");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM].checkGameStatus. 'X' player wins");
 			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_X) {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM].checkGameStatus. 'X' was played by human. Human wins");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM].checkGameStatus. 'X' was played by human. Human wins");
 				// Human wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_HUMAN_WINS);
 			} else {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM].checkGameStatus. 'X' was played by pen. Pen wins");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM].checkGameStatus. 'X' was played by pen. Pen wins");
 				// Pen wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_PEN_WINS);
 			}
 			result = false;
 			break;
 		case GameLogic.GAME_STATUS_O_WINS:
-			this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. 'O' player wins");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM].checkGameStatus. 'O' player wins");
 			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_O) {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM].checkGameStatus. 'O' was played by human. Human wins");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM].checkGameStatus. 'O' was played by human. Human wins");
 				// Human wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_HUMAN_WINS);
 			} else {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM].checkGameStatus. 'O' was played by pen. Pen wins");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM].checkGameStatus. 'O' was played by pen. Pen wins");
 				// Pen wins
 				this.setNextEvent(NEXT_EVENT_GAME_END_PEN_WINS);
 			}
 			result = false;
 			break;
 		case GameLogic.GAME_STATUS_DRAW:
-			this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. Game draw");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM].checkGameStatus. Game draw");
 			this.setNextEvent(NEXT_EVENT_GAME_END_DRAW);
 			result = false;
 			break;
 		default:
-			this.getContainer().getLoggerComponent()
-					.debug("[GameFSM].checkGameStatus. Game is not completed yet");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM].checkGameStatus. Game is not completed yet");
 			// Game continues. Do nothing
 			result = true;
 			break;
 		}
-		
+
 		return result;
 	}
 
-	
-
-	
-
-	
-
 	public void strokeCreated(long time, Region region,
 			PageInstance pageInstance) {
-		this.getContainer().getLoggerComponent()
-				.debug("[GameFSM] New stroke was created. Current state: "
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM] New stroke was created. Current state: "
 						+ this.currentState);
 
 		PolyLine line = null;
@@ -751,140 +877,194 @@ public class GameFSM implements StrokeListener, HWRListener {
 				|| currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE
 				|| currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 
-			this.getContainer().getLoggerComponent().debug("[GameFSM] Trying to get line from stroke");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM] Trying to get line from stroke");
 
 			StrokeStorage ss = new StrokeStorage(pageInstance);
 			Stroke stroke = ss.getStroke(time);
 
 			// Create a line, based on the first and last points of the stroke
 			int numPoints = stroke.getNumberofVertices();
-			this.getContainer().getLoggerComponent().debug("[GameFSM] Number of vertices in the stroke is "
-					+ numPoints);
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM] Number of vertices in the stroke is "
+							+ numPoints);
 
 			if (numPoints >= 2) {
 				line = new PolyLine(2);
 				line.setXY(0, stroke.getX(0), stroke.getY(0));
 				line.setXY(1, stroke.getX(numPoints - 1), stroke
 						.getY(numPoints - 1));
-				
-				this.getContainer().getLoggerComponent().debug("[GameFSM] Creating line from two points: "+line);
+
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM] Creating line from two points: " + line);
 			}
 		}
 
 		if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
 			try {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Trying to use this line as first vertical line");
-				this.getContainer().getGameBoardComponent().setFirstVerticalLine(line);
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] First vertical line was successfully created");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] Trying to use this line as first vertical line");
+				this.getContainer().getGameBoardComponent()
+						.setFirstVerticalLine(line);
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] First vertical line was successfully created");
 				this.eventFirstVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstVerticalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawFirstVerticalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLineLengthException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstVerticalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawFirstVerticalLine();
 			} catch (GameBoardLineIsNotVerticalException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotVerticalException");
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineIsNotVerticalException");
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			try {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Trying to use this line as second vertical line");
-				this.getContainer().getGameBoardComponent().setSecondVerticalLine(line);
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Second vertical line was successfully created");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] Trying to use this line as second vertical line");
+				this.getContainer().getGameBoardComponent()
+						.setSecondVerticalLine(line);
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] Second vertical line was successfully created");
 				this.eventSecondVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineRequirementsException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineRequirementsException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLineLengthException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLinePositionException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePositionException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineIsNotVerticalException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotVerticalException");
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineIsNotVerticalException");
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			try {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Trying to use this line as first horizontal line");
-				this.getContainer().getGameBoardComponent().setFirstHorizontalLine(line);
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] First horizontal line was successfully created");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] Trying to use this line as first horizontal line");
+				this.getContainer().getGameBoardComponent()
+						.setFirstHorizontalLine(line);
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] First horizontal line was successfully created");
 				this.eventFirstHorizontalLineReady();
 			} catch (GameBoardLineRequirementsException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineRequirementsException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLinePointsCountException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLinePositionException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePositionException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLineLengthException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawFirstHorizontalLine();
 			} catch (GameBoardLineIsNotHorizontalException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotHorizontalException");
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineIsNotHorizontalException");
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			try {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Trying to use this line as second horizontal line");
-				this.getContainer().getGameBoardComponent().setSecondHorizontalLine(line);
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Second horizontal line was successfully created. Calculating game board");
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] Trying to use this line as second horizontal line");
+				this.getContainer().getGameBoardComponent()
+						.setSecondHorizontalLine(line);
+				this
+						.getContainer()
+						.getLoggerComponent()
+						.debug(
+								"[GameFSM] Second horizontal line was successfully created. Calculating game board");
 				this.getContainer().getGameBoardComponent().calculateBoard();
 				this.eventSecondHorizontalLineReady();
 			} catch (GameBoardLineRequirementsException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineRequirementsException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLinePointsCountException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePointsCountException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLinePositionException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLinePositionException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLinePositionException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent()
-						.error("GameBoardLineLengthException. Reason: "
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineLengthException. Reason: "
 								+ e.getReason());
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardImpossibleException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardImpossibleException");
-				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardImpossibleException");
+				this.getContainer().getGameDisplayComponent()
+						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardLineIsNotHorizontalException e) {
-				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotHorizontalException");
+				this.getContainer().getLoggerComponent().error(
+						"GameBoardLineIsNotHorizontalException");
 			}
 		} else if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.icrContext.addStroke(pageInstance, time);
-			this.getContainer().getLoggerComponent()
-					.debug("[GameFSM] StrokeCreated. Stroke was added to ICR context");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM] StrokeCreated. Stroke was added to ICR context");
 		}
 	}
-
-	
-
-	
 
 	/**
 	 * Called when the user crosses out text
@@ -902,7 +1082,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * When the ICR engine detects an acceptable series or strokes
 	 */
 	public void hwrResult(long time, String result) {
-		this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Intermediate result: " + result);
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM][ICR] Intermediate result: " + result);
 	}
 
 	/**
@@ -910,82 +1091,128 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * the ICRContext are cleared
 	 */
 	public void hwrUserPause(long time, String result) {
-		this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Result: " + result
-				+ " (x) | Human type: " + this.getContainer().getGameLogicComponent().getHumanType());
+		this.getContainer().getLoggerComponent().debug(
+				"[GameFSM][ICR] Result: "
+						+ result
+						+ " (x) | Human type: "
+						+ this.getContainer().getGameLogicComponent()
+								.getHumanType());
 
 		// At first we must check, that result is the required symbol
 		boolean symbolCorrect = false;
 
 		if (result.equalsIgnoreCase("x")) {
-			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User has draw X");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM][ICR] User has draw X");
 			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_X) {
-				this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User played with X");
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM][ICR] User played with X");
 				symbolCorrect = true;
 			}
 		} else if (result.equalsIgnoreCase("o")) {
-			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User has draw O");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM][ICR] User has draw O");
 			if (this.getContainer().getGameLogicComponent().getHumanType() == GameLogic.FIELD_O) {
-				this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] User played with O");
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM][ICR] User played with O");
 				symbolCorrect = true;
 			}
 		}
 
 		if (symbolCorrect) {
 
-			this.getContainer().getLoggerComponent()
-					.debug("[GameFSM][ICR] User has draw required symbol. Trying to get it's position.");
+			this
+					.getContainer()
+					.getLoggerComponent()
+					.debug(
+							"[GameFSM][ICR] User has draw required symbol. Trying to get it's position.");
 			// Required symbol appears. Now we must check, which field is used
 			// Retrieving center of the user symbol
 
-			this.getContainer().getLoggerComponent()
-					.debug("[GameFSM][ICR] Receiving symbol rectangle. ICRContext: "
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM][ICR] Receiving symbol rectangle. ICRContext: "
 							+ this.icrContext);
 
 			Rectangle r = this.icrContext.getTextBoundingBox();
 
-			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Rectangle: " + r);
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM][ICR] Rectangle: " + r);
 			this.getContainer().getLoggerComponent()
-					.debug("[GameFSM][ICR] symbol rectangle was received ("
-							+ r.toString() + "). Calculating it's center point");
+					.debug(
+							"[GameFSM][ICR] symbol rectangle was received ("
+									+ r.toString()
+									+ "). Calculating it's center point");
 			Point p = new Point(r.getX() + r.getWidth() / 2, r.getY()
 					+ r.getHeight() / 2);
 
-			this.getContainer().getLoggerComponent().debug("[GameFSM][ICR] Point of the user symbol is ("
-					+ p.getX() + "," + p.getY() + ")");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM][ICR] Point of the user symbol is (" + p.getX()
+							+ "," + p.getY() + ")");
 
 			int field = this.container.getGameBoardComponent().getTurnField(p);
 			if (field != -1) {
 				if (this.getContainer().getGameLogicComponent().isTurnPossible(
 						field)) {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM][ICR] Turn was done in the correct field");
-				this.getContainer().getGameLogicComponent().humanTurn(field);
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM][ICR] Turn was done in the correct field");
+					this.getContainer().getGameLogicComponent()
+							.humanTurn(field);
 					this.eventHumanTurnReady();
 				} else {
-					this.getContainer().getLoggerComponent()
-					.debug("[GameFSM][ICR] Turn was done in the field, that already captured");
+					this
+							.getContainer()
+							.getLoggerComponent()
+							.debug(
+									"[GameFSM][ICR] Turn was done in the field, that already captured");
 				}
 			} else {
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM][ICR] Turn was done outside board");
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM][ICR] Turn was done outside board");
 			}
 		} else {
-			this.getContainer().getLoggerComponent()
-					.debug("[GameFSM][ICR] User has not draw required symbol");
+			this.getContainer().getLoggerComponent().debug(
+					"[GameFSM][ICR] User has not draw required symbol");
 		}
 
 		// ICR Strokes clearing must be done in any case
 		this.icrContext.clearStrokes();
 	}
 
+	public void penUp(long time, Region region, PageInstance page) {
+
+	}
+
+	public void penDown(long time, Region region, PageInstance page) {
+		this.getContainer().
+			getLoggerComponent()
+			.info("[GameFSM] penDown external event received");
+		
+		if (currentState == FSM_STATE_END) {
+			eventRestartApplication();
+		}
+	}
+
+	public void singleTap(long time, int x, int y) {
+
+	}
+
+	public void doubleTap(long time, int x, int y) {
+
+	}
+
 	/**
 	 * Initializes ICR context for an application
 	 */
 	private void initializeICRContext() {
-		this.getContainer().getLoggerComponent().info("[GameFSM] Initializing ICR context");
+		this.getContainer().getLoggerComponent().info(
+				"[GameFSM] Initializing ICR context");
 
 		try {
-			this.icrContext = this.getContainer().getPenletComponent().getContext().getICRContext(1000, this);
+			this.icrContext = this.getContainer().getPenletComponent()
+					.getContext().getICRContext(1000, this);
 			Resource[] resources = {
 					this.icrContext.getDefaultAlphabetKnowledgeResource(),
 					this.icrContext
@@ -993,12 +1220,14 @@ public class GameFSM implements StrokeListener, HWRListener {
 					this.icrContext
 							.createAppResource("/icr/SK_smartpen-ticktacktoe.res") };
 			this.icrContext.addResourceSet(resources);
-			this.getContainer().getLoggerComponent().info("[GameFSM] ICR context was successfully initialized");
+			this.getContainer().getLoggerComponent().info(
+					"[GameFSM] ICR context was successfully initialized");
 		} catch (Exception e) {
 			String msg = "[GameFSM] Error initializing handwriting recognition resources: "
 					+ e.getMessage();
 			this.getContainer().getLoggerComponent().error(msg);
-			this.getContainer().getGameDisplayComponent().displayMessage(msg, true);
+			this.getContainer().getGameDisplayComponent().displayMessage(msg,
+					true);
 		}
 	}
 
@@ -1008,7 +1237,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 	private void destroyICRContext() {
 		icrContext.dispose();
 		icrContext = null;
-		this.getContainer().getLoggerComponent().info("[GameFSM] ICR context was destroyed");
+		this.getContainer().getLoggerComponent().info(
+				"[GameFSM] ICR context was destroyed");
 	}
 
 	/**
@@ -1054,8 +1284,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 				break;
 
 			default:
-				this.getContainer().getLoggerComponent()
-						.debug("[GameFSM] Invalid next event, that cannot be processed ("
+				this.getContainer().getLoggerComponent().debug(
+						"[GameFSM] Invalid next event, that cannot be processed ("
 								+ nextEvent + ")");
 				break;
 			}
@@ -1070,7 +1300,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	public void setNextEvent(int nextEvent) {
 		this.nextEvent = nextEvent;
 	}
-	
+
 	/**
 	 * Returns container
 	 * 

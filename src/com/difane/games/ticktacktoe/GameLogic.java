@@ -445,11 +445,24 @@ public class GameLogic {
 		else
 		{
 			this.getContainer().
-			getLoggerComponent().
-			debug("[GameLogic] Checking turn possibility. Target field ("+field+") is empty");
+				getLoggerComponent().
+				debug("[GameLogic] Checking turn possibility. Target field ("+field+") is empty");
 			return true;
 		}
 			
+	}
+	
+	public void restart() {
+		aiType = 0;
+		humanType = 0;
+		fields = new int[10];
+		ratings = new int[10];
+		runtimeHelper = new int[9];
+		gameStatus = GAME_STATUS_NOT_COMPLETED;
+		
+		this.getContainer().
+			getLoggerComponent().
+			debug("[GameLogic] Restart executed");
 	}
 
 	/**

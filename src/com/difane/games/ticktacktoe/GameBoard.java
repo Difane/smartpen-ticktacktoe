@@ -618,6 +618,22 @@ public class GameBoard {
 					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
 		}
 	}
+	
+	/**
+	 * Resets board to the initial state
+	 */
+	public void reset() {
+		this.firstVerticalLine = null;
+		this.secondVerticalLine = null;
+		this.firstHorizontalLine = null;
+		this.secondHorizontalLine = null;
+		
+		this.board = new Vector(10);
+
+		this.getContainer()
+			.getLoggerComponent()
+			.debug("[GameBoard] Reset executed");
+	}
 
 	/**
 	 * Returns container
