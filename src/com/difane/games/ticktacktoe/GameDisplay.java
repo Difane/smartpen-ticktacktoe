@@ -425,21 +425,27 @@ public class GameDisplay {
 	 * Displayed How to play on the display
 	 */
 	public void displayHowToPlay() {
-		displayMessage("This is example HOW TO PLAY string", true);
+		displayMessage(
+				"This is example HOW TO PLAY string",
+				true);
 	}
 
 	/**
 	 * Displayed How to draw board on the display
 	 */
 	public void displayHowToDrawBoard() {
-		displayMessage("This is example HOW TO DRAW BOARD string", true);
+		displayMessage(
+				"Game board is 3x3 grid of squares. To draw it please make following steps. First draw one vertical line, that has minimal lenght of 1 cantimeter. Next draw another vertical line near the first one at the right. Then draw horizontal line, that crosses both vertical lines. Next draw another horizontal line near the first one on the bottom, that also crosses both vertical lines. You board is ready.",
+				true);
 	}
 
 	/**
 	 * Displayed Rules on the display
 	 */
 	public void displayRules() {
-		displayMessage("This is example RULES string", true);
+		displayMessage(
+				"The object of Tic Tac Toe is to get three in a row. You play on a three by three game board. The first player is known as X and the second is O. X always goes first. Players alternate placing Xs and Os on the game board until either one player has three in a row, horizontally, vertically or diagonally, or all nine squares are filled. If a player is able to draw three Xs or three Os in a row, that player wins. If all nine squares are filled and neither player has three in a row, the game is a draw.",
+				true);
 	}
 
 	/**
@@ -453,14 +459,14 @@ public class GameDisplay {
 	 * Displayed message, that human starts the game
 	 */
 	public void displayHumanStartsGame() {
-		displayMessage("You playes crosses and goes first", true);
+		displayMessage("You playes crosses. You turn is first.", true);
 	}
 
 	/**
 	 * Displayed message, that pen starts the game
 	 */
 	public void displayPenStartsGame() {
-		displayMessage("You playes noughts and goes second", true);
+		displayMessage("You playes noughts. Pen starts the game.", true);
 	}
 
 	/**
