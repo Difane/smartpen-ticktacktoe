@@ -6,6 +6,7 @@ public class GameBoardLinePositionException extends Exception {
 	static public final int REASON_MUST_BE_AT_THE_RIGHT = 1;
 	static public final int REASON_MUST_BE_AT_THE_BOTTOM = 2;
 	static public final int REASON_MUST_BE_NEAR_THE_OTHER_LINES = 3;
+	static public final int REASON_MUST_CROSS_BOTH_VERTICAL_LINES = 4;
 	
 	private int reason;
 

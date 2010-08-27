@@ -3,10 +3,13 @@ package com.difane.games.ticktacktoe;
 import java.util.Vector;
 
 import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotHorizontalException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotVerticalException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsException;
+import com.difane.geom.Line;
 import com.livescribe.afp.Scale;
 import com.livescribe.geom.Point;
 import com.livescribe.geom.PolyLine;
@@ -30,15 +33,20 @@ public class GameBoard {
 	/*
 	 * Lengths for each board line
 	 */
-	private int firstVerticalLineLength;
-	private int secondVerticalLineLength;
-	private int firstHorizontalLineLength;
-	private int secondHorizontalLineLength;
+	//private int firstVerticalLineLength;
+	//private int secondVerticalLineLength;
+	//private int firstHorizontalLineLength;
+	//private int secondHorizontalLineLength;
 
 	/*
 	 * Vector, that contains board fields rectangles
 	 */
 	private Vector board;
+	
+	/*
+	 * Line drawing precision in grad
+	 */
+	private static final double LINE_PRECISION = 10;
 
 	/**
 	 * Constructor
@@ -54,10 +62,10 @@ public class GameBoard {
 		this.firstHorizontalLine = null;
 		this.secondHorizontalLine = null;
 
-		this.firstVerticalLineLength = 0;
-		this.secondVerticalLineLength = 0;
-		this.firstHorizontalLineLength = 0;
-		this.secondHorizontalLineLength = 0;
+//		this.firstVerticalLineLength = 0;
+//		this.secondVerticalLineLength = 0;
+//		this.firstHorizontalLineLength = 0;
+//		this.secondHorizontalLineLength = 0;
 
 		this.board = new Vector(10);
 
@@ -72,16 +80,20 @@ public class GameBoard {
 	 * @param firstVerticalLine
 	 *            Polyline, that contains 2 points. First point is the top
 	 *            point, second point is the bottom point
-	 * @throws GameBoardLinePointsCountException
-	 * @throws GameBoardLineLengthException
+	 * @throws GameBoardLinePointsCountException 
+	 * @throws GameBoardLineIsNotVerticalException 
+	 * @throws GameBoardLineLengthException 
 	 */
-	public void setFirstVerticalLine(PolyLine firstVerticalLine)
-			throws GameBoardLinePointsCountException,
-			GameBoardLineLengthException {
+	public void setFirstVerticalLine(PolyLine firstVerticalLine) throws GameBoardLinePointsCountException, GameBoardLineIsNotVerticalException, GameBoardLineLengthException {
 		/*
 		 * If polyline has other count of points, than 2 - it is an error
 		 */
 		this.validateLinePointsCount(firstVerticalLine);
+		
+		/*
+		 * Line must be vertical
+		 */
+		this.validateLineVerticality(firstVerticalLine);
 
 		/*
 		 * At first - we will normalize vertical line and assume, that line is
@@ -95,16 +107,9 @@ public class GameBoard {
 		/*
 		 * Now we must check, that line has required length
 		 */
-		int length = firstVerticalLine.getY(1) - firstVerticalLine.getY(0);
-		float lengthInMM = Scale.auToMM(length);
-
-		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
-		}
+		validateLineLength(firstVerticalLine);
 
 		this.firstVerticalLine = firstVerticalLine;
-		this.firstVerticalLineLength = length;
 
 		this.getContainer()
 			.getLoggerComponent()
@@ -117,15 +122,13 @@ public class GameBoard {
 	 * @param secondVerticalLine
 	 *            Polyline, that contains 2 points. First point is the top
 	 *            point, second point is the bottom point
-	 * @throws GameBoardLinePointsCountException
-	 * @throws GameBoardLineRequirementsException
-	 * @throws GameBoardLineLengthException
-	 * @throws GameBoardLinePositionException
+	 * @throws GameBoardLineRequirementsException 
+	 * @throws GameBoardLinePointsCountException 
+	 * @throws GameBoardLineIsNotVerticalException 
+	 * @throws GameBoardLineLengthException 
+	 * @throws GameBoardLinePositionException 
 	 */
-	public void setSecondVerticalLine(PolyLine secondVerticalLine)
-			throws GameBoardLinePointsCountException,
-			GameBoardLineRequirementsException, GameBoardLineLengthException,
-			GameBoardLinePositionException {
+	public void setSecondVerticalLine(PolyLine secondVerticalLine) throws GameBoardLineRequirementsException, GameBoardLinePointsCountException, GameBoardLineIsNotVerticalException, GameBoardLineLengthException, GameBoardLinePositionException {
 		/*
 		 * If first vertical line was not set - it's error
 		 */
@@ -139,6 +142,11 @@ public class GameBoard {
 		 * If polyline has other count of points, than 2 - it is an error
 		 */
 		this.validateLinePointsCount(secondVerticalLine);
+		
+		/*
+		 * Line must be vertical
+		 */
+		this.validateLineVerticality(secondVerticalLine);
 
 		/*
 		 * At first - we will normalize vertical line and assume, that line is
@@ -148,6 +156,11 @@ public class GameBoard {
 		 * the bottom point)
 		 */
 		secondVerticalLine.setX(1, secondVerticalLine.getX(0));
+		
+		/*
+		 * Now we must check, that line has required length
+		 */
+		validateLineLength(secondVerticalLine);
 
 		/*
 		 * Now we must check, that line position is correct.
@@ -160,63 +173,20 @@ public class GameBoard {
 			throw new GameBoardLinePositionException(
 					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_RIGHT);
 		}
-
+		
 		/*
-		 * 2. Distance between lines must be greater than 1/4 of the first line
-		 * length and less than 1/2 of the first line length
+		 * 2. It must be possible to cross both lines with one horizontal line
 		 */
-		int lineDistance = secondVerticalLine.getX(0)
-				- this.firstVerticalLine.getX(0);
-
-		if ((lineDistance < this.firstVerticalLineLength / 4)
-				|| (lineDistance > this.firstVerticalLineLength / 2)) {
+		
+		if (((secondVerticalLine.getY(0) < firstVerticalLine.getY(0)) 
+				&& (secondVerticalLine.getY(1) < firstVerticalLine.getY(0)))
+				|| ((secondVerticalLine.getY(0) > firstVerticalLine.getY(1)) 
+				&& (secondVerticalLine.getY(1) > firstVerticalLine.getY(1)))) {
 			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-
-		/*
-		 * 3. If YF is Y of the top point of the first line and YS is Y of the
-		 * top point of the second line and YFL is length of the first line,
-		 * than YS must be greater, than YF-0.25YFL and YS must be less than
-		 * YF+0.25YFL
-		 */
-		int minY = (int) (this.firstVerticalLine.getY(0) - this.firstVerticalLineLength / 4);
-		int maxY = (int) (this.firstVerticalLine.getY(0) + this.firstVerticalLineLength / 4);
-
-		if (secondVerticalLine.getY(0) < minY) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-		if (secondVerticalLine.getY(0) > maxY) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-
-		/*
-		 * Now we must check, that line has required length
-		 */
-		int length = secondVerticalLine.getY(1) - secondVerticalLine.getY(0);
-		float lengthInMM = Scale.auToMM(length);
-
-		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
-		}
-
-		int minLength = (this.firstVerticalLineLength * 2) / 3;
-		int maxLength = (this.firstVerticalLineLength * 5) / 4;
-
-		if (length < minLength) {
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
-		}
-		if (length > maxLength) {
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_LONG);
+				GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
 		}
 
 		this.secondVerticalLine = secondVerticalLine;
-		this.secondVerticalLineLength = length;
 
 		this.getContainer()
 			.getLoggerComponent()
@@ -229,15 +199,13 @@ public class GameBoard {
 	 * @param firstHorizontalLine
 	 *            Polyline, that contains 2 points. First point is the left
 	 *            point, second point is the right point
-	 * @throws GameBoardLineRequirementsException
-	 * @throws GameBoardLinePointsCountException
-	 * @throws GameBoardLinePositionException
-	 * @throws GameBoardLineLengthException
+	 * @throws GameBoardLineRequirementsException 
+	 * @throws GameBoardLinePointsCountException 
+	 * @throws GameBoardLineIsNotHorizontalException 
+	 * @throws GameBoardLineLengthException 
+	 * @throws GameBoardLinePositionException 
 	 */
-	public void setFirstHorizontalLine(PolyLine firstHorizontalLine)
-			throws GameBoardLineRequirementsException,
-			GameBoardLinePointsCountException, GameBoardLinePositionException,
-			GameBoardLineLengthException {
+	public void setFirstHorizontalLine(PolyLine firstHorizontalLine) throws GameBoardLineRequirementsException, GameBoardLinePointsCountException, GameBoardLineIsNotHorizontalException, GameBoardLineLengthException, GameBoardLinePositionException {
 		/*
 		 * If first and second vertical line was not set - it's error
 		 */
@@ -251,6 +219,11 @@ public class GameBoard {
 		 * If polyline has other count of points, than 2 - it is an error
 		 */
 		this.validateLinePointsCount(firstHorizontalLine);
+		
+		/*
+		 * Line must be horizontal
+		 */
+		this.validateLineHorizontality(firstHorizontalLine);
 
 		/*
 		 * At first - we will normalize horizontal line and assume, that line is
@@ -262,64 +235,29 @@ public class GameBoard {
 		firstHorizontalLine.setY(1, firstHorizontalLine.getY(0));
 
 		/*
-		 * Now we must check, that line position is correct.
-		 */
-		/*
-		 * 1. Line must start at the left from first vertical line and end at
-		 * the right from second vertical line
-		 */
-		if (firstHorizontalLine.getX(0) > this.firstVerticalLine.getX(0)) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_LEFT);
-		}
-
-		if (firstHorizontalLine.getX(1) < this.secondVerticalLine.getX(0)) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_RIGHT);
-		}
-
-		/*
-		 * 2. Distance by X between start of the first horizontal line and first
-		 * vertical line must be greater than 1/4 of the first line length and
-		 * less than 1/2 of the first line length
-		 */
-
-		int distance = this.firstVerticalLine.getX(0)
-				- firstHorizontalLine.getX(0);
-
-		int minDistance = (int) (this.firstVerticalLineLength / 4);
-		int maxDistance = (int) (this.firstVerticalLineLength / 2);
-
-		if (distance < minDistance || distance > maxDistance) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-
-		/*
 		 * Now we must check, that line has required length
 		 */
-		int length = firstHorizontalLine.getX(1) - firstHorizontalLine.getX(0);
-		float lengthInMM = Scale.auToMM(length);
-
-		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+		validateLineLength(firstHorizontalLine);
+		
+		/*
+		 * Line must cross both vertical lines
+		 */
+		Point p1, p2;
+		p1 = Line.intersection(firstHorizontalLine.getX(0), firstHorizontalLine.getY(0), 
+				firstHorizontalLine.getX(1), firstHorizontalLine.getY(1), 
+				firstVerticalLine.getX(0), firstVerticalLine.getY(0), 
+				firstVerticalLine.getX(1), firstVerticalLine.getY(1));
+		p2 = Line.intersection(firstHorizontalLine.getX(0), firstHorizontalLine.getY(0), 
+				firstHorizontalLine.getX(1), firstHorizontalLine.getY(1), 
+				secondVerticalLine.getX(0), secondVerticalLine.getY(0), 
+				secondVerticalLine.getX(1), secondVerticalLine.getY(1));
+		
+		if (p1 == null || p2 == null) {
+			throw new GameBoardLinePositionException(
+					GameBoardLinePositionException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES);
 		}
-
-		int minLength = (this.firstVerticalLineLength * 2) / 3;
-		int maxLength = (this.firstVerticalLineLength * 5) / 4;
-
-		if (length < minLength) {
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
-		}
-		if (length > maxLength) {
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_LONG);
-		}
-
+			
 		this.firstHorizontalLine = firstHorizontalLine;
-		this.firstHorizontalLineLength = length;
 
 		this.getContainer()
 			.getLoggerComponent()
@@ -332,15 +270,13 @@ public class GameBoard {
 	 * @param secondHorizontalLine
 	 *            Polyline, that contains 2 points. First point is the left
 	 *            point, second point is the right point
-	 * @throws GameBoardLineRequirementsException
-	 * @throws GameBoardLinePointsCountException
-	 * @throws GameBoardLinePositionException
-	 * @throws GameBoardLineLengthException
+	 * @throws GameBoardLineRequirementsException 
+	 * @throws GameBoardLinePointsCountException 
+	 * @throws GameBoardLineIsNotHorizontalException 
+	 * @throws GameBoardLineLengthException 
+	 * @throws GameBoardLinePositionException 
 	 */
-	public void setSecondHorizontalLine(PolyLine secondHorizontalLine)
-			throws GameBoardLineRequirementsException,
-			GameBoardLinePointsCountException, GameBoardLinePositionException,
-			GameBoardLineLengthException {
+	public void setSecondHorizontalLine(PolyLine secondHorizontalLine) throws GameBoardLineRequirementsException, GameBoardLinePointsCountException, GameBoardLineIsNotHorizontalException, GameBoardLineLengthException, GameBoardLinePositionException {
 
 		/*
 		 * If first and second vertical and first horizontal lines was not set -
@@ -357,6 +293,11 @@ public class GameBoard {
 		 * If polyline has other count of points, than 2 - it is an error
 		 */
 		this.validateLinePointsCount(secondHorizontalLine);
+		
+		/*
+		 * Line must be horizontal
+		 */
+		this.validateLineHorizontality(secondHorizontalLine);
 
 		/*
 		 * At first - we will normalize horizontal line and assume, that line is
@@ -368,24 +309,31 @@ public class GameBoard {
 		secondHorizontalLine.setY(1, secondHorizontalLine.getY(0));
 
 		/*
-		 * Now we must check, that line position is correct.
+		 * Now we must check, that line has required length
 		 */
+		validateLineLength(secondHorizontalLine);
+		
 		/*
-		 * 1. Line must start at the left from first vertical line and end at
-		 * the right from second vertical line
+		 * Line must cross both vertical lines
 		 */
-		if (secondHorizontalLine.getX(0) > this.firstVerticalLine.getX(0)) {
+		Point p1, p2;
+		p1 = Line.intersection(secondHorizontalLine.getX(0), secondHorizontalLine.getY(0), 
+				secondHorizontalLine.getX(1), secondHorizontalLine.getY(1), 
+				firstVerticalLine.getX(0), firstVerticalLine.getY(0), 
+				firstVerticalLine.getX(1), firstVerticalLine.getY(1));
+		p2 = Line.intersection(secondHorizontalLine.getX(0), secondHorizontalLine.getY(0), 
+				secondHorizontalLine.getX(1), secondHorizontalLine.getY(1), 
+				secondVerticalLine.getX(0), secondVerticalLine.getY(0), 
+				secondVerticalLine.getX(1), secondVerticalLine.getY(1));
+		
+		if (p1 == null || p2 == null) {
 			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_LEFT);
+					GameBoardLinePositionException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES);
 		}
-
-		if (secondHorizontalLine.getX(1) < this.secondVerticalLine.getX(0)) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_RIGHT);
-		}
-
+		
+		
 		/*
-		 * 2. Line must be at the bottom of the first horizontal line
+		 * Line must be at the bottom of the first horizontal line
 		 */
 
 		if (secondHorizontalLine.getY(0) <= firstHorizontalLine.getY(0)) {
@@ -393,63 +341,7 @@ public class GameBoard {
 					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_BOTTOM);
 		}
 
-		/*
-		 * 3. Distance between lines must be greater than 1/4 of the first line
-		 * length and less than 1/2 of the first line length
-		 */
-		int lineDistance = secondHorizontalLine.getY(0)
-				- this.firstHorizontalLine.getY(0);
-
-		if ((lineDistance < this.firstHorizontalLineLength / 4)
-				|| (lineDistance > this.firstHorizontalLineLength / 2)) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-
-		/*
-		 * 4. If XF is X of the left point of the first line and XS is X of the
-		 * left point of the second line and XFL is length of the first line,
-		 * than XS must be greater, than XF-0.25XFL and XS must be less than
-		 * XF+0.25XFL
-		 */
-		int minX = (int) (this.firstHorizontalLine.getX(0) - this.firstHorizontalLineLength / 4);
-		int maxX = (int) (this.firstHorizontalLine.getX(0) + this.firstHorizontalLineLength / 4);
-
-		if (secondHorizontalLine.getX(0) < minX) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-		if (secondHorizontalLine.getX(0) > maxX) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
-		}
-
-		/*
-		 * Now we must check, that line has required length
-		 */
-		int length = secondHorizontalLine.getX(1)
-				- secondHorizontalLine.getX(0);
-		float lengthInMM = Scale.auToMM(length);
-
-		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
-		}
-
-		int minLength = (this.firstHorizontalLineLength * 2) / 3;
-		int maxLength = (this.firstHorizontalLineLength * 5) / 4;
-
-		if (length < minLength) {
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
-		}
-		if (length > maxLength) {
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_LONG);
-		}
-
 		this.secondHorizontalLine = secondHorizontalLine;
-		this.secondHorizontalLineLength = length;
 
 		this.getContainer()
 			.getLoggerComponent()
@@ -467,7 +359,7 @@ public class GameBoard {
 		// between lines
 
 		// 1. First point - first vertical line and first horizontal line
-		Point tlPoint = intersection(firstVerticalLine.getX(0),
+		Point tlPoint = Line.intersection(firstVerticalLine.getX(0),
 				firstVerticalLine.getY(0), firstVerticalLine.getX(1),
 				firstVerticalLine.getY(1), firstHorizontalLine.getX(0),
 				firstHorizontalLine.getY(0), firstHorizontalLine.getX(1),
@@ -478,7 +370,7 @@ public class GameBoard {
 			.debug("[GameBoard] Top-left point of intersection: " + tlPoint);
 
 		// 2. Second point - second vertical line and first horizontal line
-		Point trPoint = intersection(secondVerticalLine.getX(0),
+		Point trPoint = Line.intersection(secondVerticalLine.getX(0),
 				secondVerticalLine.getY(0), secondVerticalLine.getX(1),
 				secondVerticalLine.getY(1), firstHorizontalLine.getX(0),
 				firstHorizontalLine.getY(0), firstHorizontalLine.getX(1),
@@ -489,7 +381,7 @@ public class GameBoard {
 			.debug("[GameBoard] Top-right point of intersection: " + trPoint);
 
 		// 3. Third point - first vertical line and second horizontal line
-		Point blPoint = intersection(firstVerticalLine.getX(0),
+		Point blPoint = Line.intersection(firstVerticalLine.getX(0),
 				firstVerticalLine.getY(0), firstVerticalLine.getX(1),
 				firstVerticalLine.getY(1), secondHorizontalLine.getX(0),
 				secondHorizontalLine.getY(0), secondHorizontalLine.getX(1),
@@ -500,7 +392,7 @@ public class GameBoard {
 			.debug("[GameBoard] Bottom-left point of intersection: " + blPoint);
 
 		// 4. Fourth point - second vertical line and second horizontal line
-		Point brPoint = intersection(secondVerticalLine.getX(0),
+		Point brPoint = Line.intersection(secondVerticalLine.getX(0),
 				secondVerticalLine.getY(0), secondVerticalLine.getX(1),
 				secondVerticalLine.getY(1), secondHorizontalLine.getX(0),
 				secondHorizontalLine.getY(0), secondHorizontalLine.getX(1),
@@ -517,15 +409,27 @@ public class GameBoard {
 		}
 
 		// Now constructing 9 rectangles for 9 board fields
-		// At first getting four helper values for board corners
-		int topMax = Math.min(firstVerticalLine.getY(0), secondVerticalLine
-				.getY(0));
-		int bottomMax = Math.max(firstVerticalLine.getY(1), secondVerticalLine
-				.getY(1));
-		int leftMax = Math.min(firstHorizontalLine.getX(0),
-				secondHorizontalLine.getX(0));
-		int rightMax = Math.max(firstHorizontalLine.getX(1),
-				secondHorizontalLine.getX(1));
+		
+		// At first calculating width and height of the rectangles
+		int rWidth = trPoint.getX() - tlPoint.getX();
+		int rHeight = blPoint.getY() - tlPoint.getY();		
+		
+		// At then getting four helper values for board corners
+		int topMax = 0;
+		
+		// Checking page top
+		if (tlPoint.getY() > rHeight) {
+			topMax = tlPoint.getY() - rHeight;
+		}
+		
+		int bottomMax = blPoint.getY() + rHeight;
+		int leftMax = 0;
+		
+		if (tlPoint.getX() > rWidth) {
+			leftMax = tlPoint.getX() - rWidth;
+		}
+		
+		int rightMax = trPoint.getX() + rWidth;
 
 		this.getContainer()
 			.getLoggerComponent()
@@ -545,8 +449,7 @@ public class GameBoard {
 
 		//TODO Refactoring needed to use only one rectangle
 		// Rectangle #1		
-		Rectangle r1 = new Rectangle(leftMax, topMax, tlPoint.getX() - leftMax,
-				tlPoint.getY() - topMax);
+		Rectangle r1 = new Rectangle(leftMax, topMax, rWidth, rHeight);
 		board.addElement(r1);
 		
 		this.getContainer()
@@ -554,8 +457,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #1: " + r1);
 
 		// Rectangle #2
-		Rectangle r2 = new Rectangle(tlPoint.getX(), topMax, trPoint.getX()
-				- tlPoint.getX(), trPoint.getY() - topMax);
+		Rectangle r2 = new Rectangle(tlPoint.getX(), topMax, rWidth, rHeight);
 		board.addElement(r2);
 		
 		this.getContainer()
@@ -563,8 +465,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #2: " + r2);
 
 		// Rectangle #3
-		Rectangle r3 = new Rectangle(trPoint.getX(), topMax, rightMax
-				- trPoint.getX(), trPoint.getY() - topMax);
+		Rectangle r3 = new Rectangle(trPoint.getX(), topMax, rWidth, rHeight);
 		board.addElement(r3);
 		
 		this.getContainer()
@@ -572,8 +473,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #3: " + r3);
 
 		// Rectangle #4
-		Rectangle r4 = new Rectangle(leftMax, tlPoint.getY(), tlPoint.getX()
-				- leftMax, blPoint.getY() - tlPoint.getY());
+		Rectangle r4 = new Rectangle(leftMax, tlPoint.getY(), rWidth, rHeight);
 		board.addElement(r4);
 		
 		this.getContainer()
@@ -581,8 +481,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #4: " + r4);
 
 		// Rectangle #5
-		Rectangle r5 = new Rectangle(tlPoint.getX(), tlPoint.getY(), trPoint
-				.getX()- tlPoint.getX(), brPoint.getY() - trPoint.getY());
+		Rectangle r5 = new Rectangle(tlPoint.getX(), tlPoint.getY(), rWidth, rHeight);
 		board.addElement(r5);
 		
 		this.getContainer()
@@ -590,8 +489,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #5: " + r5);
 
 		// Rectangle #6
-		Rectangle r6 = new Rectangle(trPoint.getX(), trPoint.getY(), rightMax
-				- trPoint.getX(), brPoint.getY() - trPoint.getY());
+		Rectangle r6 = new Rectangle(trPoint.getX(), trPoint.getY(), rWidth, rHeight);
 		board.addElement(r6);
 		
 		this.getContainer()
@@ -599,8 +497,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #6: " + r6);
 
 		// Rectangle #7
-		Rectangle r7 = new Rectangle(leftMax, blPoint.getY(), blPoint.getX()
-				- leftMax, bottomMax - blPoint.getY());
+		Rectangle r7 = new Rectangle(leftMax, blPoint.getY(), rWidth, rHeight);
 		board.addElement(r7);
 		
 		this.getContainer()
@@ -608,8 +505,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #7: " + r7);
 
 		// Rectangle #8
-		Rectangle r8 = new Rectangle(blPoint.getX(), blPoint.getY(), brPoint
-				.getX() - blPoint.getX(), bottomMax - brPoint.getY());
+		Rectangle r8 = new Rectangle(blPoint.getX(), blPoint.getY(), rWidth, rHeight);
 		board.addElement(r8);
 		
 		this.getContainer()
@@ -617,8 +513,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #8: " + r8);
 
 		// Rectangle #9
-		Rectangle r9 = new Rectangle(brPoint.getX(), brPoint.getY(), rightMax
-				- brPoint.getX(), bottomMax - brPoint.getY());
+		Rectangle r9 = new Rectangle(brPoint.getX(), brPoint.getY(), rWidth, rHeight);
 		board.addElement(r9);
 		
 		this.getContainer()
@@ -671,54 +566,57 @@ public class GameBoard {
 		}
 	}
 
+	
+	
 	/**
-	 * Computes the intersection between two lines. The calculated point is
-	 * approximate, since integers are used. If you need a more precise result,
-	 * use doubles everywhere. (c) 2007 Alexander Hristov. Use Freely (LGPL
-	 * license). http://www.ahristov.com
+	 * Validates, that line is vertical (The angle between line and vertical line,
+	 * that are drawed from the line top point, is inside given range
 	 * 
-	 * @param x1
-	 *            Point 1 of Line 1
-	 * @param y1
-	 *            Point 1 of Line 1
-	 * @param x2
-	 *            Point 2 of Line 1
-	 * @param y2
-	 *            Point 2 of Line 1
-	 * @param x3
-	 *            Point 1 of Line 2
-	 * @param y3
-	 *            Point 1 of Line 2
-	 * @param x4
-	 *            Point 2 of Line 2
-	 * @param y4
-	 *            Point 2 of Line 2
-	 * @return Point where the segments intersect, or null if they don't
+	 * @param line
+	 *            Line to validate
+	 * @return true, if line can be used as vertical, false otherwise
+	 * @throws GameBoardLineIsNotVerticalException 
 	 */
-	public Point intersection(int x1, int y1, int x2, int y2, int x3, int y3,
-			int x4, int y4) {
+	private void validateLineVerticality(PolyLine line) throws GameBoardLineIsNotVerticalException
+	{
+		if(false == Line.isVertical(line.getX(0), line.getY(0), line.getX(1), line
+				.getY(1), LINE_PRECISION))
+		{
+			throw new GameBoardLineIsNotVerticalException();
+		}
+	}
+	
+	/**
+	 * Validates, that line is horizontal (The angle between line and horizontal line,
+	 * that are drawed from the line top point, is inside given range
+	 * 
+	 * @param line
+	 *            Line to validate
+	 * @throws GameBoardLineIsNotHorizontalException 
+	 */
+	private void validateLineHorizontality(PolyLine line) throws GameBoardLineIsNotHorizontalException
+	{
+		if(false == Line.isHorizontal(line.getX(0), line.getY(0), line.getX(1), line
+				.getY(1), LINE_PRECISION))
+		{
+			throw new GameBoardLineIsNotHorizontalException();
+		}
+	}
+	
+	/**
+	 * Validates line length
+	 * @param line Line to validate
+	 * @throws GameBoardLineLengthException
+	 */
+	private void validateLineLength(PolyLine line) throws GameBoardLineLengthException
+	{		
+		float lengthInMM = Scale.auToMM((int) Line.length(line.getX(0), line
+				.getY(0), line.getX(1), line.getY(1)));
 
-		double dx1 = x1;
-		double dy1 = y1;
-		double dx2 = x2;
-		double dy2 = y2;
-		double dx3 = x3;
-		double dy3 = y3;
-		double dx4 = x4;
-		double dy4 = y4;
-
-		double d = (dx1 - dx2) * (dy3 - dy4) - (dy1 - dy2) * (dx3 - dx4);
-		if (d == 0)
-			return null;
-
-		double xi = ((dx3 - dx4) * (dx1 * dy2 - dy1 * dx2) - (dx1 - dx2)
-				* (dx3 * dy4 - dy3 * dx4))
-				/ d;
-		double yi = ((dy3 - dy4) * (dx1 * dy2 - dy1 * dx2) - (dy1 - dy2)
-				* (dx3 * dy4 - dy3 * dx4))
-				/ d;
-
-		return new Point((int) xi, (int) yi);
+		if (lengthInMM < 10) { // Less than one Centimeter
+			throw new GameBoardLineLengthException(
+					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+		}
 	}
 
 	/**

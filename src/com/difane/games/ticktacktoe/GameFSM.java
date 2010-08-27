@@ -1,12 +1,13 @@
 package com.difane.games.ticktacktoe;
 
 import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotHorizontalException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotVerticalException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsException;
 import com.livescribe.afp.PageInstance;
-import com.livescribe.display.BrowseList;
 import com.livescribe.event.HWRListener;
 import com.livescribe.event.StrokeListener;
 import com.livescribe.geom.Point;
@@ -777,15 +778,15 @@ public class GameFSM implements StrokeListener, HWRListener {
 						.debug("[GameFSM] First vertical line was successfully created");
 				this.eventFirstVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
-				// TODO Auto-generated catch block
 				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
 				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstVerticalLine();
 			} catch (GameBoardLineLengthException e) {
-				// TODO Auto-generated catch block
 				this.getContainer().getLoggerComponent()
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
 				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstVerticalLine();
+			} catch (GameBoardLineIsNotVerticalException e) {
+				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotVerticalException");
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			try {
@@ -796,25 +797,23 @@ public class GameFSM implements StrokeListener, HWRListener {
 						.debug("[GameFSM] Second vertical line was successfully created");
 				this.eventSecondVerticalLineReady();
 			} catch (GameBoardLinePointsCountException e) {
-				// TODO Auto-generated catch block
 				this.getContainer().getLoggerComponent().error("GameBoardLinePointsCountException");
 				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineRequirementsException e) {
-				// TODO Auto-generated catch block
 				this.getContainer().getLoggerComponent().error("GameBoardLineRequirementsException");
 				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLineLengthException e) {
-				// TODO Auto-generated catch block
 				this.getContainer().getLoggerComponent()
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
 				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
 			} catch (GameBoardLinePositionException e) {
-				// TODO Auto-generated catch block
 				this.getContainer().getLoggerComponent()
 						.error("GameBoardLinePositionException. Reason: "
 								+ e.getReason());
 				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondVerticalLine();
+			} catch (GameBoardLineIsNotVerticalException e) {
+				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotVerticalException");
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			try {
@@ -840,6 +839,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 						.error("GameBoardLineLengthException. Reason: "
 								+ e.getReason());
 				this.getContainer().getGameDisplayComponent().displayErrorDrawFirstHorizontalLine();
+			} catch (GameBoardLineIsNotHorizontalException e) {
+				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotHorizontalException");
 			}
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			try {
@@ -869,6 +870,8 @@ public class GameFSM implements StrokeListener, HWRListener {
 			} catch (GameBoardImpossibleException e) {
 				this.getContainer().getLoggerComponent().error("GameBoardImpossibleException");
 				this.getContainer().getGameDisplayComponent().displayErrorDrawSecondHorizontalLine();
+			} catch (GameBoardLineIsNotHorizontalException e) {
+				this.getContainer().getLoggerComponent().error("GameBoardLineIsNotHorizontalException");
 			}
 		} else if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.icrContext.addStroke(pageInstance, time);
