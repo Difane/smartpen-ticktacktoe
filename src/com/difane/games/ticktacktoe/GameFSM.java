@@ -347,8 +347,10 @@ public class GameFSM implements StrokeListener, HWRListener {
 	 * This event must be called, when game ends and human wins
 	 */
 	public void eventHumanWins() {
-		this.getContainer().getLoggerComponent().debug("[GameFSM] eventHumanWins received");
-		if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
+		this.getContainer().getLoggerComponent().debug("[GameFSM] eventHumanWins received. Current state is: "+currentState);
+		
+		if (currentState == FSM_STATE_GAME_PEN_TURN
+				|| currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.transition(currentState, FSM_STATE_GAME_END_HUMAN_WINS);
 		} else {
 			
@@ -679,7 +681,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	private boolean checkGameStatus() {
 		int status = this.getContainer().getGameLogicComponent().getGameStatus();
 		this.getContainer().getLoggerComponent().debug("[GameFSM].checkGameStatus. Game status is: "
-				+ status + ". Current state is" + currentState);
+				+ status + ". Current state is " + currentState);
 
 		boolean result = true;
 		
