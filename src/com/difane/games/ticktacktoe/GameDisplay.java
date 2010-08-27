@@ -426,7 +426,7 @@ public class GameDisplay {
 	 */
 	public void displayHowToPlay() {
 		displayMessage(
-				"This is example HOW TO PLAY string",
+				"At first please select 'Start Game' in the main menu. Next select pen level: easy or hard. Then please draw the board. To learn, how to draw game board, please look at the corresponded help menu item. After drawing the board the game begins. Your turn is first. To make a turn please draw an 'x' in one of the board fields. Then look at the pen screen. If You turn is correct - You will see it on the screen together with the pen's turn. Continue making turns until game ends.",
 				true);
 	}
 
@@ -452,7 +452,7 @@ public class GameDisplay {
 	 * Displayed about on the display
 	 */
 	public void displayAbout() {
-		displayMessage("This is example about string", true);
+		displayMessage("Tic Tac Toe game. Version 1.0 Copyright Difane Group", true);
 	}
 
 	/**
