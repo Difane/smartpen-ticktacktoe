@@ -391,7 +391,7 @@ public class GameFSM implements StrokeListener, HWRListener {
 	public void eventEndApplication() {
 		this.getContainer().getLoggerComponent().debug("[GameFSM] eventEndApplication received");
 
-		this.destroyICRContext();
+		//this.destroyICRContext();
 		
 		if (currentState == FSM_STATE_GAME_END_HUMAN_WINS
 				|| currentState == FSM_STATE_GAME_END_PEN_WINS
@@ -1016,24 +1016,38 @@ public class GameFSM implements StrokeListener, HWRListener {
 		if (nextEvent != NEXT_EVENT_NONE) {
 			switch (nextEvent) {
 			case NEXT_EVENT_PLAYER_SELECTED_HUMAN_TURN_NEXT:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventPlayerSelectedHumanTurnNext();
 				break;
 			case NEXT_EVENT_PLAYER_SELECTED_PEN_TURN_NEXT:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventPlayerSelectedPenTurnNext();
 				break;
 			case NEXT_EVENT_GAME_PEN_TURN_READY:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventPenTurnReady();
 				break;
 			case NEXT_EVENT_GAME_END_HUMAN_WINS:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventHumanWins();
 				break;
 			case NEXT_EVENT_GAME_END_PEN_WINS:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventPenWins();
 				break;
 			case NEXT_EVENT_GAME_END_DRAW:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventDraw();
 				break;
 			case NEXT_EVENT_END:
+				// Preventing double-processing next event
+				nextEvent = NEXT_EVENT_NONE;
 				eventEndApplication();
 				break;
 
