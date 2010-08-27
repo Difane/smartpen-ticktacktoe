@@ -18,7 +18,7 @@ public class Line {
 	 *            Angle precision in GRAD
 	 * @return true, if line looks like vertical, false otherwise
 	 */
-	public static boolean isLineVertical(int x1, int y1, int x2, int y2,
+	public static boolean isVertical(int x1, int y1, int x2, int y2,
 			double anglePrecision) {
 
 		double dx1 = x1;
@@ -71,7 +71,7 @@ public class Line {
 	 *            Angle precision in GRAD
 	 * @return true, if line looks like horizontal, false otherwise
 	 */
-	public static boolean isLineHorizontal(int x1, int y1, int x2, int y2,
+	public static boolean isHorizontal(int x1, int y1, int x2, int y2,
 			double anglePrecision) {
 
 		double dx1 = x1;
