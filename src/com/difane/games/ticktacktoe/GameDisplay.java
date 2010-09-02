@@ -174,7 +174,7 @@ public class GameDisplay {
 	 * Displays message about game end
 	 */
 	public void displayEnd() {
-		displayMessage("To start new game, please launch application again!",
+		displayMessage("To start new game start drawing a new board!",
 				true);
 	}
 
