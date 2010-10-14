@@ -3,12 +3,7 @@ package com.difane.games.ticktacktoe;
 import java.util.Vector;
 
 import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotHorizontalException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotVerticalException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineException;
 import com.difane.geom.Line;
 import com.livescribe.afp.Scale;
 import com.livescribe.geom.Point;
@@ -80,11 +75,9 @@ public class GameBoard {
 	 * @param firstVerticalLine
 	 *            Polyline, that contains 2 points. First point is the top
 	 *            point, second point is the bottom point
-	 * @throws GameBoardLinePointsCountException 
-	 * @throws GameBoardLineIsNotVerticalException 
-	 * @throws GameBoardLineLengthException 
+	 * @throws GameBoardLineException 
 	 */
-	public void setFirstVerticalLine(PolyLine firstVerticalLine) throws GameBoardLinePointsCountException, GameBoardLineIsNotVerticalException, GameBoardLineLengthException {
+	public void setFirstVerticalLine(PolyLine firstVerticalLine) throws GameBoardLineException {
 		/*
 		 * If polyline has other count of points, than 2 - it is an error
 		 */
@@ -122,13 +115,9 @@ public class GameBoard {
 	 * @param secondVerticalLine
 	 *            Polyline, that contains 2 points. First point is the top
 	 *            point, second point is the bottom point
-	 * @throws GameBoardLineRequirementsException 
-	 * @throws GameBoardLinePointsCountException 
-	 * @throws GameBoardLineIsNotVerticalException 
-	 * @throws GameBoardLineLengthException 
-	 * @throws GameBoardLinePositionException 
+	 * @throws GameBoardLineException 
 	 */
-	public void setSecondVerticalLine(PolyLine secondVerticalLine) throws GameBoardLineRequirementsException, GameBoardLinePointsCountException, GameBoardLineIsNotVerticalException, GameBoardLineLengthException, GameBoardLinePositionException {
+	public void setSecondVerticalLine(PolyLine secondVerticalLine) throws GameBoardLineException {
 		/*
 		 * If first vertical line was not set - it's error
 		 */
@@ -136,7 +125,7 @@ public class GameBoard {
 			this.getContainer()
 				.getLoggerComponent()
 				.error("[GameBoard] FirstVerticalLine was not set previously");
-			throw new GameBoardLineRequirementsException();
+			throw new GameBoardLineException(GameBoardLineException.REASON_INVALID_DRAWING_ORDER);
 		}
 		/*
 		 * If polyline has other count of points, than 2 - it is an error
@@ -170,8 +159,8 @@ public class GameBoard {
 		 */
 
 		if (secondVerticalLine.getX(0) <= firstVerticalLine.getX(0)) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_RIGHT);
+			throw new GameBoardLineException(
+					GameBoardLineException.REASON_MUST_BE_AT_THE_RIGHT);
 		}
 		
 		/*
@@ -182,8 +171,8 @@ public class GameBoard {
 				&& (secondVerticalLine.getY(1) < firstVerticalLine.getY(0)))
 				|| ((secondVerticalLine.getY(0) > firstVerticalLine.getY(1)) 
 				&& (secondVerticalLine.getY(1) > firstVerticalLine.getY(1)))) {
-			throw new GameBoardLinePositionException(
-				GameBoardLinePositionException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
+			throw new GameBoardLineException(
+					GameBoardLineException.REASON_MUST_BE_NEAR_THE_OTHER_LINES);
 		}
 
 		this.secondVerticalLine = secondVerticalLine;
@@ -199,13 +188,9 @@ public class GameBoard {
 	 * @param firstHorizontalLine
 	 *            Polyline, that contains 2 points. First point is the left
 	 *            point, second point is the right point
-	 * @throws GameBoardLineRequirementsException 
-	 * @throws GameBoardLinePointsCountException 
-	 * @throws GameBoardLineIsNotHorizontalException 
-	 * @throws GameBoardLineLengthException 
-	 * @throws GameBoardLinePositionException 
+	 * @throws GameBoardLineException 
 	 */
-	public void setFirstHorizontalLine(PolyLine firstHorizontalLine) throws GameBoardLineRequirementsException, GameBoardLinePointsCountException, GameBoardLineIsNotHorizontalException, GameBoardLineLengthException, GameBoardLinePositionException {
+	public void setFirstHorizontalLine(PolyLine firstHorizontalLine) throws GameBoardLineException {
 		/*
 		 * If first and second vertical line was not set - it's error
 		 */
@@ -213,7 +198,7 @@ public class GameBoard {
 			this.getContainer()
 				.getLoggerComponent()
 				.error("[GameBoard] FirstVerticalLine and SecondVerticalLine was not set previously");
-			throw new GameBoardLineRequirementsException();
+			throw new GameBoardLineException(GameBoardLineException.REASON_INVALID_DRAWING_ORDER);
 		}
 		/*
 		 * If polyline has other count of points, than 2 - it is an error
@@ -253,8 +238,8 @@ public class GameBoard {
 				secondVerticalLine.getX(1), secondVerticalLine.getY(1));
 		
 		if (p1 == null || p2 == null) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES);
+			throw new GameBoardLineException(
+					GameBoardLineException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES);
 		}
 			
 		this.firstHorizontalLine = firstHorizontalLine;
@@ -270,13 +255,9 @@ public class GameBoard {
 	 * @param secondHorizontalLine
 	 *            Polyline, that contains 2 points. First point is the left
 	 *            point, second point is the right point
-	 * @throws GameBoardLineRequirementsException 
-	 * @throws GameBoardLinePointsCountException 
-	 * @throws GameBoardLineIsNotHorizontalException 
-	 * @throws GameBoardLineLengthException 
-	 * @throws GameBoardLinePositionException 
+	 * @throws GameBoardLineException 
 	 */
-	public void setSecondHorizontalLine(PolyLine secondHorizontalLine) throws GameBoardLineRequirementsException, GameBoardLinePointsCountException, GameBoardLineIsNotHorizontalException, GameBoardLineLengthException, GameBoardLinePositionException {
+	public void setSecondHorizontalLine(PolyLine secondHorizontalLine) throws GameBoardLineException {
 
 		/*
 		 * If first and second vertical and first horizontal lines was not set -
@@ -287,7 +268,7 @@ public class GameBoard {
 			this.getContainer()
 				.getLoggerComponent()
 				.error("[GameBoard] FirstVerticalLine, SecondVerticalLine and FirstHorizontalLine was not set previously");
-			throw new GameBoardLineRequirementsException();
+			throw new GameBoardLineException(GameBoardLineException.REASON_INVALID_DRAWING_ORDER);
 		}
 		/*
 		 * If polyline has other count of points, than 2 - it is an error
@@ -327,8 +308,8 @@ public class GameBoard {
 				secondVerticalLine.getX(1), secondVerticalLine.getY(1));
 		
 		if (p1 == null || p2 == null) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES);
+			throw new GameBoardLineException(
+					GameBoardLineException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES);
 		}
 		
 		
@@ -337,8 +318,8 @@ public class GameBoard {
 		 */
 
 		if (secondHorizontalLine.getY(0) <= firstHorizontalLine.getY(0)) {
-			throw new GameBoardLinePositionException(
-					GameBoardLinePositionException.REASON_MUST_BE_AT_THE_BOTTOM);
+			throw new GameBoardLineException(
+					GameBoardLineException.REASON_MUST_BE_AT_THE_BOTTOM);
 		}
 
 		this.secondHorizontalLine = secondHorizontalLine;
@@ -557,12 +538,12 @@ public class GameBoard {
 	 * 
 	 * @param l
 	 *            Polyline, that must be checked
-	 * @throws GameBoardLinePointsCountException
+	 * @throws GameBoardLineException
 	 */
 	private void validateLinePointsCount(PolyLine l)
-			throws GameBoardLinePointsCountException {
-		if (2 != l.getNumberofVertices()) {
-			throw new GameBoardLinePointsCountException();
+			throws GameBoardLineException {
+		if (2 != l.getNumberOfVertices()) {
+			throw new GameBoardLineException(GameBoardLineException.REASON_MUST_CONTAIN_TWO_POINTS);
 		}
 	}
 
@@ -575,14 +556,14 @@ public class GameBoard {
 	 * @param line
 	 *            Line to validate
 	 * @return true, if line can be used as vertical, false otherwise
-	 * @throws GameBoardLineIsNotVerticalException 
+	 * @throws GameBoardLineException 
 	 */
-	private void validateLineVerticality(PolyLine line) throws GameBoardLineIsNotVerticalException
+	private void validateLineVerticality(PolyLine line) throws GameBoardLineException
 	{
 		if(false == Line.isVertical(line.getX(0), line.getY(0), line.getX(1), line
 				.getY(1), LINE_PRECISION))
 		{
-			throw new GameBoardLineIsNotVerticalException();
+			throw new GameBoardLineException(GameBoardLineException.REASON_LINE_IS_NOT_VERTICAL);
 		}
 	}
 	
@@ -592,30 +573,30 @@ public class GameBoard {
 	 * 
 	 * @param line
 	 *            Line to validate
-	 * @throws GameBoardLineIsNotHorizontalException 
+	 * @throws GameBoardLineException 
 	 */
-	private void validateLineHorizontality(PolyLine line) throws GameBoardLineIsNotHorizontalException
+	private void validateLineHorizontality(PolyLine line) throws GameBoardLineException
 	{
 		if(false == Line.isHorizontal(line.getX(0), line.getY(0), line.getX(1), line
 				.getY(1), LINE_PRECISION))
 		{
-			throw new GameBoardLineIsNotHorizontalException();
+			throw new GameBoardLineException(GameBoardLineException.REASON_LINE_IS_NOT_HORIZONTAL);
 		}
 	}
 	
 	/**
 	 * Validates line length
 	 * @param line Line to validate
-	 * @throws GameBoardLineLengthException
+	 * @throws GameBoardLineException
 	 */
-	private void validateLineLength(PolyLine line) throws GameBoardLineLengthException
+	private void validateLineLength(PolyLine line) throws GameBoardLineException
 	{		
 		float lengthInMM = Scale.auToMM((int) Line.length(line.getX(0), line
 				.getY(0), line.getX(1), line.getY(1)));
 
 		if (lengthInMM < 10) { // Less than one Centimeter
-			throw new GameBoardLineLengthException(
-					GameBoardLineLengthException.REASON_LINE_TO_SHORT);
+			throw new GameBoardLineException(
+					GameBoardLineException.REASON_LINE_TO_SHORT);
 		}
 	}
 	

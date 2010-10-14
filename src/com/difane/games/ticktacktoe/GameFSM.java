@@ -1,16 +1,11 @@
 package com.difane.games.ticktacktoe;
 
 import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotHorizontalException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineIsNotVerticalException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineLengthException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLinePointsCountException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLinePositionException;
-import com.difane.games.ticktacktoe.exceptions.GameBoardLineRequirementsException;
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineException;
 import com.livescribe.afp.PageInstance;
 import com.livescribe.event.HWRListener;
-import com.livescribe.event.StrokeListener;
 import com.livescribe.event.PenTipListener;
+import com.livescribe.event.StrokeListener;
 import com.livescribe.geom.Point;
 import com.livescribe.geom.PolyLine;
 import com.livescribe.geom.Rectangle;
@@ -884,7 +879,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			Stroke stroke = ss.getStroke(time);
 
 			// Create a line, based on the first and last points of the stroke
-			int numPoints = stroke.getNumberofVertices();
+			int numPoints = stroke.getNumberOfVertices();
 			this.getContainer().getLoggerComponent().debug(
 					"[GameFSM] Number of vertices in the stroke is "
 							+ numPoints);
@@ -915,21 +910,12 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 						.debug(
 								"[GameFSM] First vertical line was successfully created");
 				this.eventFirstVerticalLineReady();
-			} catch (GameBoardLinePointsCountException e) {
+			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException");
+						"GameBoardLinePointsCountException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawFirstVerticalLine();
-			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineLengthException. Reason: "
-								+ e.getReason());
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawFirstVerticalLine();
-			} catch (GameBoardLineIsNotVerticalException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineIsNotVerticalException");
-			}
+			} 
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			try {
 				this
@@ -945,32 +931,12 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 						.debug(
 								"[GameFSM] Second vertical line was successfully created");
 				this.eventSecondVerticalLineReady();
-			} catch (GameBoardLinePointsCountException e) {
+			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException");
+						"GameBoardLinePointsCountException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawSecondVerticalLine();
-			} catch (GameBoardLineRequirementsException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineRequirementsException");
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondVerticalLine();
-			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineLengthException. Reason: "
-								+ e.getReason());
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondVerticalLine();
-			} catch (GameBoardLinePositionException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePositionException. Reason: "
-								+ e.getReason());
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondVerticalLine();
-			} catch (GameBoardLineIsNotVerticalException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineIsNotVerticalException");
-			}
+			} 
 		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			try {
 				this
@@ -986,32 +952,12 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 						.debug(
 								"[GameFSM] First horizontal line was successfully created");
 				this.eventFirstHorizontalLineReady();
-			} catch (GameBoardLineRequirementsException e) {
+			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineRequirementsException");
+						"GameBoardLinePointsCountException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawFirstHorizontalLine();
-			} catch (GameBoardLinePointsCountException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException");
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawFirstHorizontalLine();
-			} catch (GameBoardLinePositionException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePositionException. Reason: "
-								+ e.getReason());
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawFirstHorizontalLine();
-			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineLengthException. Reason: "
-								+ e.getReason());
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawFirstHorizontalLine();
-			} catch (GameBoardLineIsNotHorizontalException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineIsNotHorizontalException");
-			}
+			} 
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			try {
 				this
@@ -1028,26 +974,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 								"[GameFSM] Second horizontal line was successfully created. Calculating game board");
 				this.getContainer().getGameBoardComponent().calculateBoard();
 				this.eventSecondHorizontalLineReady();
-			} catch (GameBoardLineRequirementsException e) {
+			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineRequirementsException");
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondHorizontalLine();
-			} catch (GameBoardLinePointsCountException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException");
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondHorizontalLine();
-			} catch (GameBoardLinePositionException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePositionException. Reason: "
-								+ e.getReason());
-				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondHorizontalLine();
-			} catch (GameBoardLineLengthException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineLengthException. Reason: "
-								+ e.getReason());
+						"GameBoardLinePointsCountException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardImpossibleException e) {
@@ -1055,10 +984,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 						"GameBoardImpossibleException");
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawSecondHorizontalLine();
-			} catch (GameBoardLineIsNotHorizontalException e) {
-				this.getContainer().getLoggerComponent().error(
-						"GameBoardLineIsNotHorizontalException");
-			}
+			} 
 		} else if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.icrContext.addStroke(pageInstance, time);
 			this.getContainer().getLoggerComponent().debug(
