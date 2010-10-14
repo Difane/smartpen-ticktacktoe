@@ -912,7 +912,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.eventFirstVerticalLineReady();
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException. Reason: "+e.getReason());
+						"GameBoardLineException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawFirstVerticalLine();
 			} 
@@ -933,7 +933,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.eventSecondVerticalLineReady();
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException. Reason: "+e.getReason());
+						"GameBoardLineException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawSecondVerticalLine();
 			} 
@@ -954,7 +954,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.eventFirstHorizontalLineReady();
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException. Reason: "+e.getReason());
+						"GameBoardLineException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawFirstHorizontalLine();
 			} 
@@ -976,7 +976,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.eventSecondHorizontalLineReady();
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
-						"GameBoardLinePointsCountException. Reason: "+e.getReason());
+						"GameBoardLineException. Reason: "+e.getReason());
 				this.getContainer().getGameDisplayComponent()
 						.displayErrorDrawSecondHorizontalLine();
 			} catch (GameBoardImpossibleException e) {
