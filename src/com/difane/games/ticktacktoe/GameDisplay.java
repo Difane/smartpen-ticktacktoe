@@ -7,6 +7,8 @@ import com.livescribe.display.Display;
 import com.livescribe.display.Graphics;
 import com.livescribe.display.Image;
 import com.livescribe.ui.ScrollLabel;
+import com.livescribe.util.Timer;
+import com.livescribe.util.TimerTask;
 
 public class GameDisplay {
 
@@ -47,6 +49,24 @@ public class GameDisplay {
 	private int[][] fieldCoords = { { 0, 0 }, { 1, 2 }, { 7, 2 }, { 13, 2 },
 			{ 1, 8 }, { 7, 8 }, { 13, 8 }, { 1, 14 }, { 7, 14 }, { 13, 14 } };
 
+	
+	/**
+	 * Blink task
+	 */
+	private DrawingBlinkTask blinkTask;
+	
+	/**
+	 * Blink timer
+	 */
+	private Timer blinkTimer;
+	
+	/**
+	 * Delay in milliseconds between drawing blinking
+	 */
+	private long blinkDelay = 500;
+	
+	
+	
 	/**
 	 * Constructor
 	 * 
@@ -84,6 +104,8 @@ public class GameDisplay {
 		this.graphics = Graphics.getGraphics(this.image);
 		this.graphics.setBrushColor(Display.getWhiteColor());
 		this.graphics.setLineStyle(Graphics.LINE_STYLE_SOLID);
+				
+		this.blinkTimer = new Timer();
 		
 		this.getContainer().getLoggerComponent().debug("[GameDisplay] Component initialized");
 	}
@@ -385,50 +407,99 @@ public class GameDisplay {
 				this.fieldCoords[fieldNum][1]);
 	}
 
-	/**
-	 * Displayed Draw first vertical line on the display
-	 */
-	public void displayDrawFirstVerticalLine() {
+	public void doDisplayDrawFirstVerticalLine(boolean lineVisible) {
 		this.graphics.clearRect();
-		this.drawFirstVerticalLine();
+		if (lineVisible) {
+			this.drawFirstVerticalLine();
+		}
 		this.graphics.drawString("First line", 25, 2, 0);
 		this.displayDrawing(true);
+	}
+	
+	public void doDisplayDrawSecondVerticalLine(boolean lineVisible) {
+		this.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		if (lineVisible) {
+			this.drawSecondVerticalLine();
+		}
+		this.graphics.drawString("Second line", 25, 2, 0);
+		this.displayDrawing(true);
+	}
+	
+	public void doDisplayDrawFirstHorizontalLine(boolean lineVisible) {
+		this.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.drawSecondVerticalLine();
+		if (lineVisible) {
+			this.drawFirstHorizontalLine();
+		}
+		this.graphics.drawString("Third line", 25, 2, 0);
+		this.displayDrawing(true);
+	}
+	
+	public void doDisplayDrawSecondHorizontalLine(boolean lineVisible) {
+		this.graphics.clearRect();
+		this.drawFirstVerticalLine();
+		this.drawSecondVerticalLine();
+		this.drawFirstHorizontalLine();
+		if (lineVisible) {
+			this.drawSecondHorizontalLine();
+		}
+		this.graphics.drawString("Fourth line", 25, 2, 0);
+		this.displayDrawing(true);
+	}
+	
+	/**
+	 * Cancels current task execution.
+	 */
+	public void cancelTask() {
+		if (null != this.blinkTask) {
+			this.blinkTask.cancel();
+		}		
+	}
+	
+	/**
+	 * Displayed Draw first vertical line on the display
+	 * @param lineVisible Is line, that must be displayed, visible or not
+	 */
+	public void displayDrawFirstVerticalLine(boolean lineVisible) {
+		// Preparing blink action
+		cancelTask();
+		this.blinkTask = new DrawingBlinkTask(this.container, lineVisible, DrawingBlinkTask.DISPLAY_FIRST_VERTICAL_LINE);		
+		this.blinkTimer.schedule(this.blinkTask, this.blinkDelay, this.blinkDelay);
 	}
 
 	/**
 	 * Displayed Draw second vertical line on the display
+	 * @param lineVisible Is line, that must be displayed, visible or not
 	 */
-	public void displayDrawSecondVerticalLine() {
-		this.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.graphics.drawString("Second line", 25, 2, 0);
-		this.displayDrawing(true);
+	public void displayDrawSecondVerticalLine(boolean lineVisible) {
+		// Preparing blink action
+		cancelTask();
+		this.blinkTask = new DrawingBlinkTask(this.container, lineVisible, DrawingBlinkTask.DISPLAY_SECOND_VERTICAL_LINE);
+		this.blinkTimer.schedule(this.blinkTask, this.blinkDelay, this.blinkDelay);
 	}
 
 	/**
 	 * Displayed Draw first horizontal line on the display
+	 * @param lineVisible Is line, that must be displayed, visible or not
 	 */
-	public void displayDrawFirstHorizontalLine() {
-		this.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.drawFirstHorizontalLine();
-		this.graphics.drawString("Third line", 25, 2, 0);
-		this.displayDrawing(true);
+	public void displayDrawFirstHorizontalLine(boolean lineVisible) {
+		// Preparing blink action
+		cancelTask();
+		this.blinkTask = new DrawingBlinkTask(this.container, lineVisible, DrawingBlinkTask.DISPLAY_FIRST_HORIZONTAL_LINE);
+		this.blinkTimer.schedule(this.blinkTask, this.blinkDelay, this.blinkDelay);
 	}
 
 	/**
 	 * Displayed Draw second horizontal line on the display
+	 * @param lineVisible Is line, that must be displayed, visible or not
 	 */
-	public void displayDrawSecondHorizontalLine() {
-		this.graphics.clearRect();
-		this.drawFirstVerticalLine();
-		this.drawSecondVerticalLine();
-		this.drawFirstHorizontalLine();
-		this.drawSecondHorizontalLine();
-		this.graphics.drawString("Fourth line", 25, 2, 0);
-		this.displayDrawing(true);
+	public void displayDrawSecondHorizontalLine(boolean lineVisible) {
+		// Preparing blink action
+		cancelTask();
+		this.blinkTask = new DrawingBlinkTask(this.container, lineVisible, DrawingBlinkTask.DISPLAY_SECOND_HORIZONTAL_LINE);
+		this.blinkTimer.schedule(this.blinkTask, this.blinkDelay, this.blinkDelay);
 	}
 
 	/**
@@ -519,5 +590,72 @@ public class GameDisplay {
 	 */
 	public void focusLevelSelectMenuToPrevious() {
 		this.menuLevelSelect.focusToPrevious();
+	}
+	
+	/**
+	 * Timer and task for blinking during game board drawing	 * 
+	 */
+	
+	public class DrawingBlinkTask extends TimerTask {
+		
+		/**
+		 * DI Container
+		 */
+		private Container container;
+
+		/**
+		 * Flag, which determines, must line be shown or not
+		 */
+		boolean blinkFlag = true;
+		
+		/**
+		 * Possible values for drawing action
+		 */
+		public static final int DISPLAY_FIRST_VERTICAL_LINE = 0;
+		public static final int DISPLAY_SECOND_VERTICAL_LINE = 1;
+		public static final int DISPLAY_FIRST_HORIZONTAL_LINE = 2;
+		public static final int DISPLAY_SECOND_HORIZONTAL_LINE = 3;
+		
+		/**
+		 * Current drawing action
+		 */
+		private int drawAction = DISPLAY_FIRST_VERTICAL_LINE;
+		
+		/**
+		 * @param c
+		 *            DI container
+		 */
+		public DrawingBlinkTask(Container c, boolean blinkFlag, int drawAction) {
+			super();
+			this.container = c;
+			this.blinkFlag = blinkFlag;
+			this.drawAction = drawAction;
+			
+			this.container.getLoggerComponent().debug("[GameDisplay][DB] Initialized. Flag: "+blinkFlag+", Action: "+drawAction);
+		}
+		
+		/**
+		 * Actual task execution
+		 */
+		public void run() {
+			this.container.getLoggerComponent().debug("[GameDisplay][DB] Executed. Flag: "+this.blinkFlag+", Action: "+this.drawAction);
+			
+			switch (this.drawAction) {
+			case DISPLAY_FIRST_VERTICAL_LINE:
+				this.container.getGameDisplayComponent().doDisplayDrawFirstVerticalLine(this.blinkFlag);
+				break;
+			case DISPLAY_SECOND_VERTICAL_LINE:
+				this.container.getGameDisplayComponent().doDisplayDrawSecondVerticalLine(this.blinkFlag);
+				break;
+			case DISPLAY_FIRST_HORIZONTAL_LINE:
+				this.container.getGameDisplayComponent().doDisplayDrawFirstHorizontalLine(this.blinkFlag);
+				break;
+			case DISPLAY_SECOND_HORIZONTAL_LINE:
+				this.container.getGameDisplayComponent().doDisplayDrawSecondHorizontalLine(this.blinkFlag);
+				break;
+			}
+			
+			this.blinkFlag = !this.blinkFlag;
+		}
 	}
 }

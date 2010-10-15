@@ -655,7 +655,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 						|| currentState == FSM_STATE_LEVEL_MENU_HARD
 						|| currentState == FSM_STATE_END) {
 					this.getContainer().getGameDisplayComponent()
-							.displayDrawFirstVerticalLine();
+							.displayDrawFirstVerticalLine(true);
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Draw first vertical line was displayed");
 				}
@@ -663,7 +663,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			case FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
 					this.getContainer().getGameDisplayComponent()
-							.displayDrawSecondVerticalLine();
+							.displayDrawSecondVerticalLine(true);
 					this
 							.getContainer()
 							.getLoggerComponent()
@@ -674,7 +674,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			case FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 					this.getContainer().getGameDisplayComponent()
-							.displayDrawFirstHorizontalLine();
+							.displayDrawFirstHorizontalLine(true);
 					this
 							.getContainer()
 							.getLoggerComponent()
@@ -685,7 +685,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			case FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 					this.getContainer().getGameDisplayComponent()
-							.displayDrawSecondHorizontalLine();
+							.displayDrawSecondHorizontalLine(true);
 					this
 							.getContainer()
 							.getLoggerComponent()
@@ -695,6 +695,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_GAME_SELECT_PLAYER_ORDER:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
+					// Stopping display blinking
+					this.getContainer().getGameDisplayComponent().cancelTask();
+					
 					boolean humanFirst = this.getContainer()
 							.getGameLogicComponent().selectPlayersOrder();
 					if (humanFirst) {
