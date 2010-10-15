@@ -394,48 +394,14 @@ public class GameBoard {
 			throw new GameBoardImpossibleException();
 		}
 
-		// Now constructing 9 rectangles for 9 board fields
-		
-		// At first calculating width and height of the rectangles
-		int rWidth = trPoint.getX() - tlPoint.getX();
-		int rHeight = blPoint.getY() - tlPoint.getY();		
-		
-		// At then getting four helper values for board corners
-		int topMax = 0;
-		
-		// Checking page top
-		if (tlPoint.getY() > rHeight) {
-			topMax = tlPoint.getY() - rHeight;
-		}
-		
-		int bottomMax = blPoint.getY() + rHeight;
-		int leftMax = 0;
-		
-		if (tlPoint.getX() > rWidth) {
-			leftMax = tlPoint.getX() - rWidth;
-		}
-		
-		int rightMax = trPoint.getX() + rWidth;
+		// Now constructing 9 rectangles for 9 board fields		
 
-		this.getContainer()
-			.getLoggerComponent()
-			.debug("[GameBoard] Top maximal value: " + topMax);
-		this.getContainer()
-			.getLoggerComponent()
-			.debug("[GameBoard] Bottom maximal value: " + bottomMax);
-		this.getContainer()
-			.getLoggerComponent()
-			.debug("[GameBoard] Left maximal value: " + leftMax);
-		this.getContainer()
-			.getLoggerComponent()
-			.debug("[GameBoard] Right maximal value: " + rightMax);
-
-		// Element with zero index (to be arranged with existing game algo
+		// Element with zero index (to be arranged with existing game algo)
 		board.addElement(new Rectangle());
 
 		//TODO Refactoring needed to use only one rectangle
 		// Rectangle #1		
-		Rectangle r1 = new Rectangle(leftMax, topMax, rWidth, rHeight);
+		Rectangle r1 = new Rectangle(0, 0, tlPoint.getX(), tlPoint.getY());
 		board.addElement(r1);
 		
 		this.getContainer()
@@ -443,7 +409,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #1: " + r1);
 
 		// Rectangle #2
-		Rectangle r2 = new Rectangle(tlPoint.getX(), topMax, rWidth, rHeight);
+		Rectangle r2 = new Rectangle(tlPoint.getX(), 0, trPoint.getX()-tlPoint.getX(), trPoint.getY());
 		board.addElement(r2);
 		
 		this.getContainer()
@@ -451,7 +417,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #2: " + r2);
 
 		// Rectangle #3
-		Rectangle r3 = new Rectangle(trPoint.getX(), topMax, rWidth, rHeight);
+		Rectangle r3 = new Rectangle(trPoint.getX(), 0, this.page.getPageWidth()-trPoint.getX(), trPoint.getY());
 		board.addElement(r3);
 		
 		this.getContainer()
@@ -459,7 +425,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #3: " + r3);
 
 		// Rectangle #4
-		Rectangle r4 = new Rectangle(leftMax, tlPoint.getY(), rWidth, rHeight);
+		Rectangle r4 = new Rectangle(0, tlPoint.getY(), tlPoint.getX(), blPoint.getY()-tlPoint.getY());
 		board.addElement(r4);
 		
 		this.getContainer()
@@ -467,7 +433,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #4: " + r4);
 
 		// Rectangle #5
-		Rectangle r5 = new Rectangle(tlPoint.getX(), tlPoint.getY(), rWidth, rHeight);
+		Rectangle r5 = new Rectangle(tlPoint.getX(), tlPoint.getY(), trPoint.getX()-tlPoint.getX(), brPoint.getY()-trPoint.getY());
 		board.addElement(r5);
 		
 		this.getContainer()
@@ -475,7 +441,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #5: " + r5);
 
 		// Rectangle #6
-		Rectangle r6 = new Rectangle(trPoint.getX(), trPoint.getY(), rWidth, rHeight);
+		Rectangle r6 = new Rectangle(trPoint.getX(), trPoint.getY(), this.page.getPageWidth()-trPoint.getX(), brPoint.getY()-trPoint.getY());
 		board.addElement(r6);
 		
 		this.getContainer()
@@ -483,7 +449,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #6: " + r6);
 
 		// Rectangle #7
-		Rectangle r7 = new Rectangle(leftMax, blPoint.getY(), rWidth, rHeight);
+		Rectangle r7 = new Rectangle(0, blPoint.getY(), blPoint.getX(), this.page.getPageHeight()-blPoint.getY());
 		board.addElement(r7);
 		
 		this.getContainer()
@@ -491,7 +457,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #7: " + r7);
 
 		// Rectangle #8
-		Rectangle r8 = new Rectangle(blPoint.getX(), blPoint.getY(), rWidth, rHeight);
+		Rectangle r8 = new Rectangle(blPoint.getX(), blPoint.getY(), brPoint.getX()-blPoint.getX(), this.page.getPageHeight()-brPoint.getY());
 		board.addElement(r8);
 		
 		this.getContainer()
@@ -499,7 +465,7 @@ public class GameBoard {
 			.debug("[GameBoard] Rectangle for board field #8: " + r8);
 
 		// Rectangle #9
-		Rectangle r9 = new Rectangle(brPoint.getX(), brPoint.getY(), rWidth, rHeight);
+		Rectangle r9 = new Rectangle(brPoint.getX(), brPoint.getY(), this.page.getPageWidth()-brPoint.getX(), this.page.getPageHeight()-brPoint.getY());
 		board.addElement(r9);
 		
 		this.getContainer()
