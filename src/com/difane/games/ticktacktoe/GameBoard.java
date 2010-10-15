@@ -5,6 +5,7 @@ import java.util.Vector;
 import com.difane.games.ticktacktoe.exceptions.GameBoardImpossibleException;
 import com.difane.games.ticktacktoe.exceptions.GameBoardLineException;
 import com.difane.geom.Line;
+import com.livescribe.afp.PageInstance;
 import com.livescribe.afp.Scale;
 import com.livescribe.geom.Point;
 import com.livescribe.geom.PolyLine;
@@ -24,6 +25,8 @@ public class GameBoard {
 	private PolyLine secondVerticalLine;
 	private PolyLine firstHorizontalLine;
 	private PolyLine secondHorizontalLine;
+	
+	private PageInstance page;
 
 	/*
 	 * Lengths for each board line
@@ -386,6 +389,8 @@ public class GameBoard {
 		// If there are no all 4 intersections - board is impossible :)
 		if (null == tlPoint || null == trPoint || null == blPoint
 				|| null == brPoint) {
+			this.getContainer().getLoggerComponent().debug(
+					"[GameBoard] There are less than 4 points of intersections. Board is impossible");
 			throw new GameBoardImpossibleException();
 		}
 
@@ -623,6 +628,54 @@ public class GameBoard {
 	 */
 	public Container getContainer() {
 		return container;
+	}
+
+	/**
+	 * @param page
+	 *            the page to set
+	 * @return True, if all is ok and current page can be used, false, if page was changed
+	 */
+	public boolean setPage(PageInstance page) {
+		if (null == this.page) {
+			this
+				.getContainer()
+				.getLoggerComponent()
+				.debug(
+						"[GameBoard] Page instance was set for first time. Now current page will be used as page for complete game");
+			this.page = page;
+			return true;
+		} else {
+			this
+				.getContainer()
+				.getLoggerComponent()
+				.debug(
+						"[GameBoard] New Page instance was set ("+page.getPageAddress()+"). Comparing it with previous one");
+			
+			if(this.page.getPageAddress() != page.getPageAddress())
+			{
+				this
+					.getContainer()
+					.getLoggerComponent()
+					.info(
+							"[GameBoard] New page ("+page.getPageAddress()+") was different from previous ("+this.page.getPageAddress()+")");
+				return false;
+			}
+			else
+			{
+				this.getContainer().getLoggerComponent().debug(
+						"[GameBoard] Page does not changed");
+
+				return true;
+			}
+		}
+
+	}
+
+	/**
+	 * @return the page
+	 */
+	public PageInstance getPage() {
+		return page;
 	}
 
 }
