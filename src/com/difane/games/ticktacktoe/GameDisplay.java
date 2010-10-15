@@ -169,6 +169,16 @@ public class GameDisplay {
 				true);
 
 	}
+	
+	/**
+	 * Displays, that first vertical line was drawed incorrectly
+	 */
+	public void displayErrorPageChanged() {
+		displayMessage(
+				"You have changed a page. Please continue on the page, when You started.",
+				true);
+		
+	}
 
 	/**
 	 * Displays message about game end
