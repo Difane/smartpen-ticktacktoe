@@ -863,7 +863,15 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			PageInstance pageInstance) {
 		this.getContainer().getLoggerComponent().debug(
 				"[GameFSM] New stroke was created. Current state: "
-						+ this.currentState);
+						+ this.currentState+". Page: "+pageInstance);
+		
+		if (false == this.getContainer().getGameBoardComponent().setPage(pageInstance))
+		{
+			this.getContainer().getLoggerComponent().info(
+					"[GameFSM] Page has been changed");
+			this.getContainer().getGameDisplayComponent().displayErrorPageChanged();
+			return;
+		}
 
 		PolyLine line = null;
 
