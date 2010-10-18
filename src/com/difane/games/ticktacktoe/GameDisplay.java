@@ -2,6 +2,7 @@ package com.difane.games.ticktacktoe;
 
 import java.util.Vector;
 
+import com.difane.games.ticktacktoe.exceptions.GameBoardLineException;
 import com.livescribe.display.BrowseList;
 import com.livescribe.display.Display;
 import com.livescribe.display.Graphics;
@@ -157,38 +158,67 @@ public class GameDisplay {
 
 	/**
 	 * Displays, that second horizontal line was drawed incorrectly
+	 * @param reason 
 	 */
-	public void displayErrorDrawSecondHorizontalLine() {
-		displayMessage(
-				"Second horizontal line is invalid. Please try again or read game help.",
-				true);
+	public void displayErrorDrawSecondHorizontalLine(int reason) {
+		displayErrorDrawLine(reason);
+	}
+
+	private void displayErrorDrawLine(int reason) {
+		String message = "";
+		
+		switch (reason) {
+		case GameBoardLineException.REASON_LINE_IS_NOT_HORIZONTAL:
+			message = "Line is not horizontal. ";
+			break;
+		case GameBoardLineException.REASON_LINE_IS_NOT_VERTICAL:
+			message = "Line is not vertical. ";
+			break;
+		case GameBoardLineException.REASON_LINE_TO_SHORT:
+			message = "Line is too short. ";
+			break;
+		case GameBoardLineException.REASON_MUST_BE_AT_THE_RIGHT:
+			message = "Line must be at the right of previous one. ";
+			break;
+		case GameBoardLineException.REASON_MUST_BE_AT_THE_BOTTOM:
+			message = "Line must be at the bottom of previous one. ";
+			break;
+		case GameBoardLineException.REASON_MUST_BE_NEAR_THE_OTHER_LINES:
+			message = "Line must be near the other line. ";
+			break;
+		case GameBoardLineException.REASON_MUST_CROSS_BOTH_VERTICAL_LINES:
+			message = "Line must cross both vertical lines. ";
+			break;
+		default:
+			break;
+		}
+		
+		message += "Please try again or read game help.";
+		displayMessage(message, true);
 	}
 
 	/**
 	 * Displays, that first horizontal line was drawed incorrectly
+	 * @param reason 
 	 */
-	public void displayErrorDrawFirstHorizontalLine() {
-		displayMessage(
-				"First horizontal line is invalid. Please try again or read game help.",
-				true);
+	public void displayErrorDrawFirstHorizontalLine(int reason) {
+		displayErrorDrawLine(reason);
 	}
 
 	/**
 	 * Displays, that second vertical line was drawed incorrectly
+	 * @param reason 
 	 */
-	public void displayErrorDrawSecondVerticalLine() {
-		displayMessage(
-				"Second vertical line is invalid. Please try again or read game help.",
-				true);
+	public void displayErrorDrawSecondVerticalLine(int reason) {
+		displayErrorDrawLine(reason);
 	}
 
 	/**
 	 * Displays, that first vertical line was drawed incorrectly
+	 * @param reason 
 	 */
-	public void displayErrorDrawFirstVerticalLine() {
-		displayMessage(
-				"First vertical line is invalid. Please try again or read game help.",
-				true);
+	public void displayErrorDrawFirstVerticalLine(int reason) {
+		displayErrorDrawLine(reason);
 
 	}
 	
