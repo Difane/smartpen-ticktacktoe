@@ -78,6 +78,8 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 	static public final int NEXT_EVENT_GAME_END_PEN_WINS = 4;
 	static public final int NEXT_EVENT_GAME_END_DRAW = 5;
 	static public final int NEXT_EVENT_END = 6;
+	
+	
 
 	/**
 	 * Constructor
@@ -802,8 +804,8 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				}
 				break;
 			case FSM_STATE_GAME_END_HUMAN_WINS:
-				
-				this.getContainer().getSoundManagerComponent().playYouWin(false);
+				// Add corresponded pause
+				this.getContainer().getSoundManagerComponent().playYouWin(true);
 				
 				this.getContainer().getGameDisplayComponent()
 						.displayHumanWins();
@@ -829,6 +831,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_END:
+				this.getContainer().getSoundManagerComponent().playToStartNewGameStartDrawingNewBoard(false);
 				this.getContainer().getGameDisplayComponent().displayEnd();
 				this.getContainer().getLoggerComponent().debug(
 						"[GameFSM] Game end reached");
@@ -996,8 +999,16 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
 						"GameBoardLineException. Reason: "+e.getReason());
+				
+				this.getContainer().getGameDisplayComponent().cancelTask();
+				
 				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawFirstVerticalLine();
+					.displayErrorDrawFirstVerticalLine(e.getReason());
+				
+				playErrorDrawLineOrSleep(e);
+				
+				this.getContainer().getGameDisplayComponent().displayDrawFirstVerticalLine(true);
+				
 			} 
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
 			try {
@@ -1017,8 +1028,12 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
 						"GameBoardLineException. Reason: "+e.getReason());
+				
+				this.getContainer().getGameDisplayComponent().cancelTask();
 				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondVerticalLine();
+						.displayErrorDrawSecondVerticalLine(e.getReason());
+				playErrorDrawLineOrSleep(e);
+				this.getContainer().getGameDisplayComponent().displayDrawSecondVerticalLine(true);
 			} 
 		} else if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
 			try {
@@ -1038,8 +1053,13 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
 						"GameBoardLineException. Reason: "+e.getReason());
+				
+				this.getContainer().getGameDisplayComponent().cancelTask();
 				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawFirstHorizontalLine();
+						.displayErrorDrawFirstHorizontalLine(e.getReason());
+				playErrorDrawLineOrSleep(e);
+				
+				this.getContainer().getGameDisplayComponent().displayDrawFirstHorizontalLine(true);
 			} 
 		} else if (currentState == FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE) {
 			try {
@@ -1060,18 +1080,37 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			} catch (GameBoardLineException e) {
 				this.getContainer().getLoggerComponent().error(
 						"GameBoardLineException. Reason: "+e.getReason());
+				this.getContainer().getGameDisplayComponent().cancelTask();
 				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondHorizontalLine();
+						.displayErrorDrawSecondHorizontalLine(e.getReason());
+				playErrorDrawLineOrSleep(e);
+				this.getContainer().getGameDisplayComponent().displayDrawSecondHorizontalLine(true);
 			} catch (GameBoardImpossibleException e) {
 				this.getContainer().getLoggerComponent().error(
 						"GameBoardImpossibleException");
 				this.getContainer().getGameDisplayComponent()
-						.displayErrorDrawSecondHorizontalLine();
+						.displayErrorDrawSecondHorizontalLine(-1);
 			} 
 		} else if (currentState == FSM_STATE_GAME_HUMAN_TURN) {
 			this.icrContext.addStroke(pageInstance, time);
 			this.getContainer().getLoggerComponent().debug(
 					"[GameFSM] StrokeCreated. Stroke was added to ICR context");
+		}
+	}
+
+	private void playErrorDrawLineOrSleep(GameBoardLineException e) {
+		if(isMuted())
+		{					
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e1) {
+				this.getContainer().getLoggerComponent().error(e1.getMessage());
+			}
+		}
+		else
+		{
+			this.getContainer().getSoundManagerComponent()
+					.playErrorDrawLine(e.getReason());
 		}
 	}
 
@@ -1317,5 +1356,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 	 */
 	public Container getContainer() {
 		return container;
+	}
+	
+	public boolean isMuted() {
+		return this.getContainer().getPenletComponent().getContext()
+				.getSystemConfiguration().isMuted();
 	}
 }
