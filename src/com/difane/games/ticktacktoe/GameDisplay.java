@@ -442,7 +442,7 @@ public class GameDisplay {
 		if (lineVisible) {
 			this.drawFirstVerticalLine();
 		}
-		this.graphics.drawString("First line", 25, 2, 0);
+		this.graphics.drawString("1st vertical line", 20, 2, 0);
 		this.displayDrawing(true);
 	}
 	
@@ -452,7 +452,7 @@ public class GameDisplay {
 		if (lineVisible) {
 			this.drawSecondVerticalLine();
 		}
-		this.graphics.drawString("Second line", 25, 2, 0);
+		this.graphics.drawString("2nd vertical line", 20, 2, 0);
 		this.displayDrawing(true);
 	}
 	
@@ -463,7 +463,7 @@ public class GameDisplay {
 		if (lineVisible) {
 			this.drawFirstHorizontalLine();
 		}
-		this.graphics.drawString("Third line", 25, 2, 0);
+		this.graphics.drawString("1st horiz. line", 22, 2, 0);
 		this.displayDrawing(true);
 	}
 	
@@ -475,7 +475,7 @@ public class GameDisplay {
 		if (lineVisible) {
 			this.drawSecondHorizontalLine();
 		}
-		this.graphics.drawString("Fourth line", 25, 2, 0);
+		this.graphics.drawString("2nd horiz. line", 22, 2, 0);
 		this.displayDrawing(true);
 	}
 	
