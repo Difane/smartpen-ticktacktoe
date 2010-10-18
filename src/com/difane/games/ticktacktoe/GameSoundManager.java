@@ -93,6 +93,8 @@ public class GameSoundManager {
 		this.resources.put("to-start-new-game-start-drawing", getSoundResourceByName("to-start-new-game-start-drawing"));
 		this.resources.put("line-is-not-horizontal", getSoundResourceByName("line-is-not-horizontal"));
 		
+		this.resources.put("SL_CA", getSoundResourceByName("SL_CA"));
+		
 		this.getContainer().getLoggerComponent().debug(
 				"[GameSound] Component initialized");
 	}
@@ -242,5 +244,9 @@ public class GameSoundManager {
 			break;
 		}
 		
+	}
+	
+	public void playPenTurnReady() {
+		playSoundByName("SL_CA", false);
 	}
 }
