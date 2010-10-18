@@ -312,6 +312,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 		this.getContainer().getLoggerComponent().debug(
 				"[GameFSM] eventPlayerSelectedHumanTurnNext received");
 		if (currentState == FSM_STATE_GAME_SELECT_PLAYER_ORDER) {
+			
+			// Play sound for menu item
+			this.getContainer().getSoundManagerComponent().playYourTurn(false);
+			
 			this.getContainer().getGameDisplayComponent()
 					.displayHumanStartsGame();
 			try {
@@ -453,6 +457,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				if (currentState == FSM_STATE_START
 						|| currentState == FSM_STATE_LEVEL_MENU_EASY
 						|| currentState == FSM_STATE_LEVEL_MENU_HARD) {
+					
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuStartGame(false);
+					
 					// Select "Help" in the main menu, if not selected
 					this.getContainer().getGameDisplayComponent()
 							.selectMainMenuItemIfNotSelected(0);
@@ -467,6 +475,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 									"[GameFSM] Main menu was displayed with active item 0");
 
 				} else if (currentState == FSM_STATE_MAIN_MENU_HELP) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuStartGame(false);
+					
 					// Main menu must be focused to the previous item
 					this.getContainer().getGameDisplayComponent()
 							.focusMainMenuToPrevious();
@@ -476,12 +487,16 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_MAIN_MENU_HELP:
 				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuHelp(false);
 					// Main menu must be focused to the next item
 					this.getContainer().getGameDisplayComponent()
 							.focusMainMenuToNext();
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Main menu item 1 was activated");
 				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuHelp(false);
 					// Main menu must be focused to the previous item
 					this.getContainer().getGameDisplayComponent()
 							.focusMainMenuToPrevious();
@@ -490,6 +505,8 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				} else if (currentState == FSM_STATE_HELP_MENU_RULES
 						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD
 						|| currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuHelp(false);
 					// Select "Help" in the main menu, if not selected
 					this.getContainer().getGameDisplayComponent()
 							.selectMainMenuItemIfNotSelected(1);
@@ -506,12 +523,16 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_MAIN_MENU_ABOUT:
 				if (currentState == FSM_STATE_MAIN_MENU_HELP) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuAbout(false);
 					// Main menu must be focused to the next item
 					this.getContainer().getGameDisplayComponent()
 							.focusMainMenuToNext();
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Main menu item 2 was activated");
 				} else if (currentState == FSM_STATE_MAIN_MENU_ABOUT_DISPLAYED) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playMainMenuAbout(false);
 					// Select "About" in the main menu, if not selected
 					this.getContainer().getGameDisplayComponent()
 							.selectMainMenuItemIfNotSelected(2);
@@ -536,6 +557,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_LEVEL_MENU_EASY:
 				if (currentState == FSM_STATE_MAIN_MENU_START_GAME) {
+					
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playEasy(false);
+					
 					// Select "Easy" in the level select menu, if not selected
 					this.getContainer().getGameDisplayComponent()
 							.selectLevelSelectMenuItemIfNotSelected(0);
@@ -546,6 +571,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Level select menu was displayed");
 				} else if (currentState == FSM_STATE_LEVEL_MENU_HARD) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playEasy(false);
+					
 					// Main menu must be focused to the next item
 					this.getContainer().getGameDisplayComponent()
 							.focusLevelSelectMenuToPrevious();
@@ -555,6 +583,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_LEVEL_MENU_HARD:
 				if (currentState == FSM_STATE_LEVEL_MENU_EASY) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHard(false);
+					
 					this.getContainer().getGameDisplayComponent()
 							.focusLevelSelectMenuToNext();
 					this.getContainer().getLoggerComponent().debug(
@@ -564,6 +595,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			case FSM_STATE_HELP_MENU_RULES:
 				if (currentState == FSM_STATE_MAIN_MENU_HELP
 						|| currentState == FSM_STATE_HELP_MENU_RULES_DISPLAYED) {
+					
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuRules(false);
+					
 					// Select "Rules" in the help menu, if not selected
 					this.getContainer().getGameDisplayComponent()
 							.selectHelpMenuItemIfNotSelected(0);
@@ -574,6 +609,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuRules(false);
+					
 					// Help menu must be focused to the previous item
 					this.getContainer().getGameDisplayComponent()
 							.focusHelpMenuToPrevious();
@@ -583,6 +621,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD_DISPLAYED) {
+					
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuHowToDrawGameBoard(false);
+					
 					// Select "How to draw board" in the help menu, if not
 					// selected
 					this.getContainer().getGameDisplayComponent()
@@ -594,12 +636,18 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_RULES) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuHowToDrawGameBoard(false);
+					
 					// Help menu must be focused to the next item
 					this.getContainer().getGameDisplayComponent()
 							.focusHelpMenuToNext();
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Help menu item 1 was activated");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY) {
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuHowToDrawGameBoard(false);
+					
 					// Help menu must be focused to the next item
 					this.getContainer().getGameDisplayComponent()
 							.focusHelpMenuToPrevious();
@@ -609,6 +657,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
 				if (currentState == FSM_STATE_HELP_MENU_HOW_TO_PLAY_DISPLAYED) {
+					
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuHowToPlayTheGame(false);
+					
 					// Select "How to play" in the help menu, if not selected
 					this.getContainer().getGameDisplayComponent()
 							.selectHelpMenuItemIfNotSelected(2);
@@ -619,6 +671,10 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 					this.getContainer().getLoggerComponent().debug(
 							"[GameFSM] Help menu was displayed");
 				} else if (currentState == FSM_STATE_HELP_MENU_HOW_TO_DRAW_BOARD) {
+					
+					// Play sound for menu item
+					this.getContainer().getSoundManagerComponent().playHelpMenuHowToPlayTheGame(false);
+					
 					// Help menu must be focused to the next item
 					this.getContainer().getGameDisplayComponent()
 							.focusHelpMenuToNext();
@@ -654,6 +710,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				if (currentState == FSM_STATE_LEVEL_MENU_EASY
 						|| currentState == FSM_STATE_LEVEL_MENU_HARD
 						|| currentState == FSM_STATE_END) {
+					
+					this.getContainer().getSoundManagerComponent().playDrawFirstVerticalLine(false);
+					
 					this.getContainer().getGameDisplayComponent()
 							.displayDrawFirstVerticalLine(true);
 					this.getContainer().getLoggerComponent().debug(
@@ -662,6 +721,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_VERTICAL_LINE) {
+					
+					this.getContainer().getSoundManagerComponent().playDrawSecondVerticalLine(false);
+					
 					this.getContainer().getGameDisplayComponent()
 							.displayDrawSecondVerticalLine(true);
 					this
@@ -673,6 +735,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_SECOND_VERTICAL_LINE) {
+					
+					this.getContainer().getSoundManagerComponent().playDrawFirstHorizontalLine(false);
+					
 					this.getContainer().getGameDisplayComponent()
 							.displayDrawFirstHorizontalLine(true);
 					this
@@ -684,6 +749,8 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				break;
 			case FSM_STATE_DRAW_BOARD_SECOND_HORIZONTAL_LINE:
 				if (currentState == FSM_STATE_DRAW_BOARD_FIRST_HORIZONTAL_LINE) {
+					this.getContainer().getSoundManagerComponent().playDrawSecondHorizontalLine(false);
+					
 					this.getContainer().getGameDisplayComponent()
 							.displayDrawSecondHorizontalLine(true);
 					this
@@ -735,6 +802,9 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				}
 				break;
 			case FSM_STATE_GAME_END_HUMAN_WINS:
+				
+				this.getContainer().getSoundManagerComponent().playYouWin(false);
+				
 				this.getContainer().getGameDisplayComponent()
 						.displayHumanWins();
 				this.getContainer().getLoggerComponent().debug(
@@ -743,6 +813,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_PEN_WINS:
+				this.getContainer().getSoundManagerComponent().playPenWins(false);
 				this.getContainer().getGameDisplayComponent().displayPenWins();
 				this.getContainer().getLoggerComponent().debug(
 						"[GameFSM] Pen wins was displayed");
@@ -750,6 +821,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_DRAW:
+				this.getContainer().getSoundManagerComponent().playDraw(false);
 				this.getContainer().getGameDisplayComponent().displayDraw();
 				this.getContainer().getLoggerComponent().debug(
 						"[GameFSM] Draw was displayed");
