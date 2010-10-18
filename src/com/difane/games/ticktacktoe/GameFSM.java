@@ -361,6 +361,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 		this.getContainer().getLoggerComponent().debug(
 				"[GameFSM] eventPenTurnReady received");
 		if (currentState == FSM_STATE_GAME_PEN_TURN) {
+			this.getContainer().getSoundManagerComponent().playPenTurnReady();
 			this.transition(currentState, FSM_STATE_GAME_HUMAN_TURN);
 		}
 	}
