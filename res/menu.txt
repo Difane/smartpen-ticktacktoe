@@ -1,5 +1,5 @@
-#Livescribe menu setting
-#Fri Aug 20 14:41:43 EEST 2010
-appclassname=com.difane.games.ticktacktoe.BasePenlet
 name=Tick-Tack-Toe
-sound=
+appclassname=com.difane.games.ticktacktoe.BasePenlet
+type=APP
+sound=/audio/tick-tack-toe.wv
+icon=
