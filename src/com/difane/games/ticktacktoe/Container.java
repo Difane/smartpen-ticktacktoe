@@ -84,6 +84,15 @@ public class Container {
 		
 		return (GameDisplay)components.get("gamedisplay");
 	}
+	
+	public GameSoundManager getSoundManagerComponent() {
+		if(false == components.containsKey("gamesoundmanager"))
+		{
+			components.put("gamesoundmanager", new GameSoundManager(this));
+		}
+		
+		return (GameSoundManager)components.get("gamesoundmanager");
+	}
 
 	public Logger getLoggerComponent() {
 		if(false == components.containsKey("logger"))
