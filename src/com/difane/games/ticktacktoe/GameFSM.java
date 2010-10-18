@@ -321,7 +321,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			this.getContainer().getGameDisplayComponent()
 					.displayHumanStartsGame();
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				// If no sleep will made - it is not error at this time
 			}
@@ -1260,7 +1260,7 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 
 		try {
 			this.icrContext = this.getContainer().getPenletComponent()
-					.getContext().getICRContext(1000, this);
+					.getContext().getICRContext(350, this);
 			Resource[] resources = {
 					this.icrContext.getDefaultAlphabetKnowledgeResource(),
 					this.icrContext
