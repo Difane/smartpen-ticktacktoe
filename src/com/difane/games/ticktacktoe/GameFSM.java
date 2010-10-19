@@ -805,29 +805,31 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 				}
 				break;
 			case FSM_STATE_GAME_END_HUMAN_WINS:
-				// Add corresponded pause
-				this.getContainer().getSoundManagerComponent().playYouWin(true);
-				
+				//TODO: It must be voice message OR sleeping		
 				this.getContainer().getGameDisplayComponent()
 						.displayHumanWins();
 				this.getContainer().getLoggerComponent().debug(
 						"[GameFSM] Human wins was displayed");
+				// Add corresponded pause
+				this.getContainer().getSoundManagerComponent().playYouWin(true);
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_PEN_WINS:
-				this.getContainer().getSoundManagerComponent().playPenWins(false);
+				//TODO: It must be voice message OR sleeping
 				this.getContainer().getGameDisplayComponent().displayPenWins();
 				this.getContainer().getLoggerComponent().debug(
 						"[GameFSM] Pen wins was displayed");
+				this.getContainer().getSoundManagerComponent().playPenWins(false);
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
 			case FSM_STATE_GAME_END_DRAW:
-				this.getContainer().getSoundManagerComponent().playDraw(false);
+				//TODO: It must be voice message OR sleeping
 				this.getContainer().getGameDisplayComponent().displayDraw();
 				this.getContainer().getLoggerComponent().debug(
 						"[GameFSM] Draw was displayed");
+				this.getContainer().getSoundManagerComponent().playDraw(false);
 				Thread.sleep(2000);
 				this.setNextEvent(NEXT_EVENT_END);
 				break;
