@@ -128,6 +128,11 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 		case FSM_STATE_LEVEL_MENU_EASY:
 			transition(currentState, FSM_STATE_LEVEL_MENU_HARD);
 			break;
+		case FSM_STATE_MAIN_MENU_ABOUT:
+		case FSM_STATE_HELP_MENU_HOW_TO_PLAY:
+		case FSM_STATE_LEVEL_MENU_HARD:
+			this.getContainer().getSoundManagerComponent().playEndList();
+			break;
 		default:
 			this.getContainer().getLoggerComponent().warn(
 					"[GameFSM] Unexpected eventMenuDown received");
@@ -158,6 +163,11 @@ public class GameFSM implements StrokeListener, HWRListener, PenTipListener {
 			break;
 		case FSM_STATE_LEVEL_MENU_HARD:
 			transition(currentState, FSM_STATE_LEVEL_MENU_EASY);
+			break;
+		case FSM_STATE_MAIN_MENU_START_GAME:
+		case FSM_STATE_HELP_MENU_RULES:
+		case FSM_STATE_LEVEL_MENU_EASY:
+			this.getContainer().getSoundManagerComponent().playEndList();
 			break;
 		default:
 			this.getContainer().getLoggerComponent().warn(

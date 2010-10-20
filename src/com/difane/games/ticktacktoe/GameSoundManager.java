@@ -94,6 +94,7 @@ public class GameSoundManager {
 		this.resources.put("line-is-not-horizontal", getSoundResourceByName("line-is-not-horizontal"));
 		
 		this.resources.put("SL_CA", getSoundResourceByName("SL_CA"));
+		this.resources.put("SL_EndList", getSoundResourceByName("SL_EndList"));
 		
 		this.getContainer().getLoggerComponent().debug(
 				"[GameSound] Component initialized");
@@ -248,5 +249,9 @@ public class GameSoundManager {
 	
 	public void playPenTurnReady() {
 		playSoundByName("SL_CA", false);
+	}
+	
+	public void playEndList() {
+		playSoundByName("SL_EndList", false);
 	}
 }
